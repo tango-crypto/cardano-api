@@ -1,7 +1,7 @@
 {
-  "name": "tango-api-backend",
+  "name": "cardano-api",
   "version": "0.0.1",
-  "description": "",
+  "description": "Cardano Http API",
   "author": "",
   "private": true,
   "license": "UNLICENSED",

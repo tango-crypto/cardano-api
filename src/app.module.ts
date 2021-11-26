@@ -34,7 +34,7 @@ console.log('ENV:', ENV);
     }),
     WebhooksModule
   ],
-  controllers: [EpochsController, PoolsController, AddressesController, AssetsController, BlocksController, TransactionsController, WalletsController],
-  providers: [EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService],
+  controllers: [AppController, EpochsController, PoolsController, AddressesController, AssetsController, BlocksController, TransactionsController, WalletsController],
+  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService],
 })
 export class AppModule {}
