@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PostgresClient } from 'tango-ledger';
+import { PostgresClient } from '@tango-crypto/tango-ledger';
 
 
 @Injectable()

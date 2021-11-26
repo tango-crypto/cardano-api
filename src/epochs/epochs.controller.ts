@@ -1,5 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { EpochParameters } from 'tango-ledger';
+import { EpochParameters } from '@tango-crypto/tango-ledger';
 import { EpochsService } from './epochs.service';
 
 @Controller(':accountId/epochs')

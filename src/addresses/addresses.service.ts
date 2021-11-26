@@ -3,7 +3,7 @@ import { APIError } from 'src/common/errors';
 import { Utils } from 'src/common/utils';
 import { AddressDetail } from 'src/models/AddressDetail';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
-import { Transaction, Utxo, Asset } from 'tango-ledger';
+import { Transaction, Utxo, Asset } from '@tango-crypto/tango-ledger';
 
 @Injectable()
 export class AddressesService {
@@ -20,10 +20,10 @@ export class AddressesService {
 				ada += utxo.value - 0;
 				assets.push(...utxo.assets);
 			}
-			return { 
+			return {
 				network,
-				address, 
-				stake_address, 
+				address,
+				stake_address,
 				ada,
 				assets
 			};

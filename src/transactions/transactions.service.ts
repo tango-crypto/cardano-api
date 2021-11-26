@@ -2,8 +2,8 @@ import { hash_transaction, Transaction as SerializeTransaction } from '@emurgo/c
 import { Injectable } from '@nestjs/common';
 import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
-import { Metadata, Transaction, Utxo } from 'tango-ledger';
-import { SQSClient, SendMessageCommand, SendMessageCommandInput } from "@aws-sdk/client-sqs"; 
+import { Metadata, Transaction, Utxo } from '@tango-crypto/tango-ledger';
+import { SQSClient, SendMessageCommand, SendMessageCommandInput } from "@aws-sdk/client-sqs";
 import { fromIni } from '@aws-sdk/credential-provider-ini';
 import { ConfigService } from '@nestjs/config';
 
@@ -11,13 +11,13 @@ const client = new SQSClient({ region: "us-west-1", credentials: fromIni({profil
 @Injectable()
 export class TransactionsService {
 	constructor(private readonly ledger: TangoLedgerService, private readonly configService: ConfigService) {}
-	
+
 	async get(txHash: string): Promise<Transaction> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
 		let tx = await this.ledger.dbClient.getTransaction(txHash);
 		if (!tx) {
 			throw APIError.notFound(`transaction: ${txHash}`);
-		} 
+		}
 		return tx;
 	}
 

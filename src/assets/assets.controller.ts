@@ -1,5 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { Asset } from 'tango-ledger';
+import { Asset } from '@tango-crypto/tango-ledger';
 
 import { AssetsService } from './assets.service';
 

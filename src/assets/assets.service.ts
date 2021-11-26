@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
-import { Asset } from 'tango-ledger';
+import { Asset } from '@tango-crypto/tango-ledger';
 
 @Injectable()
 export class AssetsService {
