@@ -1,0 +1,12 @@
+version: '3'
+services:
+  cardano-api:
+    build:
+      context: .
+      target: build
+      args:
+        NPM_TOKEN: ${NPM_TOKEN}
+    command: npm run start:dev
+    environment:
+      NPM_TOKEN: ${NPM_TOKEN}
+    env_file: .env
