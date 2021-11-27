@@ -78,9 +78,9 @@
             }
         }
     ],
-    "family": "testing",
-    "taskRoleArn": "testingEcsTaskExecutionRole",
-    "executionRoleArn": "testingEcsTaskExecutionRole",
+    "family": "cardano-api",
+    "taskRoleArn": "cardanoApiTaskExecutionProd",
+    "executionRoleArn": "cardanoApiTaskExecutionProd",
     "volumes": [],
     "placementConstraints": [],
     "requiresCompatibilities": [
