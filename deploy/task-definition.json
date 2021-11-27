@@ -13,7 +13,12 @@
                 }
               ],
             "essential": true,
-            "environment": [],
+            "environment": [
+                {
+                    "name": "NETWORK",
+                    "value": "testnet"
+                }
+            ],
             "mountPoints": [],
             "volumesFrom": [],
             "secrets": [
@@ -56,10 +61,6 @@
                 {
                     "name": "DYNAMO_DB_ACCOUNT_TABLE_NAME",
                     "valueFrom": "/v1/api/db/table"
-                },
-                {
-                    "name": "NETWORK",
-                    "value": "testnet"
                 }
             ],
             "user": "node",
