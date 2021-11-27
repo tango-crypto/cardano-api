@@ -20,21 +20,16 @@ import { StakesService } from './wallets/stakes.service';
 import { AutomapperModule } from '@automapper/nestjs';
 import { classes } from '@automapper/classes';
 import { WebhooksModule } from './webhooks/webhooks.module';
-
-const ENV = process.env.NETWORK || 'testnet';
-console.log('ENV:', ENV);
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: `.env.${ENV}`
-    }),
+    ConfigModule.forRoot(),
     AutomapperModule.forRoot({
       options: [{ name: 'mapper', pluginInitializer: classes }],
       singular: true,
     }),
     WebhooksModule
   ],
-  controllers: [EpochsController, PoolsController, AddressesController, AssetsController, BlocksController, TransactionsController, WalletsController],
-  providers: [EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService],
+  controllers: [AppController, EpochsController, PoolsController, AddressesController, AssetsController, BlocksController, TransactionsController, WalletsController],
+  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService],
 })
 export class AppModule {}
