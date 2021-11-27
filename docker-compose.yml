@@ -10,3 +10,12 @@ services:
     environment:
       NPM_TOKEN: ${NPM_TOKEN}
     env_file: .env
+    ports:
+      - target: 3000
+        published: 3000
+        protocol: tcp
+        mode: host
+    volumes:
+      - type: bind
+        source: .
+        target: /opt/node_app/app
