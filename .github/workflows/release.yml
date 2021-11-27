@@ -8,7 +8,7 @@ on:
 
 env:
   IMAGE_NAME: ${{ github.event.repository.name }}
-  CLUSTER_NAME: "testing"
+  CLUSTER_NAME: "cardano-prod"
   SERVICE_NAME: "cardano-api"
   CONTAINER_NAME: "cardano-api"
 
