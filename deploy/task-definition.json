@@ -1,0 +1,88 @@
+{
+    "containerDefinitions": [
+        {
+            "name": "cardano-api",
+            "cpu": 256,
+            "memory": 500,
+            "memoryReservation": 300,
+            "portMappings": [
+                {
+                  "hostPort": 0,
+                  "protocol": "tcp",
+                  "containerPort": 5000
+                }
+              ],
+            "essential": true,
+            "environment": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "AWS_ACCOUNT_ID",
+                    "valueFrom": "/v1/aws/acount_id"
+                },
+                {
+                    "name": "AWS_REGION",
+                    "valueFrom": "/v1/aws/region"
+                },
+                {
+                    "name": "DB_DEBUG",
+                    "valueFrom": "/v1/db/testnet/debug"
+                },
+                {
+                    "name": "DB_HOST",
+                    "valueFrom": "/v1/db/testnet/host"
+                },
+                {
+                    "name": "DB_NAME",
+                    "valueFrom": "/v1/db/testnet/name"
+                },
+                {
+                    "name": "DB_PORT",
+                    "valueFrom": "/v1/db/testnet/port"
+                },
+                {
+                    "name": "DB_PWD",
+                    "valueFrom": "/v1/db/testnet/pwd"
+                },
+                {
+                    "name": "DB_USER",
+                    "valueFrom": "/v1/db/testnet/user"
+                },
+                {
+                    "name": "QUEUE_NAME",
+                    "valueFrom": "/v1/cardano-submit/queue"
+                },
+                {
+                    "name": "DYNAMO_DB_ACCOUNT_TABLE_NAME",
+                    "valueFrom": "/v1/api/db/table"
+                },
+                {
+                    "name": "NETWORK",
+                    "value": "testnet"
+                }
+            ],
+            "user": "node",
+            "readonlyRootFilesystem": true,
+            "dockerLabels": {
+                "Name": "testing"
+            },
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/testing",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ],
+    "family": "testing",
+    "taskRoleArn": "testingEcsTaskExecutionRole",
+    "executionRoleArn": "testingEcsTaskExecutionRole",
+    "volumes": [],
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+        "EC2"
+    ]
+}
