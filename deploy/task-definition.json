@@ -17,6 +17,10 @@
                 {
                     "name": "NETWORK",
                     "value": "testnet"
+                },
+                {
+                    "name": "PORT",
+                    "value": "5000"
                 }
             ],
             "mountPoints": [],
