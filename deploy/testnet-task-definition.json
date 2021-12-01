@@ -82,9 +82,9 @@
             }
         }
     ],
-    "family": "cardano-api",
-    "taskRoleArn": "cardanoApiTaskExecutionProd",
-    "executionRoleArn": "cardanoApiTaskExecutionProd",
+    "family": "cardano-api-testnet",
+    "taskRoleArn": "cardanoApiTestnetTaskExecutionStaging",
+    "executionRoleArn": "cardanoApiTestnetTaskExecutionStaging",
     "volumes": [],
     "placementConstraints": [],
     "requiresCompatibilities": [

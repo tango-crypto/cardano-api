@@ -8,8 +8,8 @@ on:
 
 env:
   IMAGE_NAME: ${{ github.event.repository.name }}
-  CLUSTER_NAME: "cardano-prod"
-  SERVICE_NAME: "cardano-api"
+  CLUSTER_NAME: "cardano-staging"
+  SERVICE_NAME: "cardano-api-testnet"
   CONTAINER_NAME: "cardano-api"
 
 jobs:
@@ -79,7 +79,7 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: deploy/task-definition.json
+          task-definition: deploy/testnet-task-definition.json
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
 
