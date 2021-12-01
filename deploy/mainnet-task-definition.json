@@ -16,7 +16,7 @@
             "environment": [
                 {
                     "name": "NETWORK",
-                    "value": "testnet"
+                    "value": "mainnet"
                 },
                 {
                     "name": "PORT",
@@ -36,27 +36,27 @@
                 },
                 {
                     "name": "DB_DEBUG",
-                    "valueFrom": "/v1/db/testnet/debug"
+                    "valueFrom": "/v1/db/mainnet/debug"
                 },
                 {
                     "name": "DB_HOST",
-                    "valueFrom": "/v1/db/testnet/host"
+                    "valueFrom": "/v1/db/mainnet/host"
                 },
                 {
                     "name": "DB_NAME",
-                    "valueFrom": "/v1/db/testnet/name"
+                    "valueFrom": "/v1/db/mainnet/name"
                 },
                 {
                     "name": "DB_PORT",
-                    "valueFrom": "/v1/db/testnet/port"
+                    "valueFrom": "/v1/db/mainnet/port"
                 },
                 {
                     "name": "DB_PWD",
-                    "valueFrom": "/v1/db/testnet/pwd"
+                    "valueFrom": "/v1/db/mainnet/pwd"
                 },
                 {
                     "name": "DB_USER",
-                    "valueFrom": "/v1/db/testnet/user"
+                    "valueFrom": "/v1/db/mainnet/user"
                 },
                 {
                     "name": "QUEUE_NAME",
@@ -82,7 +82,7 @@
             }
         }
     ],
-    "family": "cardano-api-testnet",
+    "family": "cardano-api-mainnet",
     "taskRoleArn": "cardanoTaskExecutionStaging",
     "executionRoleArn": "cardanoTaskExecutionStaging",
     "volumes": [],
