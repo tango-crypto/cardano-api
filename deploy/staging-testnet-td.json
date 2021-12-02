@@ -28,43 +28,43 @@
             "secrets": [
                 {
                     "name": "AWS_ACCOUNT_ID",
-                    "valueFrom": "/v1/aws/acount_id"
+                    "valueFrom": "/staging/v1/aws/acount_id"
                 },
                 {
                     "name": "AWS_REGION",
-                    "valueFrom": "/v1/aws/region"
+                    "valueFrom": "/staging/v1/aws/region"
                 },
                 {
                     "name": "DB_DEBUG",
-                    "valueFrom": "/v1/db/testnet/debug"
+                    "valueFrom": "/staging/v1/db/testnet/debug"
                 },
                 {
                     "name": "DB_HOST",
-                    "valueFrom": "/v1/db/testnet/host"
+                    "valueFrom": "/staging/v1/db/testnet/host"
                 },
                 {
                     "name": "DB_NAME",
-                    "valueFrom": "/v1/db/testnet/name"
+                    "valueFrom": "/staging/v1/db/testnet/name"
                 },
                 {
                     "name": "DB_PORT",
-                    "valueFrom": "/v1/db/testnet/port"
+                    "valueFrom": "/staging/v1/db/testnet/port"
                 },
                 {
                     "name": "DB_PWD",
-                    "valueFrom": "/v1/db/testnet/pwd"
+                    "valueFrom": "/staging/v1/db/testnet/pwd"
                 },
                 {
                     "name": "DB_USER",
-                    "valueFrom": "/v1/db/testnet/user"
+                    "valueFrom": "/staging/v1/db/testnet/user"
                 },
                 {
                     "name": "QUEUE_NAME",
-                    "valueFrom": "/v1/cardano-submit/queue"
+                    "valueFrom": "/staging/v1/cardano-submit/queue"
                 },
                 {
                     "name": "DYNAMO_DB_ACCOUNT_TABLE_NAME",
-                    "valueFrom": "/v1/api/db/table"
+                    "valueFrom": "/staging/v1/api/db/table"
                 }
             ],
             "user": "node",
@@ -82,7 +82,7 @@
             }
         }
     ],
-    "family": "cardano-api-testnet",
+    "family": "cardano-api-testnet-staging",
     "taskRoleArn": "cardanoTaskExecutionStaging",
     "executionRoleArn": "cardanoTaskExecutionStaging",
     "volumes": [],
