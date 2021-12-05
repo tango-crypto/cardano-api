@@ -16,6 +16,5 @@ services:
         protocol: tcp
         mode: host
     volumes:
-      - type: bind
-        source: .
-        target: /opt/node_app/app
+      - .:/opt/node_app/app/
+      - $HOME/.aws/credentials:/home/node/.aws/credentials
