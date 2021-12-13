@@ -70,7 +70,9 @@
             "user": "node",
             "readonlyRootFilesystem": true,
             "dockerLabels": {
-                "Name": "testing"
+                "Name": "cardano-api-mainnet",
+                "ECS": "cardano-staging",
+                "Env": "staging"
             },
             "logConfiguration": {
                 "logDriver": "awslogs",
