@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
-import { EpochParameters } from 'tango-ledger';
+import { EpochParameters } from '@tango-crypto/tango-ledger';
 @Injectable()
 export class EpochsService {
 	constructor(private readonly ledger: TangoLedgerService) {}

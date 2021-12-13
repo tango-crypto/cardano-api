@@ -1,5 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { Address, Stake } from 'tango-ledger';
+import { Address, Stake } from '@tango-crypto/tango-ledger';
 import { StakesService } from './stakes.service';
 
 @Controller(':accountId/wallets')

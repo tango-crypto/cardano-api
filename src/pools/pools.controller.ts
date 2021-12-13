@@ -1,5 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { Delegation } from 'tango-ledger';
+import { Delegation } from '@tango-crypto/tango-ledger';
 import { PoolsService } from './pools.service';
 
 @Controller(':accountId/pools')

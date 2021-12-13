@@ -1,0 +1,115 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - 'cd'
+      - 'main'
+
+env:
+  IMAGE_NAME: ${{ github.event.repository.name }}
+  CLUSTER_NAME: "cardano-staging"
+  CONTAINER_NAME: "cardano-api"
+
+jobs:
+  build:
+    name: Build, push and deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: all
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.TANGOBOT_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.TANGOBOT_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: tangocrypto-bot
+          password: ${{ secrets.PACKAGES_PAT }}
+
+      - name: Prepare Docker metadata for the images
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,suffix=-{{sha}},event=branch
+            type=semver,pattern={{version}}
+          flavor: |
+            latest=false
+            prefix=
+            suffix=
+
+      # Build and push docker images.
+      # NPM_TOKEN is used to access to private npm packages
+      # in GitHub.
+      - name: Build and push docker images
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          context: .
+          build-args: |
+            "NPM_TOKEN=${{ secrets.PACKAGES_PAT }}"
+          platforms: linux/amd64,linux/arm64
+          file: ./Dockerfile
+          tags: ${{ steps.meta.outputs.tags }}
+
+      # Deploy testnet in staging cluster
+      # - replace image
+      # - deploy service
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def-testnet
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: deploy/staging-testnet-td.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-testnet.outputs.task-definition }}
+          service: cardano-api-testnet
+          cluster: ${{ env.CLUSTER_NAME }}
+          wait-for-service-stability: false
+
+      # Deploy mainnet in staging cluster
+      # - replace image
+      # - deploy service
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def-mainnet
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: deploy/staging-mainnet-td.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-mainnet.outputs.task-definition }}
+          service: cardano-api-mainnet
+          cluster: ${{ env.CLUSTER_NAME }}
+          wait-for-service-stability: false

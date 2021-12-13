@@ -1,0 +1,96 @@
+{
+    "containerDefinitions": [
+        {
+            "name": "cardano-api",
+            "cpu": 256,
+            "memory": 500,
+            "memoryReservation": 300,
+            "portMappings": [
+                {
+                  "hostPort": 5000,
+                  "protocol": "tcp",
+                  "containerPort": 5000
+                }
+              ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "NETWORK",
+                    "value": "mainnet"
+                },
+                {
+                    "name": "PORT",
+                    "value": "5000"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "AWS_ACCOUNT_ID",
+                    "valueFrom": "/prod/v1/aws/acount_id"
+                },
+                {
+                    "name": "AWS_REGION",
+                    "valueFrom": "/prod/v1/aws/region"
+                },
+                {
+                    "name": "DB_DEBUG",
+                    "valueFrom": "/prod/v1/db/mainnet/debug"
+                },
+                {
+                    "name": "DB_HOST",
+                    "valueFrom": "/prod/v1/db/mainnet/host"
+                },
+                {
+                    "name": "DB_NAME",
+                    "valueFrom": "/prod/v1/db/mainnet/name"
+                },
+                {
+                    "name": "DB_PORT",
+                    "valueFrom": "/prod/v1/db/mainnet/port"
+                },
+                {
+                    "name": "DB_PWD",
+                    "valueFrom": "/prod/v1/db/mainnet/pwd"
+                },
+                {
+                    "name": "DB_USER",
+                    "valueFrom": "/prod/v1/db/mainnet/user"
+                },
+                {
+                    "name": "QUEUE_NAME",
+                    "valueFrom": "/prod/v1/cardano-submit/queue"
+                },
+                {
+                    "name": "DYNAMO_DB_ACCOUNT_TABLE_NAME",
+                    "valueFrom": "/prod/v1/api/db/table"
+                }
+            ],
+            "user": "node",
+            "readonlyRootFilesystem": true,
+            "dockerLabels": {
+                "Name": "cardano-api-mainnet",
+                "ECS": "cardano-prod",
+                "Env": "production"
+            },
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/cardano-prod/api/mainnet",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ],
+    "family": "cardano-api-mainnet",
+    "networkMode": "awsvpc",
+    "taskRoleArn": "cardanoTaskExecutionProd",
+    "executionRoleArn": "cardanoTaskExecutionProd",
+    "volumes": [],
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+        "EC2"
+    ]
+}

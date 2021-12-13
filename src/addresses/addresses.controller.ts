@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { AddressDetail } from 'src/models/AddressDetail';
-import { Transaction, Utxo } from 'tango-ledger';
+import { Transaction, Utxo } from '@tango-crypto/tango-ledger';
 import { AddressesService } from './addresses.service';
 
 @Controller(':accountId/addresses')

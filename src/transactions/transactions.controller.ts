@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
-import { Metadata, Transaction, Utxo } from 'tango-ledger';
+import { Metadata, Transaction, Utxo } from '@tango-crypto/tango-ledger';
 import { SubmitTxDto } from './dto/submitTx.dto';
 import { SubmitTxResponseDto } from './dto/submitTxResponse.dto';
 import { TransactionsService } from './transactions.service';
@@ -23,7 +23,7 @@ export class TransactionsController {
 		return this.transactionsService.getMetadata(txHash);
 	}
 
-	@Post('submit') 
+	@Post('submit')
 	@HttpCode(200)
 	async submit(@Param('accountId') userId: string, @Body() submitTx: SubmitTxDto): Promise<SubmitTxResponseDto> {
 		let txId = await this.transactionsService.submit(userId, submitTx.tx);

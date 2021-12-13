@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { BlocksService } from './blocks.service';
-import { Block } from 'tango-ledger';
+import { Block } from '@tango-crypto/tango-ledger';
 
 @Controller(':accountId/blocks')
 export class BlocksController {

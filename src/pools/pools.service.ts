@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
-import { Delegation } from 'tango-ledger';
+import { Delegation } from '@tango-crypto/tango-ledger';
 
 @Injectable()
 export class PoolsService {
@@ -13,5 +13,5 @@ export class PoolsService {
 			throw APIError.notFound(`pool: ${poolId}`);
 		}
 		return delegation
-	} 
+	}
 }

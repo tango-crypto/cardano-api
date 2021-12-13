@@ -40,7 +40,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
-    "tango-ledger": "tango-crypto/tango-ledger",
+    "@tango-crypto/tango-ledger": "^0.0.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

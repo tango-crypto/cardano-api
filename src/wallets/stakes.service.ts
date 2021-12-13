@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
-import { Address, Stake } from 'tango-ledger';
+import { Address, Stake } from '@tango-crypto/tango-ledger';
 
 @Injectable()
 export class StakesService {
@@ -12,7 +12,7 @@ export class StakesService {
 		let stake = await this.ledger.dbClient.getStake(stakeAddress);
 		if (!stake) {
 			throw APIError.notFound(`stake: ${stakeAddress}`);
-		} 
+		}
 		return stake;
 	}
 
