@@ -20,9 +20,14 @@
                 },
                 {
                     "name": "PORT",
-                    "value": "5000"
+                    "value": "3000"
                 }
             ],
+            "ulimits": [{
+                "name": "nofile",
+                "softLimit": 80000,
+                "hardLimit": 80000
+            }],
             "mountPoints": [],
             "volumesFrom": [],
             "secrets": [
@@ -32,7 +37,7 @@
                 },
                 {
                     "name": "AWS_REGION",
-                    "valueFrom": "/staging/v1/aws/region"
+                    "valueFrom": "/v1/aws/region"
                 },
                 {
                     "name": "DB_DEBUG",
