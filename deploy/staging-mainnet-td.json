@@ -20,9 +20,14 @@
                 },
                 {
                     "name": "PORT",
-                    "value": "5000"
+                    "value": "3001"
                 }
             ],
+            "ulimits": [{
+                "name": "nofile",
+                "softLimit": 80000,
+                "hardLimit": 80000
+            }],
             "mountPoints": [],
             "volumesFrom": [],
             "secrets": [
