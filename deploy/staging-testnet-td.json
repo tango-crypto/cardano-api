@@ -7,9 +7,9 @@
             "memoryReservation": 300,
             "portMappings": [
                 {
-                  "hostPort": 5000,
+                  "hostPort": 3000,
                   "protocol": "tcp",
-                  "containerPort": 5000
+                  "containerPort": 3000
                 }
               ],
             "essential": true,
