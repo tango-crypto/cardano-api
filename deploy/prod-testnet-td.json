@@ -7,9 +7,9 @@
             "memoryReservation": 300,
             "portMappings": [
                 {
-                  "hostPort": 5000,
+                  "hostPort": 3000,
                   "protocol": "tcp",
-                  "containerPort": 5000
+                  "containerPort": 3000
                 }
               ],
             "essential": true,
@@ -20,9 +20,14 @@
                 },
                 {
                     "name": "PORT",
-                    "value": "5000"
+                    "value": "3000"
                 }
             ],
+            "ulimits": [{
+                "name": "nofile",
+                "softLimit": 80000,
+                "hardLimit": 80000
+            }],
             "mountPoints": [],
             "volumesFrom": [],
             "secrets": [
@@ -32,7 +37,7 @@
                 },
                 {
                     "name": "AWS_REGION",
-                    "valueFrom": "/prod/v1/aws/region"
+                    "valueFrom": "/v1/aws/region"
                 },
                 {
                     "name": "DB_DEBUG",
