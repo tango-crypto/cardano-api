@@ -2,14 +2,15 @@ name: release
 
 on:
   push:
+    tags:
+      - 'v*'
     branches:
       - 'cd'
       - 'main'
 
 env:
   IMAGE_NAME: ${{ github.event.repository.name }}
-  CLUSTER_NAME: "testing"
-  SERVICE_NAME: "cardano-api"
+  CLUSTER_NAME: "cardano-staging"
   CONTAINER_NAME: "cardano-api"
 
 jobs:
@@ -75,18 +76,40 @@ jobs:
           file: ./Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
 
+      # Deploy testnet in staging cluster
+      # - replace image
+      # - deploy service
       - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
+        id: task-def-testnet
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: deploy/task-definition.json
+          task-definition: deploy/staging-testnet-td.json
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ env.SERVICE_NAME }}
+          task-definition: ${{ steps.task-def-testnet.outputs.task-definition }}
+          service: cardano-api-testnet
+          cluster: ${{ env.CLUSTER_NAME }}
+          wait-for-service-stability: false
+
+      # Deploy mainnet in staging cluster
+      # - replace image
+      # - deploy service
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def-mainnet
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: deploy/staging-mainnet-td.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-mainnet.outputs.task-definition }}
+          service: cardano-api-mainnet
           cluster: ${{ env.CLUSTER_NAME }}
           wait-for-service-stability: false

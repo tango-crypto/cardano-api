@@ -1,0 +1,101 @@
+{
+    "containerDefinitions": [
+        {
+            "name": "cardano-api",
+            "cpu": 256,
+            "memory": 500,
+            "memoryReservation": 300,
+            "portMappings": [
+                {
+                  "hostPort": 3000,
+                  "protocol": "tcp",
+                  "containerPort": 3000
+                }
+              ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "NETWORK",
+                    "value": "testnet"
+                },
+                {
+                    "name": "PORT",
+                    "value": "3000"
+                }
+            ],
+            "ulimits": [{
+                "name": "nofile",
+                "softLimit": 80000,
+                "hardLimit": 80000
+            }],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "AWS_ACCOUNT_ID",
+                    "valueFrom": "/prod/v1/aws/acount_id"
+                },
+                {
+                    "name": "AWS_REGION",
+                    "valueFrom": "/v1/aws/region"
+                },
+                {
+                    "name": "DB_DEBUG",
+                    "valueFrom": "/prod/v1/db/testnet/debug"
+                },
+                {
+                    "name": "DB_HOST",
+                    "valueFrom": "/prod/v1/db/testnet/host"
+                },
+                {
+                    "name": "DB_NAME",
+                    "valueFrom": "/prod/v1/db/testnet/name"
+                },
+                {
+                    "name": "DB_PORT",
+                    "valueFrom": "/prod/v1/db/testnet/port"
+                },
+                {
+                    "name": "DB_PWD",
+                    "valueFrom": "/prod/v1/db/testnet/pwd"
+                },
+                {
+                    "name": "DB_USER",
+                    "valueFrom": "/prod/v1/db/testnet/user"
+                },
+                {
+                    "name": "QUEUE_NAME",
+                    "valueFrom": "/prod/v1/cardano-submit/queue"
+                },
+                {
+                    "name": "DYNAMO_DB_ACCOUNT_TABLE_NAME",
+                    "valueFrom": "/prod/v1/api/db/table"
+                }
+            ],
+            "user": "node",
+            "readonlyRootFilesystem": true,
+            "dockerLabels": {
+                "Name": "cardano-api-testnet",
+                "ECS": "cardano-prod",
+                "Env": "production"
+            },
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/cardano-prod/api/testnet",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ],
+    "family": "cardano-api-testnet",
+    "networkMode": "awsvpc",
+    "taskRoleArn": "cardanoTaskExecutionProd",
+    "executionRoleArn": "cardanoTaskExecutionProd",
+    "volumes": [],
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+        "EC2"
+    ]
+}

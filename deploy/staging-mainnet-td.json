@@ -7,24 +7,33 @@
             "memoryReservation": 300,
             "portMappings": [
                 {
-                  "hostPort": 0,
+                  "hostPort": 3001,
                   "protocol": "tcp",
-                  "containerPort": 5000
+                  "containerPort": 3001
                 }
               ],
             "essential": true,
             "environment": [
                 {
                     "name": "NETWORK",
-                    "value": "testnet"
+                    "value": "mainnet"
+                },
+                {
+                    "name": "PORT",
+                    "value": "3001"
                 }
             ],
+            "ulimits": [{
+                "name": "nofile",
+                "softLimit": 80000,
+                "hardLimit": 80000
+            }],
             "mountPoints": [],
             "volumesFrom": [],
             "secrets": [
                 {
                     "name": "AWS_ACCOUNT_ID",
-                    "valueFrom": "/v1/aws/acount_id"
+                    "valueFrom": "/staging/v1/aws/acount_id"
                 },
                 {
                     "name": "AWS_REGION",
@@ -32,55 +41,58 @@
                 },
                 {
                     "name": "DB_DEBUG",
-                    "valueFrom": "/v1/db/testnet/debug"
+                    "valueFrom": "/staging/v1/db/mainnet/debug"
                 },
                 {
                     "name": "DB_HOST",
-                    "valueFrom": "/v1/db/testnet/host"
+                    "valueFrom": "/staging/v1/db/mainnet/host"
                 },
                 {
                     "name": "DB_NAME",
-                    "valueFrom": "/v1/db/testnet/name"
+                    "valueFrom": "/staging/v1/db/mainnet/name"
                 },
                 {
                     "name": "DB_PORT",
-                    "valueFrom": "/v1/db/testnet/port"
+                    "valueFrom": "/staging/v1/db/mainnet/port"
                 },
                 {
                     "name": "DB_PWD",
-                    "valueFrom": "/v1/db/testnet/pwd"
+                    "valueFrom": "/staging/v1/db/mainnet/pwd"
                 },
                 {
                     "name": "DB_USER",
-                    "valueFrom": "/v1/db/testnet/user"
+                    "valueFrom": "/staging/v1/db/mainnet/user"
                 },
                 {
                     "name": "QUEUE_NAME",
-                    "valueFrom": "/v1/cardano-submit/queue"
+                    "valueFrom": "/staging/v1/cardano-submit/queue"
                 },
                 {
                     "name": "DYNAMO_DB_ACCOUNT_TABLE_NAME",
-                    "valueFrom": "/v1/api/db/table"
+                    "valueFrom": "/staging/v1/api/db/table"
                 }
             ],
             "user": "node",
             "readonlyRootFilesystem": true,
             "dockerLabels": {
-                "Name": "testing"
+                "Name": "cardano-api-mainnet",
+                "ECS": "cardano-staging",
+                "Env": "staging"
             },
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "/ecs/testing",
+                    "awslogs-group": "/ecs/cardano-staging/api/mainnet",
                     "awslogs-region": "us-east-1",
                     "awslogs-stream-prefix": "ecs"
                 }
             }
         }
     ],
-    "family": "testing",
-    "taskRoleArn": "testingEcsTaskExecutionRole",
-    "executionRoleArn": "testingEcsTaskExecutionRole",
+    "family": "cardano-api-mainnet-staging",
+    "networkMode": "awsvpc",
+    "taskRoleArn": "cardanoTaskExecutionStaging",
+    "executionRoleArn": "cardanoTaskExecutionStaging",
     "volumes": [],
     "placementConstraints": [],
     "requiresCompatibilities": [
