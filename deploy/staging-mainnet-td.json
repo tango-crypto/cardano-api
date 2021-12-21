@@ -3,8 +3,8 @@
         {
             "name": "cardano-api",
             "cpu": 256,
-            "memory": 500,
-            "memoryReservation": 300,
+            "memory": 300,
+            "memoryReservation": 100,
             "portMappings": [
                 {
                   "hostPort": 3001,
