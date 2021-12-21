@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { BlocksService } from './blocks.service';
-import { Block } from '@tango-crypto/tango-ledger';
+import { Block, Transaction } from '@tango-crypto/tango-ledger';
 
 @Controller(':accountId/blocks')
 export class BlocksController {
@@ -14,5 +14,10 @@ export class BlocksController {
 	@Get('latest')
 	getLatest(): Promise<Block> {
 		return this.blocksService.getLatest();
+	}
+
+	@Get(':blockId/transactions')
+	getBlockTransactions(@Param('blockId') blockId: number): Promise<Transaction[]> {
+		return this.blocksService.getBlockTransactions(blockId);
 	}
 }

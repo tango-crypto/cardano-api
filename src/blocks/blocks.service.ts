@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
-import { Block } from '@tango-crypto/tango-ledger';
+import { Block, Transaction } from '@tango-crypto/tango-ledger';
 
 @Injectable()
 export class BlocksService {
@@ -19,5 +19,9 @@ export class BlocksService {
 	getLatest(): Promise<Block> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
 		return this.ledger.dbClient.getLatestBlock();
+	}
+
+	getBlockTransactions(blockId: number): Promise<Transaction[]> {
+		return this.ledger.dbClient.getBlockTransactions(blockId);
 	}
 }
