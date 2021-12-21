@@ -1,7 +1,7 @@
 
 ## Description
 
-Cardano API
+Tangocrypto Cardano API
 
 ## Installation
 
