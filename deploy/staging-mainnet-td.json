@@ -2,7 +2,7 @@
     "containerDefinitions": [
         {
             "name": "cardano-api",
-            "cpu": 256,
+            "cpu": 100,
             "memory": 300,
             "memoryReservation": 100,
             "portMappings": [
