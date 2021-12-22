@@ -16,8 +16,8 @@ export class BlocksController {
 		return this.blocksService.getLatest();
 	}
 
-	@Get(':blockId/transactions')
-	getBlockTransactions(@Param('blockId') blockId: number): Promise<Transaction[]> {
-		return this.blocksService.getBlockTransactions(blockId);
+	@Get(':blockNumber/transactions')
+	getBlockTransactions(@Param('blockNumber') blockNumber: number): Promise<Transaction[]> {
+		return this.blocksService.getBlockTransactions(blockNumber);
 	}
 }

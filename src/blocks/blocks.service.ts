@@ -21,7 +21,7 @@ export class BlocksService {
 		return this.ledger.dbClient.getLatestBlock();
 	}
 
-	getBlockTransactions(blockId: number): Promise<Transaction[]> {
-		return this.ledger.dbClient.getBlockTransactions(blockId);
+	getBlockTransactions(blockNumber: number): Promise<Transaction[]> {
+		return this.ledger.dbClient.getBlockTransactions(blockNumber);
 	}
 }
