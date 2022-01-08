@@ -112,7 +112,7 @@ export const Utils = {
             ExpressionAttributeValues: expressionAttributeValues, 
             ExpressionAttributeNames: Object.keys(expressionAttributeNames).length > 0 ? expressionAttributeNames : undefined
         };
-    }
+    },
 }
 
 function hasDuplicates(arr: any[]) {
