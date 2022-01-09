@@ -3,14 +3,24 @@ import { Injectable } from '@nestjs/common';
 import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
 import { Metadata, Transaction, Utxo } from '@tango-crypto/tango-ledger';
-import { SQSClient, SendMessageCommand, SendMessageCommandInput } from "@aws-sdk/client-sqs";
+import { SQSClient, SendMessageCommand, SendMessageCommandInput, SQSClientConfig } from "@aws-sdk/client-sqs";
 import { fromIni } from '@aws-sdk/credential-provider-ini';
 import { ConfigService } from '@nestjs/config';
 
-const client = new SQSClient({ region: "us-west-1", credentials: fromIni({profile: 'tangocrypto'}) })
 @Injectable()
 export class TransactionsService {
-	constructor(private readonly ledger: TangoLedgerService, private readonly configService: ConfigService) {}
+	client: SQSClient;
+
+	constructor(private readonly ledger: TangoLedgerService, private readonly configService: ConfigService) {
+		const config: SQSClientConfig = {
+			region: this.configService.get<string>('AWS_REGION'),
+		};
+		const env = this.configService.get<string>('NODE_ENV');
+		if (env == 'development') {
+			config.credentials = fromIni({ profile: 'tangocrypto' });
+		}
+		this.client = new SQSClient(config);
+	}
 
 	async get(txHash: string): Promise<Transaction> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
@@ -52,7 +62,7 @@ export class TransactionsService {
 				})
 			};
 			const command = new SendMessageCommand(input);
-			const response = await client.send(command);
+			await this.client.send(command);
 			return txId;
 		} catch(err) {
 			let errorMessage = err.isAxiosError && err.response && err.response.data ? err.response.data : err.message;
