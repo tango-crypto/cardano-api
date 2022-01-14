@@ -15,7 +15,7 @@ export class TangoLedgerService {
 				user: this.configService.get<string>('DB_USER'),
 				password: this.configService.get<string>('DB_PWD'),
 				database: this.configService.get<string>('DB_NAME'),
-				ssl: {rejectUnauthorized: false}
+				ssl: this.configService.get<string>('DB_SSL') == 'true'
 			},
 			debug: this.configService.get<string>('DB_DEBUG') == 'true'
 		})
