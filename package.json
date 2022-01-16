@@ -41,6 +41,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "@tango-crypto/tango-ledger": "^0.0.10",
+    "@tango-crypto/tango-dynamodb": "0.0.4",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

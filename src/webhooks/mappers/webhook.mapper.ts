@@ -17,26 +17,31 @@ export class WebhookProfile extends AutomapperProfile {
   mapProfile() {
     return (mapper: Mapper) => {
       mapper.createMap(Webhook, WebhookDto)
-      .forMember(dest => dest.id, mapFrom(src => src.SK.replace('WBH#', '')))
-      .forMember(dest => dest.userId, mapFrom(src => src.PK.replace('Account#', '')))
-      .forMember(dest => dest.network, mapFrom(src => src.network))
-      .forMember(dest => dest.type, ignore())
-      .forMember(dest => dest.last_trigger_date, mapFrom(src => src.last_trigger_date))
-      .forMember(dest => dest.available, mapFrom(src => src.available));
+      .forMember(dest => dest.id, mapFrom(src => src.webhook_id))
+      .forMember(dest => dest.account_id, mapFrom(src => src.account_id.replace('ACCOUNT#', '')))
+      .forMember(dest => dest.type, ignore());
 
       mapper.createMap(CreateWebhookDto, Webhook)
-      .forMember(dest => dest.type, fromValue('webhooks'))
-      .forMember(dest => dest.last_trigger_date, fromValue('-1'))
-      .forMember(dest => dest.available, fromValue('true'))
-      .forMember(dest => dest.rules, mapFrom(src => src.rules || []));
+      .forMember(dest => dest.name, mapFrom(src => src.name))
+      .forMember(dest => dest.description, mapFrom(src => src.description))
+      .forMember(dest => dest.type, mapFrom(src => src.type))
+      .forMember(dest => dest.callback_url, mapFrom(src => src.callback_url))
+      .forMember(dest => dest.available, mapFrom(src => src.available === "true" ? "true" : "false"))
+      .forMember(dest => dest.rules, mapFrom(src => src.rules))
+      .forMember(dest => dest.create_date, mapFrom(src => src.create_date))
+      .forMember(dest => dest.update_date, mapFrom(src => src.update_date))
+      .forMember(dest => dest.webhook_key, mapFrom(src => src.webhook_key))
+      .forMember(dest => dest.auth_token, mapFrom(src => src.auth_token))
 
       mapper.createMap(UpdateWebhookDto, Webhook)
       .forMember(dest => dest.name, mapFrom(src => src.name))
       .forMember(dest => dest.description, mapFrom(src => src.description))
-      .forMember(dest => dest.webhook_type, mapFrom(src => src.webhook_type))
       .forMember(dest => dest.callback_url, mapFrom(src => src.callback_url))
-      .forMember(dest => dest.rules, mapFrom(src => src.rules || undefined))
-      .forMember(dest => dest.available, mapFrom(src => src.available.toString()));
+      .forMember(dest => dest.available, mapFrom(src => src.available === "true" ? "true" : "false"))
+      .forMember(dest => dest.rules, mapFrom(src => src.rules))
+      .forMember(dest => dest.update_date, mapFrom(src => src.update_date))
+      .forMember(dest => dest.webhook_key, mapFrom(src => src.webhook_key))
+      ;
     };
   }
 }
