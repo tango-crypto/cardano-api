@@ -12,7 +12,7 @@ export class WebhooksController {
   constructor(private readonly webhooksService: WebhooksService) {}
 
   @Post()
-  async create(@Param('accountId') accountId: string, @Body(MapPipe(Webhook, CreateWebhookDto)) webhook: Webhook): Promise<WebhookDto> {
+  async create(@Param('accountId') accountId: string, @Body() webhook: CreateWebhookDto): Promise<WebhookDto> {
     return this.webhooksService.create(accountId, webhook);
   }
 

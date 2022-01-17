@@ -42,3 +42,5 @@ export class Webhook {
     @AutoMap()
     available: string;
 }
+
+export const webhookTypes = ['payment', 'epoch', 'block', 'delegation', 'transaction', 'nft'];

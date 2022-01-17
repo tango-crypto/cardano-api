@@ -11,6 +11,7 @@ import { Mapper } from '@automapper/types';
 import { DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
 import { PaginateResponse } from 'src/models/PaginateResponse';
 import { UpdateWebhookDto } from './dto/update-webhook.dto';
+import { CreateWebhookDto } from './dto/create-webhook.dto';
 @Injectable()
 export class WebhooksService {
     client: DynamoClient;
@@ -74,8 +75,9 @@ export class WebhooksService {
       return true;
     }
 
-    async create(accountId: string, webhook: Webhook): Promise<WebhookDto> {
+    async create(accountId: string, createWebhook: CreateWebhookDto): Promise<WebhookDto> {
       try {
+        const webhook = this.mapper.mapArray([createWebhook], Webhook, CreateWebhookDto)[0];
         const time = Date.now().toString();
         const id = uuidv4().replace(/-/g, ''); 
         const attributes: Webhook = {
