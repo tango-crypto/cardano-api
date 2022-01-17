@@ -58,7 +58,8 @@ export class WebhooksService {
       return this.mapper.mapArray([item], WebhookDto, Webhook)[0];
     }
 
-    async update(accountId: string, id: string, webhook: Webhook): Promise<boolean> {
+    async update(accountId: string, id: string, updateWebhook: UpdateWebhookDto): Promise<boolean> {
+      const webhook = this.mapper.mapArray([updateWebhook], Webhook, UpdateWebhookDto)[0];
       const time = Date.now().toString();
       const keys = {
         PK: `ACCOUNT#${accountId}`,

@@ -2,8 +2,6 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { WebhooksService } from './webhooks.service';
 import { CreateWebhookDto } from './dto/create-webhook.dto';
 import { UpdateWebhookDto } from './dto/update-webhook.dto';
-import { MapPipe } from '@automapper/nestjs';
-import { Webhook } from './models/webhook.model';
 import { WebhookDto } from './dto/webhook.dto';
 import { PaginateResponse } from 'src/models/PaginateResponse';
 
@@ -27,7 +25,7 @@ export class WebhooksController {
   }
 
   @Patch(':id')
-  async update(@Param('accountId') accountId: string, @Param('id') id: string, @Body(MapPipe(Webhook, UpdateWebhookDto)) webhook: Webhook) {
+  async update(@Param('accountId') accountId: string, @Param('id') id: string, @Body() webhook: UpdateWebhookDto) {
     const updated = await this.webhooksService.update(accountId, id, webhook);
     return { updated };
   }
