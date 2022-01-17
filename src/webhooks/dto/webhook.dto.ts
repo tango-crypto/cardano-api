@@ -4,10 +4,11 @@ import { RuleDto } from "./rule.dto";
 export class WebhookDto {
     id: string;
 
-    @AutoMap()
-    webhook_key: string; 
-
     account_id: string;
+
+    type: string;
+
+    address?: string;
 
     @AutoMap()
     name: string;
@@ -34,9 +35,6 @@ export class WebhookDto {
 
     @AutoMap()
     update_date: Date | string;
-
-    @AutoMap()
-    type: string;
 
     @AutoMap()
     available: string;

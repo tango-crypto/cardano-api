@@ -12,7 +12,7 @@ export class WebhooksController {
   constructor(private readonly webhooksService: WebhooksService) {}
 
   @Post()
-  async create(@Param('accountId') accountId: string, @Body() webhook: Webhook): Promise<WebhookDto> {
+  async create(@Param('accountId') accountId: string, @Body(MapPipe(Webhook, CreateWebhookDto)) webhook: Webhook): Promise<WebhookDto> {
     return this.webhooksService.create(accountId, webhook);
   }
 
@@ -27,7 +27,7 @@ export class WebhooksController {
   }
 
   @Patch(':id')
-  async update(@Param('accountId') accountId: string, @Param('id') id: string, @Body() webhook: UpdateWebhookDto) {
+  async update(@Param('accountId') accountId: string, @Param('id') id: string, @Body(MapPipe(Webhook, UpdateWebhookDto)) webhook: Webhook) {
     const updated = await this.webhooksService.update(accountId, id, webhook);
     return { updated };
   }

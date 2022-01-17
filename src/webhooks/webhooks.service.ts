@@ -57,14 +57,20 @@ export class WebhooksService {
       return this.mapper.mapArray([item], WebhookDto, Webhook)[0];
     }
 
-    async update(accountId: string, id: string, webhook: UpdateWebhookDto): Promise<boolean> {
+    async update(accountId: string, id: string, webhook: Webhook): Promise<boolean> {
       const time = Date.now().toString();
       const keys = {
         PK: `ACCOUNT#${accountId}`,
         SK: `WBH#${id}`
       };
       webhook.update_date = time;
-      await this.client.updateItem(this.table, keys, webhook);
+      const data = Object.keys(webhook).reduce((obj, key) => {
+        if (webhook[key]) {
+          obj[key] = webhook[key];
+        }
+        return obj;
+      }, {})
+      await this.client.updateItem(this.table, keys, data);
       return true;
     }
 
@@ -87,11 +93,11 @@ export class WebhooksService {
           rules: webhook.rules || [],
           create_date: time,
           update_date: time,
-          type: 'webhooks',
-          available: 'true'
+          type: webhook.type,
+          available: webhook.available
         };
         await this.client.putItem(this.table, attributes);
-        return this.mapper.mapArray([attributes], WebhookDto, Webhook)[0];
+        return this.findOne(accountId, id);
       } catch (err) {
         throw APIError.badRequest(err.message);
       }
