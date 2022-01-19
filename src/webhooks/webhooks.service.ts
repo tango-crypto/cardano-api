@@ -58,7 +58,7 @@ export class WebhooksService {
       return this.mapper.mapArray([item], WebhookDto, Webhook)[0];
     }
 
-    async update(accountId: string, id: string, updateWebhook: UpdateWebhookDto): Promise<boolean> {
+    async update(accountId: string, id: string, updateWebhook: UpdateWebhookDto): Promise<WebhookDto> {
       const webhook = this.mapper.mapArray([updateWebhook], Webhook, UpdateWebhookDto)[0];
       const time = Date.now().toString();
       const keys = {
@@ -66,6 +66,7 @@ export class WebhooksService {
         SK: `WBH#${id}`
       };
       webhook.update_date = time;
+      // remove undefined rules
       const data = Object.keys(webhook).reduce((obj, key) => {
         if (webhook[key]) {
           obj[key] = webhook[key];
@@ -73,7 +74,7 @@ export class WebhooksService {
         return obj;
       }, {})
       await this.client.updateItem(this.table, keys, data);
-      return true;
+      return this.findOne(accountId, id);;
     }
 
     async create(accountId: string, createWebhook: CreateWebhookDto): Promise<WebhookDto> {

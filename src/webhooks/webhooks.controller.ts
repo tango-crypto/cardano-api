@@ -9,11 +9,6 @@ import { PaginateResponse } from 'src/models/PaginateResponse';
 export class WebhooksController {
   constructor(private readonly webhooksService: WebhooksService) {}
 
-  @Post()
-  async create(@Param('accountId') accountId: string, @Body() webhook: CreateWebhookDto): Promise<WebhookDto> {
-    return this.webhooksService.create(accountId, webhook);
-  }
-
   @Get()
   async findAll(@Param('accountId') accountId: string): Promise<PaginateResponse<WebhookDto>> {
     return this.webhooksService.findAll(accountId);
@@ -24,10 +19,14 @@ export class WebhooksController {
     return this.webhooksService.findOne(accountId, id);
   }
 
+  @Post()
+  async create(@Param('accountId') accountId: string, @Body() webhook: CreateWebhookDto): Promise<WebhookDto> {
+    return this.webhooksService.create(accountId, webhook);
+  }
+
   @Patch(':id')
-  async update(@Param('accountId') accountId: string, @Param('id') id: string, @Body() webhook: UpdateWebhookDto) {
-    const updated = await this.webhooksService.update(accountId, id, webhook);
-    return { updated };
+  async update(@Param('accountId') accountId: string, @Param('id') id: string, @Body() webhook: UpdateWebhookDto): Promise<WebhookDto> {
+    return this.webhooksService.update(accountId, id, webhook);
   }
 
   @Delete(':id')
