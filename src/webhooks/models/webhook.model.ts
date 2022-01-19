@@ -43,4 +43,4 @@ export class Webhook {
     available: string;
 }
 
-export const webhookTypes = ['payment', 'epoch', 'block', 'delegation', 'transaction', 'nft'];
+export const webhookTypes = ['payment', 'epoch', 'block', 'delegation', 'transaction'];
