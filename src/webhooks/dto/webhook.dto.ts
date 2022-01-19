@@ -4,8 +4,6 @@ import { RuleDto } from "./rule.dto";
 export class WebhookDto {
     id: string;
 
-    account_id: string;
-
     type: string;
 
     address?: string;
@@ -21,11 +19,6 @@ export class WebhookDto {
 
     @AutoMap()
     callback_url: string;
-
-    @AutoMap()
-    auth_token: string;
-
-    last_trigger_date: Date | string;
 
     @AutoMap({ typeFn: () => RuleDto})
     rules: RuleDto[];

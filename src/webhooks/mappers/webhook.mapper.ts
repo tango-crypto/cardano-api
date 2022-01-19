@@ -21,7 +21,6 @@ export class WebhookProfile extends AutomapperProfile {
     return (mapper: Mapper) => {
       mapper.createMap(Webhook, WebhookDto)
       .forMember(dest => dest.id, mapFrom(src => src.webhook_id))
-      .forMember(dest => dest.account_id, mapFrom(src => src.account_id.replace('ACCOUNT#', '')))
       .forMember(dest => dest.type, mapFrom(src => src.webhook_key.startsWith('addr') ? 'payment': webhookTypeMap[src.webhook_key]))
       .forMember(dest => dest.address, mapDefer<Webhook>(src => src.webhook_key.startsWith('addr') ? fromValue(src.webhook_key) : ignore()));
 
@@ -36,17 +35,15 @@ export class WebhookProfile extends AutomapperProfile {
       .forMember(dest => dest.create_date, ignore())
       .forMember(dest => dest.update_date, ignore())
       .forMember(dest => dest.webhook_key, mapFrom(src => src.type == "payment" ? src.address : webhookTypeMap[src.type]))
-      .forMember(dest => dest.auth_token, mapFrom(src => src.auth_token))
 
       mapper.createMap(UpdateWebhookDto, Webhook)
       .forMember(dest => dest.network, mapDefer<UpdateWebhookDto>(src => src.network ? fromValue(src.network) : ignore()))
       .forMember(dest => dest.name, mapDefer<UpdateWebhookDto>(src => src.name ? fromValue(src.name) : ignore()))
-      .forMember(dest => dest.description, mapDefer<UpdateWebhookDto>(src => src.description ? fromValue(src.description) : ignore()))
+      .forMember(dest => dest.description, mapDefer<UpdateWebhookDto>(src => src.description != undefined && src.description != null ? fromValue(src.description) : ignore()))
       .forMember(dest => dest.callback_url, mapDefer<UpdateWebhookDto>(src => src.callback_url ? fromValue(src.callback_url) : ignore()))
       .forMember(dest => dest.rules, mapDefer<UpdateWebhookDto>(src => src.rules ? fromValue(mapper.mapArray(src.rules, Rule, RuleDto)) : ignore()))
       .forMember(dest => dest.available, mapDefer<UpdateWebhookDto>(src => src.available ? src.available === "false" ? fromValue("false") : fromValue("true") : ignore()))
       .forMember(dest => dest.webhook_key, mapDefer<UpdateWebhookDto>(src => src.type ? src.type == "payment" ? fromValue(src.address) : fromValue(webhookTypeMap[src.type]) : ignore()))
-      .forMember(dest => dest.auth_token, ignore())
       .forMember(dest => dest.update_date, ignore())
       .forMember(dest => dest.create_date, ignore())
       .forMember(dest => dest.type, ignore())

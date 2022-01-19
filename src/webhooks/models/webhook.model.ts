@@ -22,7 +22,6 @@ export class Webhook {
     @AutoMap()
     callback_url: string;
 
-    @AutoMap()
     auth_token: string;
 
     last_trigger_date: Date | string;

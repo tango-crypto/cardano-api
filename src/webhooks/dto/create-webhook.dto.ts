@@ -14,9 +14,6 @@ export class CreateWebhookDto {
     type: string;
 
     @AutoMap()
-    auth_token: string;
-
-    @AutoMap()
     name: string;
 
     @AutoMap()

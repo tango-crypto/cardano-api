@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { APIError } from 'src/common/errors';
 import { DynamoDbService as DynamoClient } from '@tango-crypto/tango-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
@@ -68,7 +68,7 @@ export class WebhooksService {
       webhook.update_date = time;
       // remove undefined rules
       const data = Object.keys(webhook).reduce((obj, key) => {
-        if (webhook[key]) {
+        if (webhook[key] != undefined && webhook[key] != null) {
           obj[key] = webhook[key];
         }
         return obj;
@@ -80,6 +80,10 @@ export class WebhooksService {
     async create(accountId: string, createWebhook: CreateWebhookDto): Promise<WebhookDto> {
       try {
         const webhook = this.mapper.mapArray([createWebhook], Webhook, CreateWebhookDto)[0];
+        const account = await this.client.getItem<any>(this.table, {PK: `ACCOUNT#${accountId}`, SK: 'SUBSCRIPTION'});
+        if (!account) {
+          throw APIError.notFound(`Account: ${accountId}`);
+        }
         const time = Date.now().toString();
         const id = uuidv4().replace(/-/g, ''); 
         const attributes: Webhook = {
@@ -91,7 +95,7 @@ export class WebhooksService {
           name: webhook.name,
           network: webhook.network,
           description: webhook.description || '',
-          auth_token: webhook.auth_token,
+          auth_token: account.webhook_auth_token,
           callback_url: webhook.callback_url,
           last_trigger_date: '-1',
           rules: webhook.rules || [],
@@ -103,6 +107,7 @@ export class WebhooksService {
         await this.client.putItem(this.table, attributes);
         return this.findOne(accountId, id);
       } catch (err) {
+        if (err instanceof NotFoundException) throw err;
         throw APIError.badRequest(err.message);
       }
   }
