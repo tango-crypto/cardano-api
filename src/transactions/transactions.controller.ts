@@ -27,6 +27,6 @@ export class TransactionsController {
 	@HttpCode(200)
 	async submit(@Param('accountId') userId: string, @Body() submitTx: SubmitTxDto): Promise<SubmitTxResponseDto> {
 		let txId = await this.transactionsService.submit(userId, submitTx.tx);
-		return { txId: txId };
+		return { tx_id: txId };
 	}
 }

@@ -1,3 +1,3 @@
 export interface SubmitTxResponseDto {
-	txId: string;
+	tx_id: string;
 }
