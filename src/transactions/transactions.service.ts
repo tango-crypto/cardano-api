@@ -6,6 +6,7 @@ import { Metadata, Transaction, Utxo } from '@tango-crypto/tango-ledger';
 import { SQSClient, SendMessageCommand, SendMessageCommandInput, SQSClientConfig } from "@aws-sdk/client-sqs";
 import { fromIni } from '@aws-sdk/credential-provider-ini';
 import { ConfigService } from '@nestjs/config';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class TransactionsService {
@@ -51,9 +52,11 @@ export class TransactionsService {
 			const accountId = this.configService.get<string>('AWS_ACCOUNT_ID');
 			const queueName = this.configService.get<string>('QUEUE_NAME');
 			const network = this.configService.get<string>('NETWORK') || 'mainnet';
+			const eventKey = crypto.randomUUID().replace(/-/g, '');
 			const input: SendMessageCommandInput = {
 				QueueUrl: `https://sqs.${region}.amazonaws.com/${accountId}/${queueName}`,
 				MessageBody: JSON.stringify({
+					eventKey,
 					userId,
 					txId,
 					txBody: cborHex,
