@@ -31,4 +31,7 @@ export class WebhookDto {
 
     @AutoMap()
     available: string;
+
+    @AutoMap()
+    confirmations?: number;
 }

@@ -18,4 +18,5 @@ export class UpdateWebhookDto {
     callback_url?: string;
     rules?: RuleDto[];
     available?: string;
+    confirmations?: number;
 }

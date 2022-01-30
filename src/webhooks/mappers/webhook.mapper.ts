@@ -35,6 +35,7 @@ export class WebhookProfile extends AutomapperProfile {
       .forMember(dest => dest.create_date, ignore())
       .forMember(dest => dest.update_date, ignore())
       .forMember(dest => dest.webhook_key, mapFrom(src => src.type == "payment" ? src.address : webhookTypeMap[src.type]))
+      .forMember(dest => dest.confirmations, mapFrom(src => src.confirmations || 0))
 
       mapper.createMap(UpdateWebhookDto, Webhook)
       .forMember(dest => dest.network, mapDefer<UpdateWebhookDto>(src => src.network ? fromValue(src.network) : ignore()))
@@ -47,6 +48,7 @@ export class WebhookProfile extends AutomapperProfile {
       .forMember(dest => dest.update_date, ignore())
       .forMember(dest => dest.create_date, ignore())
       .forMember(dest => dest.type, ignore())
+      .forMember(dest => dest.confirmations, mapDefer<UpdateWebhookDto>(src => src.confirmations ? fromValue(src.confirmations) : ignore()))
       ;
     };
   }

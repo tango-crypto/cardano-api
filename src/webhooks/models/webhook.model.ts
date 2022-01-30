@@ -40,6 +40,9 @@ export class Webhook {
 
     @AutoMap()
     available: string;
+
+    @AutoMap()
+    confirmations: number;
 }
 
 export const webhookTypes = ['payment', 'epoch', 'block', 'delegation', 'transaction'];

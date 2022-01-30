@@ -102,7 +102,8 @@ export class WebhooksService {
           create_date: time,
           update_date: time,
           type: webhook.type,
-          available: webhook.available
+          available: webhook.available,
+          confirmations: webhook.confirmations
         };
         await this.client.putItem(this.table, attributes);
         return this.findOne(accountId, id);
