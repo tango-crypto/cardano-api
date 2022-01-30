@@ -14,7 +14,7 @@ export class AddressesController {
 	}
 
 	@Get(':address/utxos')
-	getUtxos(@Param('address') address: string, @Query('size') size: number, @Query('order') order: string, @Query('pageToken') pageToken: string): Promise<PaginateResponse<Utxo>> {
+	getUtxos(@Param('address') address: string, @Query('size') size: number, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<Utxo>> {
 		return this.addressesService.getUtxos(address, size, order, pageToken);
 	}
 
@@ -24,7 +24,7 @@ export class AddressesController {
 	}
 
 	@Get(':address/transactions')
-	getTransactions(@Param('address') address: string, @Query('size') size: number, @Query('order') order: string, @Query('pageToken') pageToken: string): Promise<PaginateResponse<Transaction>> {
+	getTransactions(@Param('address') address: string, @Query('size') size: number, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<Transaction>> {
 		return this.addressesService.getTransactions(address, size, order, pageToken);
 	}
 }

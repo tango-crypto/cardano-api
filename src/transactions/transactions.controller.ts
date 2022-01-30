@@ -1,5 +1,6 @@
 import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
 import { Metadata, Transaction, Utxo } from '@tango-crypto/tango-ledger';
+import { PaginateResponse } from 'src/models/PaginateResponse';
 import { SubmitTxDto } from './dto/submitTx.dto';
 import { SubmitTxResponseDto } from './dto/submitTxResponse.dto';
 import { TransactionsService } from './transactions.service';
@@ -19,7 +20,7 @@ export class TransactionsController {
 	}
 
 	@Get(':txHash/metadata')
-	getMetadata(@Param('txHash') txHash: string): Promise<Metadata[]> {
+	getMetadata(@Param('txHash') txHash: string): Promise<PaginateResponse<Metadata>> {
 		return this.transactionsService.getMetadata(txHash);
 	}
 

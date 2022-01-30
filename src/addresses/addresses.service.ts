@@ -54,7 +54,7 @@ export class AddressesService {
 		order = 'desc'; // WARNING!!! We need to figure it out why ASC query plan is consuming more rows :(
 		const utxos = await this.ledger.dbClient.getAddressUtxos(address, size, order, txId);
 		const nextPageToken = utxos.length == 0 ? null: Utils.encrypt(utxos[utxos.length - 1].tx_id.toString());
-		return { result: utxos, nextPageToken };
+		return { data: utxos, cursor: nextPageToken };
 	}
 
 	async getTransactions(address: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<Transaction>> {
@@ -70,7 +70,7 @@ export class AddressesService {
 		order = 'desc'; // WARNING!!! We need to figure it out why ASC query plan is consuming more rows :(
 		const txs = await this.ledger.dbClient.getAddressTransactions(address, size, order, txId);
 		const nextPageToken = txs.length == 0 ? null: Utils.encrypt(txs[txs.length - 1].id.toString());
-		return { result: txs, nextPageToken };
+		return { data: txs, cursor: nextPageToken };
 	}
 
 

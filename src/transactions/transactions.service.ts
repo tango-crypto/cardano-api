@@ -7,6 +7,7 @@ import { SQSClient, SendMessageCommand, SendMessageCommandInput, SQSClientConfig
 import { fromIni } from '@aws-sdk/credential-provider-ini';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
+import { PaginateResponse } from 'src/models/PaginateResponse';
 
 @Injectable()
 export class TransactionsService {
@@ -37,9 +38,10 @@ export class TransactionsService {
 		return this.ledger.dbClient.getTransactionUtxos(txHash);
 	}
 
-	getMetadata(txHash: string): Promise<Metadata[]> {
+	async getMetadata(txHash: string): Promise<PaginateResponse<Metadata>> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
-		return this.ledger.dbClient.getTransactionMetadata(txHash);
+		const metadata = await this.ledger.dbClient.getTransactionMetadata(txHash);
+		return { data: metadata };
 	}
 
 	async submit(userId: string, cborHex: string): Promise<string> {

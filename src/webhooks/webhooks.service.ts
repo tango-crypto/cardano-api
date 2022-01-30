@@ -33,7 +33,7 @@ export class WebhooksService {
       this.table = this.configService.get<string>('DYNAMO_DB_ACCOUNT_TABLE_NAME');
     }
 
-    async findAll(accountId: string, size = 20, next = ''): Promise<PaginateResponse<WebhookDto>> {
+    async findAll(accountId: string, size = 50, next = ''): Promise<PaginateResponse<WebhookDto>> {
       const { items, nextToken } = await this.client.getItems<Webhook>(
         this.table,
         [
@@ -47,7 +47,7 @@ export class WebhooksService {
         next,
       );
       const webhooks = this.mapper.mapArray(items, WebhookDto, Webhook);
-      return { result: webhooks, nextPageToken: nextToken };
+      return { data: webhooks, cursor: nextToken };
     }
 
     async findOne(accountId: string, id: string): Promise<WebhookDto> {

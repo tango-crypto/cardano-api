@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { WebhooksService } from './webhooks.service';
 import { CreateWebhookDto } from './dto/create-webhook.dto';
 import { UpdateWebhookDto } from './dto/update-webhook.dto';
@@ -10,8 +10,8 @@ export class WebhooksController {
   constructor(private readonly webhooksService: WebhooksService) {}
 
   @Get()
-  async findAll(@Param('accountId') accountId: string): Promise<PaginateResponse<WebhookDto>> {
-    return this.webhooksService.findAll(accountId);
+  async findAll(@Param('accountId') accountId: string, @Query('size') size: number, @Query('cursor') pageToken: string): Promise<PaginateResponse<WebhookDto>> {
+    return this.webhooksService.findAll(accountId, size, pageToken);
   }
 
   @Get(':id')
