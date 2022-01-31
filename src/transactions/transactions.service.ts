@@ -41,7 +41,7 @@ export class TransactionsService {
 	async getMetadata(txHash: string): Promise<PaginateResponse<Metadata>> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
 		const metadata = await this.ledger.dbClient.getTransactionMetadata(txHash);
-		return { data: metadata };
+		return { data: metadata, cursor: null };
 	}
 
 	async submit(userId: string, cborHex: string): Promise<string> {

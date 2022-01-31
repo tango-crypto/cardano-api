@@ -26,7 +26,6 @@ export class PoolsService {
 		} catch(err) {
 			// throw new Error('Invalid cursor');
 		}
-		order = 'desc';
 		const delegations = await this.ledger.dbClient.getDelegations(poolId, size, order, txId);
 		const nextPageToken = delegations.length == 0 ? null: Utils.encrypt(delegations[delegations.length - 1].tx_id.toString());
 		return { data: delegations, cursor: nextPageToken};
