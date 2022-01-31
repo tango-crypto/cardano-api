@@ -48,7 +48,7 @@ export class WebhookProfile extends AutomapperProfile {
       .forMember(dest => dest.update_date, ignore())
       .forMember(dest => dest.create_date, ignore())
       .forMember(dest => dest.type, ignore())
-      .forMember(dest => dest.confirmations, mapDefer<UpdateWebhookDto>(src => src.confirmations ? fromValue(src.confirmations) : ignore()))
+      .forMember(dest => dest.confirmations, mapDefer<UpdateWebhookDto>(src => src.confirmations != null && src.confirmations != undefined ? fromValue(src.confirmations) : ignore()))
       ;
     };
   }

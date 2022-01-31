@@ -12,6 +12,7 @@ import { DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
 import { PaginateResponse } from 'src/models/PaginateResponse';
 import { UpdateWebhookDto } from './dto/update-webhook.dto';
 import { CreateWebhookDto } from './dto/create-webhook.dto';
+import { AccountService } from 'src/providers/account/account.service';
 @Injectable()
 export class WebhooksService {
     client: DynamoClient;
@@ -19,6 +20,7 @@ export class WebhooksService {
 
     constructor(
         private readonly configService: ConfigService,
+        private readonly accountService: AccountService,
         @InjectMapper() private mapper: Mapper
     ){
       const config: DynamoDBClientConfig = {
@@ -60,6 +62,14 @@ export class WebhooksService {
 
     async update(accountId: string, id: string, updateWebhook: UpdateWebhookDto): Promise<WebhookDto> {
       const webhook = this.mapper.mapArray([updateWebhook], Webhook, UpdateWebhookDto)[0];
+      const account = await this.accountService.getSubscription(accountId);
+      if (!account) {
+        throw APIError.notFound(`Account: ${accountId}`);
+      }
+      const allowConfirmations = this.accountService.allowWebhookConfirmations(account, webhook.confirmations);
+      if (!allowConfirmations) {
+        throw APIError.badRequest(`Webhook confirmations not allowed for account: ${accountId}`);
+      }
       const time = Date.now().toString();
       const keys = {
         PK: `ACCOUNT#${accountId}`,
@@ -80,9 +90,13 @@ export class WebhooksService {
     async create(accountId: string, createWebhook: CreateWebhookDto): Promise<WebhookDto> {
       try {
         const webhook = this.mapper.mapArray([createWebhook], Webhook, CreateWebhookDto)[0];
-        const account = await this.client.getItem<any>(this.table, {PK: `ACCOUNT#${accountId}`, SK: 'SUBSCRIPTION'});
+        const account = await this.accountService.getSubscription(accountId);
         if (!account) {
           throw APIError.notFound(`Account: ${accountId}`);
+        }
+        const allowConfirmations = this.accountService.allowWebhookConfirmations(account, webhook.confirmations);
+        if (!allowConfirmations) {
+          throw APIError.badRequest(`Webhook confirmations not allowed for account: ${accountId}`);
         }
         const time = Date.now().toString();
         const id = uuidv4().replace(/-/g, ''); 
