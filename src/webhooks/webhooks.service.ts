@@ -47,7 +47,7 @@ export class WebhooksService {
         next,
       );
       const webhooks = this.mapper.mapArray(items, WebhookDto, Webhook);
-      return { data: webhooks, cursor: nextToken };
+      return { data: webhooks, cursor: nextToken || null };
     }
 
     async findOne(accountId: string, id: string): Promise<WebhookDto> {
