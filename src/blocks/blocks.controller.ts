@@ -1,6 +1,7 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { BlocksService } from './blocks.service';
 import { Block, Transaction } from '@tango-crypto/tango-ledger';
+import { PaginateResponse } from 'src/models/PaginateResponse';
 
 @Controller(':accountId/blocks')
 export class BlocksController {
@@ -17,7 +18,7 @@ export class BlocksController {
 	}
 
 	@Get(':blockNumber/transactions')
-	getBlockTransactions(@Param('blockNumber') blockNumber: number): Promise<Transaction[]> {
-		return this.blocksService.getBlockTransactions(blockNumber);
+	getBlockTransactions(@Param('blockNumber') blockNumber: number, @Query('size') size: number, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<Transaction>> {
+		return this.blocksService.getBlockTransactions(blockNumber, size, order, pageToken);
 	}
 }
