@@ -20,16 +20,18 @@ import { StakesService } from './wallets/stakes.service';
 import { AutomapperModule } from '@automapper/nestjs';
 import { classes } from '@automapper/classes';
 import { WebhooksModule } from './webhooks/webhooks.module';
+import { AssetProfile } from './mappers/asset.mapper';
+import { pojos } from '@automapper/pojos';
 @Module({
   imports: [
     ConfigModule.forRoot(),
     AutomapperModule.forRoot({
-      options: [{ name: 'mapper', pluginInitializer: classes }],
-      singular: true,
+      options: [{ name: 'mapper', pluginInitializer: classes }, {name: 'pojo-mapper', pluginInitializer: pojos}],
+      // singular: true,
     }),
     WebhooksModule
   ],
   controllers: [AppController, EpochsController, PoolsController, AddressesController, AssetsController, BlocksController, TransactionsController, WalletsController],
-  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService],
+  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, AssetProfile],
 })
 export class AppModule {}

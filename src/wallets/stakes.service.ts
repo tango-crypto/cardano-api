@@ -19,25 +19,16 @@ export class StakesService {
 	}
 
 	async getAddresses(stakeAddress: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<Address>> {
-		let txId = 0;
-		let index = 0;
+		let address = '';
 		try {
-			const decr = Utils.decrypt(pageToken).split('-');
-			const numberTx = decr[0] ? Number(decr[0]) : Number.NaN;
-			txId = !Number.isNaN(numberTx) ? numberTx : 0;
-			const numberIndex = decr[1] ? Number(decr[1]) : Number.NaN;
-			index = !Number.isNaN(numberIndex) ? numberIndex : 0;
+			address = Utils.decrypt(pageToken);
 		} catch(err) {
 			// throw new Error('Invalid cursor');
 		}
-		const addresses = await this.ledger.dbClient.getStakeAddresses(stakeAddress, size, order, txId, index);
-		if (addresses.length == 0) {
-			return { data: addresses.map(a => ({address: a.address})) }
-		} else {
-			const lastAddress = addresses[addresses.length - 1];
-			const nextPageToken = addresses.length == 0 ? null: Utils.encrypt(`${lastAddress.tx_id}-${lastAddress.index}`);
-			return { data: addresses.map(a => ({address: a.address})), cursor: nextPageToken};
-		}
+		const addresses = await this.ledger.dbClient.getStakeAddresses(stakeAddress, size, order, address);
+		const nextPageToken = addresses.length == 0 ? null: Utils.encrypt(addresses[addresses.length - 1].address.toString());
+		return { data: addresses, cursor: nextPageToken };
+
 	}
 
 }

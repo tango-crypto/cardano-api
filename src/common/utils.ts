@@ -4,9 +4,9 @@ const secretKey = 'v1VH6sdmpNWjRRIqCc7gdxt01lwHzfr6';
 const iv = Buffer.from('33f0e92dd0fda4efca202216ef0f0b27', 'hex');
 
 import { Address, BaseAddress, RewardAddress } from "@emurgo/cardano-serialization-lib-nodejs";
-import { AddressInfo } from "src/models/AddressInfo";
+import { AddressInfoDto } from "src/models/dto/AddressInfo.dto";
 export class Utils {
-	static getAddressInfo(address: string): AddressInfo {
+	static getAddressInfo(address: string): AddressInfoDto {
 		const addr = Address.from_bech32(address);
 		const baseAddr = BaseAddress.from_address(addr);
 		let stakeAddr = ''

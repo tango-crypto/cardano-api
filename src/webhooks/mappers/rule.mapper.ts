@@ -6,7 +6,7 @@ import { Rule } from "../models/rule.model";
 
 @Injectable()
 export class RuleProfile extends AutomapperProfile {
-    constructor(@InjectMapper() mapper: Mapper) {
+    constructor(@InjectMapper('mapper') mapper: Mapper) {
         super(mapper);
       }
       

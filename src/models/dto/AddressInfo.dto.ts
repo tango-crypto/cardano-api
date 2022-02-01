@@ -1,4 +1,4 @@
-export interface AddressInfo {
+export interface AddressInfoDto {
 	network: string;
 	stake_address: string;
 }

@@ -1,20 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { Utils } from 'src/common/utils';
 import { APIError } from 'src/common/errors';
-import { AddressDetail } from 'src/models/AddressDetail';
+import { AddressDetailDto } from 'src/models/dto/AddressDetail.dto';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
 import { Transaction, Utxo, Asset } from '@tango-crypto/tango-ledger';
 import { PaginateResponse } from 'src/models/PaginateResponse';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/types';
+import { AssetDto } from 'src/models/dto/Asset.dto';
 
 @Injectable()
 export class AddressesService {
-	constructor(private readonly ledger: TangoLedgerService) {}
+	constructor(
+		private readonly ledger: TangoLedgerService,
+		@InjectMapper('pojo-mapper') private mapper: Mapper) {}
 
-	async get(address: string): Promise<AddressDetail> {
+	async get(address: string): Promise<AddressDetailDto> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
 		try {
 			let { network, stake_address } = Utils.getAddressInfo(address);
-			const t = Date.now();
 			const info =  await Promise.all([
 				this.callPromise(this.ledger.dbClient.getAddressBalance(address), 'balance'),
 				this.callPromise(this.ledger.dbClient.getAddressTransactionsTotal(address), 'total tx'),
@@ -37,8 +41,17 @@ export class AddressesService {
 	}
 
 	
-	getAssets(address: string): Promise<Asset[]> {
-		return this.ledger.dbClient.getAddressAssets(address);
+	async getAssets(address: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<AssetDto>> {
+		let fingerprint = '';
+		try {
+			fingerprint = Utils.decrypt(pageToken);
+		} catch(err) {
+			// throw new Error('Invalid cursor');
+		}
+		const assets = await this.ledger.dbClient.getAddressAssets(address, size, order, fingerprint);
+		const data = await this.mapper.mapArray<Asset, AssetDto>(assets, 'AssetDto', 'Asset');
+		const nextPageToken = data.length == 0 ? null: Utils.encrypt(data[data.length - 1].fingerprint.toString());
+		return {data, cursor: nextPageToken}
 	}
 
 	async getUtxos(address: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<Utxo>> {

@@ -2,7 +2,6 @@ import { fromValue, ignore, mapDefer, mapFrom } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/types';
 import { Injectable } from '@nestjs/common';
-import { fromEvent } from 'rxjs';
 import { CreateWebhookDto } from '../dto/create-webhook.dto';
 import { RuleDto } from '../dto/rule.dto';
 import { UpdateWebhookDto } from '../dto/update-webhook.dto';
@@ -13,7 +12,7 @@ import { Webhook } from '../models/webhook.model';
 
 @Injectable()
 export class WebhookProfile extends AutomapperProfile {
-  constructor(@InjectMapper() mapper: Mapper) {
+  constructor(@InjectMapper('mapper') mapper: Mapper) {
     super(mapper);
   }
 

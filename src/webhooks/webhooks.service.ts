@@ -21,7 +21,7 @@ export class WebhooksService {
     constructor(
         private readonly configService: ConfigService,
         private readonly accountService: AccountService,
-        @InjectMapper() private mapper: Mapper
+        @InjectMapper('mapper') private mapper: Mapper
     ){
       const config: DynamoDBClientConfig = {
         region: this.configService.get<string>('AWS_REGION'),
