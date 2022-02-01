@@ -9,6 +9,7 @@ import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/types';
 import { AssetDto } from 'src/models/dto/Asset.dto';
 import { UtxoDto } from 'src/models/dto/Utxo.dto';
+import { TransactionDto } from 'src/models/dto/Transaction.dto';
 
 @Injectable()
 export class AddressesService {
@@ -72,7 +73,7 @@ export class AddressesService {
 		return { data: data, cursor: nextPageToken };
 	}
 
-	async getTransactions(address: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<Transaction>> {
+	async getTransactions(address: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<TransactionDto>> {
 		// Utils.checkDataBaseConnection(dbClient);
 		let txId = 0;
 		try {
@@ -84,8 +85,9 @@ export class AddressesService {
 		}
 		order = 'desc'; // WARNING!!! We need to figure it out why ASC query plan is consuming more rows :(
 		const txs = await this.ledger.dbClient.getAddressTransactions(address, size, order, txId);
-		const nextPageToken = txs.length == 0 ? null: Utils.encrypt(txs[txs.length - 1].id.toString());
-		return { data: txs, cursor: nextPageToken };
+		const data = this.mapper.mapArray<Transaction, TransactionDto>(txs, 'TransactionDto', 'Transaction');
+		const nextPageToken = data.length == 0 ? null: Utils.encrypt(data[data.length - 1].id.toString());
+		return { data: data, cursor: nextPageToken };
 	}
 
 
