@@ -8,6 +8,7 @@ import { PaginateResponse } from 'src/models/PaginateResponse';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/types';
 import { AssetDto } from 'src/models/dto/Asset.dto';
+import { UtxoDto } from 'src/models/dto/Utxo.dto';
 
 @Injectable()
 export class AddressesService {
@@ -49,12 +50,12 @@ export class AddressesService {
 			// throw new Error('Invalid cursor');
 		}
 		const assets = await this.ledger.dbClient.getAddressAssets(address, size, order, fingerprint);
-		const data = await this.mapper.mapArray<Asset, AssetDto>(assets, 'AssetDto', 'Asset');
+		const data = this.mapper.mapArray<Asset, AssetDto>(assets, 'AssetDto', 'Asset');
 		const nextPageToken = data.length == 0 ? null: Utils.encrypt(data[data.length - 1].fingerprint.toString());
 		return {data, cursor: nextPageToken}
 	}
 
-	async getUtxos(address: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<Utxo>> {
+	async getUtxos(address: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<UtxoDto>> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
 		let txId = 0;
 		try {
@@ -66,8 +67,9 @@ export class AddressesService {
 		}
 		order = 'desc'; // WARNING!!! We need to figure it out why ASC query plan is consuming more rows :(
 		const utxos = await this.ledger.dbClient.getAddressUtxos(address, size, order, txId);
-		const nextPageToken = utxos.length == 0 ? null: Utils.encrypt(utxos[utxos.length - 1].tx_id.toString());
-		return { data: utxos, cursor: nextPageToken };
+		const data = this.mapper.mapArray<Utxo, UtxoDto>(utxos, 'UtxoDto', 'Utxo');
+		const nextPageToken = utxos.length == 0 ? null: Utils.encrypt(utxos[data.length - 1].tx_id.toString());
+		return { data: data, cursor: nextPageToken };
 	}
 
 	async getTransactions(address: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<Transaction>> {

@@ -1,9 +1,10 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { AddressDetailDto } from 'src/models/dto/AddressDetail.dto';
-import { Asset, Transaction, Utxo } from '@tango-crypto/tango-ledger';
+import { Transaction } from '@tango-crypto/tango-ledger';
 import { AddressesService } from './addresses.service';
 import { PaginateResponse } from 'src/models/PaginateResponse';
 import { AssetDto } from 'src/models/dto/Asset.dto';
+import { UtxoDto } from 'src/models/dto/Utxo.dto';
 
 @Controller(':accountId/addresses')
 export class AddressesController {
@@ -15,7 +16,7 @@ export class AddressesController {
 	}
 
 	@Get(':address/utxos')
-	getUtxos(@Param('address') address: string, @Query('size') size: number, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<Utxo>> {
+	getUtxos(@Param('address') address: string, @Query('size') size: number, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<UtxoDto>> {
 		return this.addressesService.getUtxos(address, size, order, pageToken);
 	}
 

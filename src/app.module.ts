@@ -22,6 +22,8 @@ import { classes } from '@automapper/classes';
 import { WebhooksModule } from './webhooks/webhooks.module';
 import { AssetProfile } from './mappers/asset.mapper';
 import { pojos } from '@automapper/pojos';
+import { UtxoProfile } from './mappers/utxo.mapper';
+import { MetadataProfile } from './mappers/metadata.mapper';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -32,6 +34,6 @@ import { pojos } from '@automapper/pojos';
     WebhooksModule
   ],
   controllers: [AppController, EpochsController, PoolsController, AddressesController, AssetsController, BlocksController, TransactionsController, WalletsController],
-  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, AssetProfile],
+  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, UtxoProfile, AssetProfile, MetadataProfile],
 })
 export class AppModule {}
