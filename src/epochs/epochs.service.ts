@@ -1,17 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
-import { EpochParameters } from '@tango-crypto/tango-ledger';
+import { Epoch, EpochParameters } from '@tango-crypto/tango-ledger';
+import { EpochDto } from 'src/models/dto/Epoch.dto';
+import { Mapper } from '@automapper/types';
+import { InjectMapper } from '@automapper/nestjs';
+import { EpochParametersDto } from 'src/models/dto/EpochParameters.dto';
 @Injectable()
 export class EpochsService {
-	constructor(private readonly ledger: TangoLedgerService) {}
+	constructor(
+		private readonly ledger: TangoLedgerService,
+		@InjectMapper('pojo-mapper') private mapper: Mapper
+		) {}
 
-	async getParameters(epoch: number): Promise<EpochParameters> {
+	async getLatest(): Promise<EpochDto> {
+		const epoch = await this.ledger.dbClient.getLatestEpoch();
+		return this.mapper.map<Epoch, EpochDto>(epoch, 'EpochDto', 'Epoch');
+	}
+
+	async getParameters(epoch: number): Promise<EpochParametersDto> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
-		let parameters = await this.ledger.dbClient.getEpochParamters(epoch);
+		const parameters = await this.ledger.dbClient.getEpochParamters(epoch);
 		if (!parameters) {
 			throw APIError.notFound(`epoch: ${epoch}`);
 		}
-		return parameters;
+		return this.mapper.map<EpochParameters, EpochParametersDto>(parameters, 'EpochParametersDto', 'EpochParameters');
 	}
 }
