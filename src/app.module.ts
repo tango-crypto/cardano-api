@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EpochsService } from './epochs/epochs.service';
@@ -44,4 +44,10 @@ import { EpochParametersProfile } from './mappers/epoch-parameters.mapper';
   controllers: [AppController, EpochsController, PoolsController, AddressesController, AssetsController, BlocksController, TransactionsController, WalletsController],
   providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, EpochProfile, EpochParametersProfile, PoolProfile, PoolDelegationProfile, BlockProfile, TransactionProfile, UtxoProfile, StakeProfile, AddressProfile, AssetProfile, MetadataProfile],
 })
-export class AppModule {}
+export class AppModule /*implements NestModule*/ {
+  // configure(consumer: MiddlewareConsumer) {
+  //     consumer
+  //     .apply(addresses)
+  //     .forRoutes(AddressesController)
+  // }
+}

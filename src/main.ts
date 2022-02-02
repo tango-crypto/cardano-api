@@ -7,7 +7,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
 	const app = await NestFactory.create<NestFastifyApplication>(
 		AppModule, 
-		new FastifyAdapter({ maxParamLength: 108 })
+		new FastifyAdapter({ maxParamLength: Number.MAX_SAFE_INTEGER })
 	);
 	app.useGlobalPipes(new ValidationPipe());
 	const configService = app.get(ConfigService);

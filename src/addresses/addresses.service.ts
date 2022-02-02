@@ -44,6 +44,7 @@ export class AddressesService {
 
 	
 	async getAssets(address: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<AssetDto>> {
+		if (!Utils.isValidAddress(address)) throw APIError.badRequest(`invalid address: ${address}`);
 		let fingerprint = '';
 		try {
 			fingerprint = Utils.decrypt(pageToken);
@@ -57,7 +58,7 @@ export class AddressesService {
 	}
 
 	async getUtxos(address: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<UtxoDto>> {
-		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
+		if (!Utils.isValidAddress(address)) throw APIError.badRequest(`invalid address: ${address}`);
 		let txId = 0;
 		try {
 			const decr = Utils.decrypt(pageToken);
@@ -74,7 +75,7 @@ export class AddressesService {
 	}
 
 	async getTransactions(address: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<TransactionDto>> {
-		// Utils.checkDataBaseConnection(dbClient);
+		if (!Utils.isValidAddress(address)) throw APIError.badRequest(`invalid address: ${address}`);
 		let txId = 0;
 		try {
 			const decr = Utils.decrypt(pageToken);

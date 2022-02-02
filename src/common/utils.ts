@@ -6,12 +6,20 @@ const iv = Buffer.from('33f0e92dd0fda4efca202216ef0f0b27', 'hex');
 import { Address, BaseAddress, RewardAddress } from "@emurgo/cardano-serialization-lib-nodejs";
 import { AddressInfoDto } from "src/models/dto/AddressInfo.dto";
 export class Utils {
+	static isValidAddress(address: string): boolean {
+		try {
+			const addr = Address.from_bech32(address);
+			return !!addr;
+		} catch(err) {
+			console.log('Invalid address:', address, err);
+			return false;
+		}
+	}
 	static getAddressInfo(address: string): AddressInfoDto {
 		const addr = Address.from_bech32(address);
 		const baseAddr = BaseAddress.from_address(addr);
 		let stakeAddr = ''
 		if (baseAddr) {
-
 			const stakeCredential = baseAddr.stake_cred();
 			const reward = RewardAddress.new(addr.network_id(), stakeCredential);
 			stakeAddr = reward.to_address().to_bech32();
