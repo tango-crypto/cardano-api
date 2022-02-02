@@ -7,6 +7,7 @@ import { PaginateResponse } from 'src/models/PaginateResponse';
 import { Mapper } from '@automapper/types';
 import { InjectMapper } from '@automapper/nestjs';
 import { StakeDto } from 'src/models/dto/Stake.dto';
+import { AddressDto } from 'src/models/dto/Address.dto';
 
 @Injectable()
 export class StakesService {
@@ -24,7 +25,7 @@ export class StakesService {
 		return this.mapper.map<Stake, StakeDto>(stake, 'StakeDto', 'Stake');
 	}
 
-	async getAddresses(stakeAddress: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<Address>> {
+	async getAddresses(stakeAddress: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<AddressDto>> {
 		let address = '';
 		try {
 			address = Utils.decrypt(pageToken);
@@ -33,7 +34,8 @@ export class StakesService {
 		}
 		const addresses = await this.ledger.dbClient.getStakeAddresses(stakeAddress, size, order, address);
 		const nextPageToken = addresses.length == 0 ? null: Utils.encrypt(addresses[addresses.length - 1].address.toString());
-		return { data: addresses, cursor: nextPageToken };
+		const data = this.mapper.mapArray<Address, AddressDto>(addresses, 'AddressDto', 'Address');
+		return { data: data, cursor: nextPageToken };
 
 	}
 
