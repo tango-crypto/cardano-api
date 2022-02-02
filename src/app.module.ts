@@ -27,6 +27,7 @@ import { MetadataProfile } from './mappers/metadata.mapper';
 import { TransactionProfile } from './mappers/transaction.mapper';
 import { BlockProfile } from './mappers/block.mapper';
 import { PoolProfile } from './mappers/pool.mapper';
+import { PoolDelegationProfile } from './mappers/pool-delegation.mapper';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -37,6 +38,6 @@ import { PoolProfile } from './mappers/pool.mapper';
     WebhooksModule
   ],
   controllers: [AppController, EpochsController, PoolsController, AddressesController, AssetsController, BlocksController, TransactionsController, WalletsController],
-  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, PoolProfile, BlockProfile, TransactionProfile, UtxoProfile, AssetProfile, MetadataProfile],
+  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, PoolProfile, PoolDelegationProfile, BlockProfile, TransactionProfile, UtxoProfile, AssetProfile, MetadataProfile],
 })
 export class AppModule {}

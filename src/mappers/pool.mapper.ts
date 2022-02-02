@@ -14,9 +14,12 @@ export class PoolProfile extends AutomapperProfile {
   mapProfile() {
     return (mapper: Mapper) => {
       mapper.createMap<Pool, PoolDto>('Pool', 'PoolDto')
+      .forMember(dest => dest.id, mapFrom(src => src.id))
       .forMember(dest => dest.pool_id, mapFrom(src => src.pool_id))
-      .forMember(dest => dest.raw_id, ignore())
-      .forMember(dest => dest.id, mapFrom(src => src.raw_id))
+      .forMember(dest => dest.pledge, mapFrom(src => src.pledge))
+      .forMember(dest => dest.margin, mapFrom(src => src.margin))
+      .forMember(dest => dest.fixed_cost, mapFrom(src => src.fixed_cost))
+      .forMember(dest => dest.active_epoch_no, mapFrom(src => src.active_epoch_no))
       .forMember(dest => dest.url, mapFrom(src => src.url))
       .forMember(dest => dest.hash, mapFrom(src => src.hash))
       .forMember(dest => dest.ticker, mapFrom(src => src.ticker))
