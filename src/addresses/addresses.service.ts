@@ -24,8 +24,8 @@ export class AddressesService {
 			const info =  await Promise.all([
 				this.callPromise(this.ledger.dbClient.getAddressBalance(address), 'balance'),
 				this.callPromise(this.ledger.dbClient.getAddressTransactionsTotal(address), 'total tx'),
-				this.callPromise(this.ledger.dbClient.getAddressAssets(address), 'assets'),
-				this.callPromise(this.ledger.dbClient.getAddressUtxos(address, 50), 'utxos')
+				// this.callPromise(this.ledger.dbClient.getAddressAssets(address), 'assets'),
+				// this.callPromise(this.ledger.dbClient.getAddressUtxos(address, 50), 'utxos')
 			])
 			return {
 				network,
@@ -33,8 +33,8 @@ export class AddressesService {
 				stake_address,
 				balance: Number(info[0]),
 				transactions_count: Number(info[1]),
-				assets: info[2],
-				utxos: info[3]
+				// assets: info[2],
+				// utxos: info[3]
 			};
 		} catch(err) {
 			console.log(err);
