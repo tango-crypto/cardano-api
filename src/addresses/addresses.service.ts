@@ -68,8 +68,8 @@ export class AddressesService {
 		}
 		order = 'desc'; // WARNING!!! We need to figure it out why ASC query plan is consuming more rows :(
 		const utxos = await this.ledger.dbClient.getAddressUtxos(address, size, order, txId);
+		const nextPageToken = utxos.length == 0 ? null: Utils.encrypt(utxos[utxos.length - 1].tx_id.toString());
 		const data = this.mapper.mapArray<Utxo, UtxoDto>(utxos, 'UtxoDto', 'Utxo');
-		const nextPageToken = utxos.length == 0 ? null: Utils.encrypt(utxos[data.length - 1].tx_id.toString());
 		return { data: data, cursor: nextPageToken };
 	}
 

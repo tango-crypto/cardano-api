@@ -1,4 +1,4 @@
-import { mapFrom } from '@automapper/core';
+import { ignore, mapFrom } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/types';
 import { Injectable } from '@nestjs/common';
@@ -14,7 +14,7 @@ export class UtxoProfile extends AutomapperProfile {
   mapProfile() {
     return (mapper: Mapper) => {
       mapper.createMap<Utxo, UtxoDto>('Utxo', 'UtxoDto')
-      .forMember(dest => dest.tx_id, mapFrom(src => src.tx_id))
+      .forMember(dest => dest.tx_id, ignore())
       .forMember(dest => dest.address, mapFrom(src => src.address))
       .forMember(dest => dest.hash, mapFrom(src => src.hash))
       .forMember(dest => dest.index, mapFrom(src => src.index))
