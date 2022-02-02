@@ -14,7 +14,7 @@ export class TransactionProfile extends AutomapperProfile {
   mapProfile() {
     return (mapper: Mapper) => {
       mapper.createMap<Transaction, TransactionDto>('Transaction', 'TransactionDto')
-      .forMember(dest => dest.id, mapFrom(src => src.id))
+      .forMember(dest => dest.id, ignore())
       .forMember(dest => dest.hash, mapFrom(src => src.hash))
       .forMember(dest => dest.block_id, ignore())
       .forMember(dest => dest.block_index, mapFrom(src => src.block_index))

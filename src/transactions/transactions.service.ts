@@ -8,12 +8,18 @@ import { fromIni } from '@aws-sdk/credential-provider-ini';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import { PaginateResponse } from 'src/models/PaginateResponse';
+import { TransactionDto } from 'src/models/dto/Transaction.dto';
+import { Mapper } from '@automapper/types';
+import { InjectMapper } from '@automapper/nestjs';
 
 @Injectable()
 export class TransactionsService {
 	client: SQSClient;
 
-	constructor(private readonly ledger: TangoLedgerService, private readonly configService: ConfigService) {
+	constructor(
+		private readonly ledger: TangoLedgerService, 
+		private readonly configService: ConfigService,
+		@InjectMapper('pojo-mapper') private mapper: Mapper) {
 		const config: SQSClientConfig = {
 			region: this.configService.get<string>('AWS_REGION'),
 		};
@@ -24,13 +30,14 @@ export class TransactionsService {
 		this.client = new SQSClient(config);
 	}
 
-	async get(txHash: string): Promise<Transaction> {
+	async get(txHash: string): Promise<TransactionDto> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
 		let tx = await this.ledger.dbClient.getTransaction(txHash);
 		if (!tx) {
 			throw APIError.notFound(`transaction: ${txHash}`);
 		}
-		return tx;
+		const data = this.mapper.map<Transaction, TransactionDto>(tx, 'TransactionDto', 'Transaction');
+		return data;
 	}
 
 	getUtxos(txHash: string): Promise<{hash: string, inputs: Utxo[], outputs: Utxo[]}> {
