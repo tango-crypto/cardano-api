@@ -51,8 +51,8 @@ export class AddressesService {
 			// throw new Error('Invalid cursor');
 		}
 		const assets = await this.ledger.dbClient.getAddressAssets(address, size, order, fingerprint);
+		const nextPageToken = assets.length == 0 ? null: Utils.encrypt(assets[assets.length - 1].fingerprint.toString());
 		const data = this.mapper.mapArray<Asset, AssetDto>(assets, 'AssetDto', 'Asset');
-		const nextPageToken = data.length == 0 ? null: Utils.encrypt(data[data.length - 1].fingerprint.toString());
 		return {data, cursor: nextPageToken}
 	}
 
@@ -85,8 +85,8 @@ export class AddressesService {
 		}
 		order = 'desc'; // WARNING!!! We need to figure it out why ASC query plan is consuming more rows :(
 		const txs = await this.ledger.dbClient.getAddressTransactions(address, size, order, txId);
+		const nextPageToken = txs.length == 0 ? null: Utils.encrypt(txs[txs.length - 1].id.toString());
 		const data = this.mapper.mapArray<Transaction, TransactionDto>(txs, 'TransactionDto', 'Transaction');
-		const nextPageToken = data.length == 0 ? null: Utils.encrypt(data[data.length - 1].id.toString());
 		return { data: data, cursor: nextPageToken };
 	}
 
