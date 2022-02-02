@@ -18,28 +18,24 @@ export class AddressesService {
 		@InjectMapper('pojo-mapper') private mapper: Mapper) {}
 
 	async get(address: string): Promise<AddressDetailDto> {
-		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
-		try {
-			let { network, stake_address } = Utils.getAddressInfo(address);
-			const info =  await Promise.all([
-				this.callPromise(this.ledger.dbClient.getAddressBalance(address), 'balance'),
-				this.callPromise(this.ledger.dbClient.getAddressTransactionsTotal(address), 'total tx'),
-				// this.callPromise(this.ledger.dbClient.getAddressAssets(address), 'assets'),
-				// this.callPromise(this.ledger.dbClient.getAddressUtxos(address, 50), 'utxos')
-			])
-			return {
-				network,
-				address,
-				stake_address,
-				balance: Number(info[0]),
-				transactions_count: Number(info[1]),
-				// assets: info[2],
-				// utxos: info[3]
-			};
-		} catch(err) {
-			console.log(err);
-			throw APIError.badRequest(`invalid address: ${address}`);
-		}
+		if (!Utils.isValidAddress(address)) throw APIError.badRequest(`invalid address: ${address}`);
+		let { network, stake_address } = Utils.getAddressInfo(address);
+		const info =  await Promise.all([
+			this.callPromise(this.ledger.dbClient.getAddressBalance(address), 'balance'),
+			this.callPromise(this.ledger.dbClient.getAddressTransactionsTotal(address), 'total tx'),
+			// this.callPromise(this.ledger.dbClient.getAddressAssets(address), 'assets'),
+			// this.callPromise(this.ledger.dbClient.getAddressUtxos(address, 50), 'utxos')
+		])
+		return {
+			network,
+			address,
+			stake_address,
+			balance: Number(info[0]),
+			transactions_count: Number(info[1]),
+			// assets: info[2],
+			// utxos: info[3]
+		};
+		
 	}
 
 	
