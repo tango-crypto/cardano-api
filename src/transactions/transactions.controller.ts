@@ -1,5 +1,7 @@
-import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
-import { Metadata, Transaction, Utxo } from '@tango-crypto/tango-ledger';
+import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common';
+import { MetadataDto } from 'src/models/dto/Metadata.dto';
+import { TransactionDto } from 'src/models/dto/Transaction.dto';
+import { UtxoDto } from 'src/models/dto/Utxo.dto';
 import { PaginateResponse } from 'src/models/PaginateResponse';
 import { SubmitTxDto } from './dto/submitTx.dto';
 import { SubmitTxResponseDto } from './dto/submitTxResponse.dto';
@@ -10,18 +12,18 @@ export class TransactionsController {
 	constructor(private readonly transactionsService: TransactionsService) {}
 
 	@Get(':txHash')
-	get(@Param('txHash') txHash: string): Promise<Transaction> {
+	get(@Param('txHash') txHash: string): Promise<TransactionDto> {
 		return this.transactionsService.get(txHash);
 	}
 
 	@Get(':txHash/utxos')
-	getUtxos(@Param('txHash') txHash: string): Promise<{hash: string, inputs: Utxo[], outputs: Utxo[]}> {
+	getUtxos(@Param('txHash') txHash: string): Promise<{hash: string, inputs: UtxoDto[], outputs: UtxoDto[]}> {
 		return this.transactionsService.getUtxos(txHash);
 	}
 
 	@Get(':txHash/metadata')
-	getMetadata(@Param('txHash') txHash: string): Promise<PaginateResponse<Metadata>> {
-		return this.transactionsService.getMetadata(txHash);
+	getMetadata(@Param('txHash') txHash: string, @Query('size') size: number, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<MetadataDto>> {
+		return this.transactionsService.getMetadata(txHash, size, order, pageToken);
 	}
 
 	@Post('submit')

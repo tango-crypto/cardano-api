@@ -1,5 +1,6 @@
 import { hash_transaction, Transaction as SerializeTransaction } from '@emurgo/cardano-serialization-lib-nodejs';
 import { Injectable } from '@nestjs/common';
+import { Utils } from 'src/common/utils';
 import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
 import { Metadata, Transaction, Utxo } from '@tango-crypto/tango-ledger';
@@ -11,6 +12,8 @@ import { PaginateResponse } from 'src/models/PaginateResponse';
 import { TransactionDto } from 'src/models/dto/Transaction.dto';
 import { Mapper } from '@automapper/types';
 import { InjectMapper } from '@automapper/nestjs';
+import { UtxoDto } from 'src/models/dto/Utxo.dto';
+import { MetadataDto } from 'src/models/dto/Metadata.dto';
 
 @Injectable()
 export class TransactionsService {
@@ -40,15 +43,27 @@ export class TransactionsService {
 		return data;
 	}
 
-	getUtxos(txHash: string): Promise<{hash: string, inputs: Utxo[], outputs: Utxo[]}> {
+	async getUtxos(txHash: string): Promise<{hash: string, inputs: UtxoDto[], outputs: UtxoDto[]}> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
-		return this.ledger.dbClient.getTransactionUtxos(txHash);
+		const { hash, inputs, outputs} = await this.ledger.dbClient.getTransactionUtxos(txHash);
+		const inputUtxos = this.mapper.mapArray<Utxo, UtxoDto>(inputs, 'UtxoDto', 'Utxo');
+		const outputUtxos = this.mapper.mapArray<Utxo, UtxoDto>(outputs, 'UtxoDto', 'Utxo');
+		return {hash, inputs: inputUtxos, outputs: outputUtxos};
 	}
 
-	async getMetadata(txHash: string): Promise<PaginateResponse<Metadata>> {
-		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
-		const metadata = await this.ledger.dbClient.getTransactionMetadata(txHash);
-		return { data: metadata, cursor: null };
+	async getMetadata(txHash: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<MetadataDto>> {
+		let key = -1;
+		try {
+			const decr = Utils.decrypt(pageToken);
+			const number = decr ? Number(decr) : Number.NaN;
+			key = !Number.isNaN(number) ? number : -1;
+		} catch(err) {
+			// throw new Error('Invalid cursor');
+		}
+		const metadata = await this.ledger.dbClient.getTransactionMetadata(txHash, size, order, key);
+		const data = this.mapper.mapArray<Metadata, MetadataDto>(metadata, 'MetadataDto', 'Metadata');
+		const nextPageToken = data.length == 0 ? null : Utils.encrypt(data[data.length - 1].label)
+		return { data: data, cursor: nextPageToken };
 	}
 
 	async submit(userId: string, cborHex: string): Promise<string> {
