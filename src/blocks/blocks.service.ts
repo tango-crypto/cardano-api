@@ -4,26 +4,34 @@ import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
 import { Block, Transaction } from '@tango-crypto/tango-ledger';
 import { PaginateResponse } from 'src/models/PaginateResponse';
+import { BlockDto } from 'src/models/dto/Block.dto';
+import { TransactionDto } from 'src/models/dto/Transaction.dto';
+import { Mapper } from '@automapper/types';
+import { InjectMapper } from '@automapper/nestjs';
 
 @Injectable()
 export class BlocksService {
-	constructor(private readonly ledger: TangoLedgerService) {}
+	constructor(
+		private readonly ledger: TangoLedgerService,
+		@InjectMapper('pojo-mapper') private mapper: Mapper
+		) {}
 
-	async get(blockHashOrNumber: number|string): Promise<Block> {
+	async get(blockHashOrNumber: number|string): Promise<BlockDto> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
 		let block = await this.ledger.dbClient.getBlock(blockHashOrNumber);
 		if (!block) {
 			throw APIError.notFound(`block: ${blockHashOrNumber}`);
 		}
-		return block;
+		return this.mapper.map<Block, BlockDto>(block, 'BlockDto', 'Block');
 	}
 
-	getLatest(): Promise<Block> {
+	async getLatest(): Promise<BlockDto> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
-		return this.ledger.dbClient.getLatestBlock();
+		const block = await this.ledger.dbClient.getLatestBlock();
+		return this.mapper.map<Block, BlockDto>(block, 'BlockDto', 'Block');
 	}
 
-	async getBlockTransactions(blockNumber: number, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<Transaction>> {
+	async getBlockTransactions(blockNumber: number, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<TransactionDto>> {
 		let txId = 0;
 		try {
 			const decr = Utils.decrypt(pageToken);
@@ -34,6 +42,7 @@ export class BlocksService {
 		}
 		const txs = await this.ledger.dbClient.getBlockTransactions(blockNumber, size, order, txId);
 		const nextPageToken = txs.length == 0 ? null: Utils.encrypt(txs[txs.length - 1].id.toString());
-		return { data: txs, cursor: nextPageToken };
+		const data = this.mapper.mapArray<Transaction, TransactionDto>(txs, 'TransactionDto', 'Transaction');
+		return { data: data, cursor: nextPageToken };
 	}
 }

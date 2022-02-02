@@ -14,7 +14,7 @@ export class BlockProfile extends AutomapperProfile {
   mapProfile() {
     return (mapper: Mapper) => {
       mapper.createMap<Block, BlockDto>('Block', 'BlockDto')
-      .forMember(dest => dest.id, mapFrom(src => src.id))
+      .forMember(dest => dest.id, ignore())
       .forMember(dest => dest.hash, mapFrom(src => src.hash))
       .forMember(dest => dest.epoch_no, mapFrom(src => src.epoch_no))
       .forMember(dest => dest.slot_no, mapFrom(src => src.slot_no))
