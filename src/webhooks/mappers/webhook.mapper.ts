@@ -21,7 +21,10 @@ export class WebhookProfile extends AutomapperProfile {
       mapper.createMap(Webhook, WebhookDto)
       .forMember(dest => dest.id, mapFrom(src => src.webhook_id))
       .forMember(dest => dest.type, mapFrom(src => src.webhook_key.startsWith('addr') ? 'payment': webhookTypeMap[src.webhook_key]))
-      .forMember(dest => dest.address, mapDefer<Webhook>(src => src.webhook_key.startsWith('addr') ? fromValue(src.webhook_key) : ignore()));
+      .forMember(dest => dest.address, mapDefer<Webhook>(src => src.webhook_key.startsWith('addr') ? fromValue(src.webhook_key) : ignore()))
+      .forMember(dest => dest.create_date, mapFrom(src => new Date(Number(src.create_date)).toISOString()))
+      .forMember(dest => dest.update_date, mapFrom(src => new Date(Number(src.update_date)).toISOString()))
+      ;
 
       mapper.createMap(CreateWebhookDto, Webhook)
       .forMember(dest => dest.network, mapFrom(src => src.network))
