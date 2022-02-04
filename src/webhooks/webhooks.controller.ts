@@ -30,8 +30,8 @@ export class WebhooksController {
   }
 
   @Delete(':id')
-  async remove(@Param('accountId') accountId: string, @Param('id') id: string) {
+  async remove(@Param('accountId') accountId: string, @Param('id') id: string): Promise<{deleted: boolean, deleted_webhook_id: string, deleted_at: string}> {
     const deleted = await this.webhooksService.remove(accountId, id);
-    return { deleted };
+    return { deleted, deleted_webhook_id: id, deleted_at: new Date().toISOString() };
   }
 }
