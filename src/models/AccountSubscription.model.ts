@@ -2,6 +2,7 @@ export interface AccountSubscription {
     applications_count: number;
     available: string;
     currency: string;
+    webhooks_active: string;
     webhook_auth_token: string;
     end_date: string;
     tier: string;

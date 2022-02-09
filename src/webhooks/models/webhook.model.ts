@@ -6,6 +6,7 @@ export class Webhook {
     SK?: string;
     webhook_id: string; 
     account_id: string;
+    active?: string;
 
     @AutoMap()
     webhook_key: string; 
