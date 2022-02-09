@@ -70,15 +70,17 @@ export class WebhooksService {
       if (!allowConfirmations) {
         throw APIError.badRequest(`Webhook confirmations not allowed for account: ${accountId}`);
       }
-      const wbh = await this.findOne(accountId, id);
       const time = Date.now().toString();
       const keys = {
         PK: `ACCOUNT#${accountId}`,
         SK: `WBH#${id}`
       };
       webhook.update_date = time;
-      if (account.webhooks_active == 'true' && (webhook.available == 'true' || (!webhook.available && wbh.available == 'true'))) {
+      const updateExpr = [];
+      if (account.webhooks_active == 'true' && webhook.available == 'true') {
         webhook.active = 'true';
+      } else if (webhook.available == 'false') {
+        updateExpr.push({ key: 'active', expr: '', action: 'REMOVE' });
       }
       // remove undefined rules
       const data = Object.keys(webhook).reduce((obj, key) => {
@@ -87,7 +89,7 @@ export class WebhooksService {
         }
         return obj;
       }, {})
-      await this.client.updateItem(this.table, keys, data);
+      await this.client.updateItem(this.table, keys, data, null, false, updateExpr);
       return this.findOne(accountId, id);;
     }
 
