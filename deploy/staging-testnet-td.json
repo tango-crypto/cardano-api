@@ -1,28 +1,6 @@
 {
     "containerDefinitions": [
         {
-            "name": "firelens-container",
-            "essential": true,
-            "image": "public.ecr.aws/aws-observability/aws-for-fluent-bit:arm64-2.22.0",
-            "name": "log_router",
-            "firelensConfiguration": {
-                "type": "fluentbit",
-                "options": {
-                    "enable-ecs-log-metadata": "true"
-                }
-            },
-            "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                    "awslogs-group": "firelens-container",
-                    "awslogs-region": "us-east-1",
-                    "awslogs-create-group": "true",
-                    "awslogs-stream-prefix": "firelens"
-                }
-            },
-            "memoryReservation": 50
-        },
-        {
             "name": "cardano-api",
             "cpu": 256,
             "memory": 300,
@@ -102,14 +80,11 @@
                 "Env": "staging"
             },
             "logConfiguration": {
-                "logDriver": "awsfirelens",
+                "logDriver": "awslogs",
                  "options": {
-                    "Name": "loki",
-                    "Url": "http://10.0.6.143:3100/loki/api/v1/push",
-                    "Labels": "{job=\"firelens\"}",
-                    "RemoveKeys": "container_id,ecs_task_arn",
-                    "LabelKeys": "container_name,ecs_task_definition,source,ecs_cluster",
-                    "LineFormat": "key_value"
+                    "awslogs-group": "/ecs/cardano-staging/api/testnet",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
                 }
             }
         }
