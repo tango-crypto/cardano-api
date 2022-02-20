@@ -81,7 +81,7 @@
             },
             "logConfiguration": {
                 "logDriver": "awslogs",
-                "options": {
+                 "options": {
                     "awslogs-group": "/ecs/cardano-staging/api/testnet",
                     "awslogs-region": "us-east-1",
                     "awslogs-stream-prefix": "ecs"
