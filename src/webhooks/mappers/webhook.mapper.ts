@@ -45,7 +45,7 @@ export class WebhookProfile extends AutomapperProfile {
       .forMember(dest => dest.description, mapDefer<UpdateWebhookDto>(src => src.description != undefined && src.description != null ? fromValue(src.description) : ignore()))
       .forMember(dest => dest.callback_url, mapDefer<UpdateWebhookDto>(src => src.callback_url ? fromValue(src.callback_url) : ignore()))
       .forMember(dest => dest.rules, mapDefer<UpdateWebhookDto>(src => src.rules ? fromValue(mapper.mapArray(src.rules, Rule, RuleDto)) : ignore()))
-      .forMember(dest => dest.available, mapDefer<UpdateWebhookDto>(src => src.available ? src.available === "false" ? fromValue("false") : fromValue("true") : ignore()))
+      .forMember(dest => dest.available, mapDefer<UpdateWebhookDto>(src => src.available != undefined ? (src.available === "false" || src.available == false) ? fromValue("false") : fromValue("true") : ignore()))
       .forMember(dest => dest.webhook_key, mapDefer<UpdateWebhookDto>(src => src.type ? src.type == "payment" ? fromValue(src.address) : fromValue(webhookTypeMap[src.type]) : ignore()))
       .forMember(dest => dest.update_date, ignore())
       .forMember(dest => dest.create_date, ignore())

@@ -96,11 +96,15 @@ export class WebhooksService {
     async create(accountId: string, createWebhook: CreateWebhookDto): Promise<WebhookDto> {
       try {
         const webhook = this.mapper.mapArray([createWebhook], Webhook, CreateWebhookDto)[0];
-        const account = await this.accountService.getSubscription(accountId);
+        const account = await this.accountService.getAccount(accountId);
         if (!account) {
           throw APIError.notFound(`Account: ${accountId}`);
         }
-        const allowConfirmations = this.accountService.allowWebhookConfirmations(account, webhook.confirmations);
+        if (account.subscription.webhooks_count <= account.webhooks.length) {
+          throw APIError.badRequest(`Cannot create more than ${account.subscription.webhooks_count} webhooks`);
+        }
+
+        const allowConfirmations = this.accountService.allowWebhookConfirmations(account.subscription, webhook.confirmations);
         if (!allowConfirmations) {
           throw APIError.badRequest(`Webhook confirmations not allowed for account: ${accountId}`);
         }
@@ -115,7 +119,7 @@ export class WebhooksService {
           name: webhook.name,
           network: webhook.network,
           description: webhook.description || '',
-          auth_token: account.webhook_auth_token,
+          auth_token: account.subscription.webhook_auth_token,
           callback_url: webhook.callback_url,
           last_trigger_date: '-1',
           rules: webhook.rules || [],
@@ -125,7 +129,7 @@ export class WebhooksService {
           available: webhook.available,
           confirmations: webhook.confirmations,
         };
-        if (account.webhooks_active == 'true' && attributes.available == 'true') {
+        if (account.subscription.webhooks_active == 'true' && attributes.available == 'true') {
           attributes.active = 'true';
         }
         await this.client.putItem(this.table, attributes);

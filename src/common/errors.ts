@@ -5,8 +5,8 @@ export class APIError {
 	static notFound(resource: string): HttpException {
 		const notFoundError = {
 			status_code: 404,
-			message: 'Not Found',
-			error: `${resource} not found`
+			message: `${resource} not found`,
+			error: 'Not Found'
 		}
 		return new NotFoundException(notFoundError);
 	}
@@ -14,8 +14,8 @@ export class APIError {
 	static badRequest(message: string): HttpException {
 		const badRequestError = {
 			status_code: 400,
-			message: 'Bad Request',
-			error: message
+			message: message,
+			error: 'Bad Request'
 		}
 		return new BadRequestException(badRequestError);
 	}
