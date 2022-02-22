@@ -21,8 +21,12 @@ export class AddressesService {
 		if (!Utils.isValidAddress(address)) throw APIError.badRequest(`invalid address: ${address}`);
 		let { network, stake_address } = Utils.getAddressInfo(address);
 		const info =  await Promise.all([
-			this.callPromise(this.ledger.dbClient.getAddressBalance(address), 'balance'),
-			this.callPromise(this.ledger.dbClient.getAddressTransactionsTotal(address), 'total tx'),
+			this.ledger.dbClient.getAddressBalance(address),
+			this.ledger.dbClient.getAddressTransactionsTotal(address),
+			// this.ledger.dbClient.getAddressAssets(address),
+			// this.ledger.dbClient.getAddressUtxos(address, 50)
+			// this.callPromise(this.ledger.dbClient.getAddressBalance(address), 'balance'),
+			// this.callPromise(this.ledger.dbClient.getAddressTransactionsTotal(address), 'total tx'),
 			// this.callPromise(this.ledger.dbClient.getAddressAssets(address), 'assets'),
 			// this.callPromise(this.ledger.dbClient.getAddressUtxos(address, 50), 'utxos')
 		])
@@ -56,17 +60,20 @@ export class AddressesService {
 	async getUtxos(address: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<UtxoDto>> {
 		if (!Utils.isValidAddress(address)) throw APIError.badRequest(`invalid address: ${address}`);
 		let txId = 0;
+		let index = 0;
 		try {
-			const decr = Utils.decrypt(pageToken);
-			const number = decr ? Number(decr) : Number.NaN;
+			const decr = Utils.decrypt(pageToken).split('-');
+			const number = decr[0] ? Number(decr[0]) : Number.NaN;
+			const i = decr[1] ? Number(decr[1]) : Number.NaN;
 			txId = !Number.isNaN(number) ? number : 0;
+			index = !Number.isNaN(i) ? i : 0;
 		} catch(err) {
 			// return Promise.reject(new Error('Invalid page token'));
 		}
-		order = 'desc'; // WARNING!!! We need to figure it out why ASC query plan is consuming more rows :(
-		const utxos = await this.ledger.dbClient.getAddressUtxos(address, size, order, txId);
-		const nextPageToken = utxos.length == 0 ? null: Utils.encrypt(utxos[utxos.length - 1].tx_id.toString());
-		const data = this.mapper.mapArray<Utxo, UtxoDto>(utxos, 'UtxoDto', 'Utxo');
+		// order = 'desc'; // WARNING!!! We need to figure it out why ASC query plan is consuming more rows :(
+		const utxos = await this.ledger.dbClient.getAddressUtxos(address, size + 1, order, txId, index);
+		const [nextPageToken, items] = utxos.length <= size ? [null, utxos]: [Utils.encrypt(`${utxos[size - 1].tx_id}-${utxos[size - 1].index}`), utxos.slice(0, size)];
+		const data = this.mapper.mapArray<Utxo, UtxoDto>(items, 'UtxoDto', 'Utxo');
 		return { data: data, cursor: nextPageToken };
 	}
 
@@ -80,7 +87,7 @@ export class AddressesService {
 		} catch(err) {
 			// return Promise.reject(new Error('Invalid page token'));
 		}
-		order = 'desc'; // WARNING!!! We need to figure it out why ASC query plan is consuming more rows :(
+		// order = 'desc'; // WARNING!!! We need to figure it out why ASC query plan is consuming more rows :(
 		const txs = await this.ledger.dbClient.getAddressTransactions(address, size, order, txId);
 		const nextPageToken = txs.length == 0 ? null: Utils.encrypt(txs[txs.length - 1].id.toString());
 		const data = this.mapper.mapArray<Transaction, TransactionDto>(txs, 'TransactionDto', 'Transaction');

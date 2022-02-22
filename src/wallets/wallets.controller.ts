@@ -15,6 +15,6 @@ export class WalletsController {
 
 	@Get(':stake_address/addresses')
 	getStakeAddresses(@Param('stake_address') stakeAddress: string, @Query('size') size: number, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<AddressDto>> {
-		return this.stakesService.getAddresses(stakeAddress, size, order, pageToken);
+		return this.stakesService.getAddresses(stakeAddress, Number(size), order, pageToken);
 	}
 }
