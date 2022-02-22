@@ -22,7 +22,7 @@ export class TransactionsController {
 	}
 
 	@Get(':txHash/metadata')
-	getMetadata(@Param('txHash') txHash: string, @Query('size') size: number, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<MetadataDto>> {
+	getMetadata(@Param('txHash') txHash: string, @Query('size') size: number = 50, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<MetadataDto>> {
 		return this.transactionsService.getMetadata(txHash, Number(size), order, pageToken);
 	}
 

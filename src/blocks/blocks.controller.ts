@@ -19,7 +19,7 @@ export class BlocksController {
 	}
 
 	@Get(':blockNumber/transactions')
-	getBlockTransactions(@Param('blockNumber') blockNumber: number, @Query('size') size: number, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<TransactionDto>> {
+	getBlockTransactions(@Param('blockNumber') blockNumber: number, @Query('size') size: number = 50, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<TransactionDto>> {
 		return this.blocksService.getBlockTransactions(blockNumber, Number(size), order, pageToken);
 	}
 }

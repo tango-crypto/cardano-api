@@ -14,7 +14,7 @@ export class PoolsController {
 	}
 
 	@Get(':id/delegations')
-	getDelegations(@Param('id') id: string, @Query('size') size: number, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<PoolDelegationDto>> {
+	getDelegations(@Param('id') id: string, @Query('size') size: number = 50, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<PoolDelegationDto>> {
 		return this.poolsService.getDelegations(id, Number(size), order, pageToken);
 	}
 }
