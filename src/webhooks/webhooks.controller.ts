@@ -11,7 +11,7 @@ export class WebhooksController {
 
   @Get()
   async findAll(@Headers('x-api-key') accountId: string, @Query('size') size: number, @Query('cursor') pageToken: string): Promise<PaginateResponse<WebhookDto>> {
-    return this.webhooksService.findAll(accountId, size, pageToken);
+    return this.webhooksService.findAll(accountId, Number(size), pageToken);
   }
 
   @Get(':id')

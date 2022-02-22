@@ -23,8 +23,6 @@ export class AddressesService {
 		const info =  await Promise.all([
 			this.ledger.dbClient.getAddressBalance(address),
 			this.ledger.dbClient.getAddressTransactionsTotal(address),
-			// this.ledger.dbClient.getAddressAssets(address),
-			// this.ledger.dbClient.getAddressUtxos(address, 50)
 			// this.callPromise(this.ledger.dbClient.getAddressBalance(address), 'balance'),
 			// this.callPromise(this.ledger.dbClient.getAddressTransactionsTotal(address), 'total tx'),
 			// this.callPromise(this.ledger.dbClient.getAddressAssets(address), 'assets'),
@@ -51,9 +49,9 @@ export class AddressesService {
 		} catch(err) {
 			// throw new Error('Invalid cursor');
 		}
-		const assets = await this.ledger.dbClient.getAddressAssets(address, size, order, fingerprint);
-		const nextPageToken = assets.length == 0 ? null: Utils.encrypt(assets[assets.length - 1].fingerprint.toString());
-		const data = this.mapper.mapArray<Asset, AssetDto>(assets, 'AssetDto', 'Asset');
+		const assets = await this.ledger.dbClient.getAddressAssets(address, size + 1, order, fingerprint);
+		const [nextPageToken, items] = assets.length <= size ? [null, assets] : [Utils.encrypt(assets[size - 1].fingerprint.toString()), assets.slice(0, size)];
+		const data = this.mapper.mapArray<Asset, AssetDto>(items, 'AssetDto', 'Asset');
 		return {data, cursor: nextPageToken}
 	}
 
@@ -88,9 +86,9 @@ export class AddressesService {
 			// return Promise.reject(new Error('Invalid page token'));
 		}
 		// order = 'desc'; // WARNING!!! We need to figure it out why ASC query plan is consuming more rows :(
-		const txs = await this.ledger.dbClient.getAddressTransactions(address, size, order, txId);
-		const nextPageToken = txs.length == 0 ? null: Utils.encrypt(txs[txs.length - 1].id.toString());
-		const data = this.mapper.mapArray<Transaction, TransactionDto>(txs, 'TransactionDto', 'Transaction');
+		const txs = await this.ledger.dbClient.getAddressTransactions(address, size + 1, order, txId);
+		const [nextPageToken, items] = txs.length <= size ? [null, txs]: [Utils.encrypt(txs[size - 1].id.toString()), txs.slice(0, size)];
+		const data = this.mapper.mapArray<Transaction, TransactionDto>(items, 'TransactionDto', 'Transaction');
 		return { data: data, cursor: nextPageToken };
 	}
 

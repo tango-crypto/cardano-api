@@ -32,9 +32,9 @@ export class StakesService {
 		} catch(err) {
 			// throw new Error('Invalid cursor');
 		}
-		const addresses = await this.ledger.dbClient.getStakeAddresses(stakeAddress, size, order, address);
-		const nextPageToken = addresses.length == 0 ? null: Utils.encrypt(addresses[addresses.length - 1].address.toString());
-		const data = this.mapper.mapArray<Address, AddressDto>(addresses, 'AddressDto', 'Address');
+		const addresses = await this.ledger.dbClient.getStakeAddresses(stakeAddress, size + 1, order, address);
+		const [nextPageToken, items] = addresses.length <= size ? [null, addresses]: [Utils.encrypt(addresses[size - 1].address.toString()), addresses.slice(0, size)];
+		const data = this.mapper.mapArray<Address, AddressDto>(items, 'AddressDto', 'Address');
 		return { data: data, cursor: nextPageToken };
 
 	}

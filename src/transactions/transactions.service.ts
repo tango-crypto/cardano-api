@@ -60,10 +60,10 @@ export class TransactionsService {
 		} catch(err) {
 			// throw new Error('Invalid cursor');
 		}
-		const metadata = await this.ledger.dbClient.getTransactionMetadata(txHash, size, order, key);
+		const metadata = await this.ledger.dbClient.getTransactionMetadata(txHash, size + 1, order, key);
 		const data = this.mapper.mapArray<Metadata, MetadataDto>(metadata, 'MetadataDto', 'Metadata');
-		const nextPageToken = data.length == 0 ? null : Utils.encrypt(data[data.length - 1].label)
-		return { data: data, cursor: nextPageToken };
+		const [nextPageToken, items] = data.length <= size ? [null, data] : [Utils.encrypt(data[size - 1].label), data.slice(0, size)];
+		return { data: items, cursor: nextPageToken };
 	}
 
 	async submit(userId: string, cborHex: string): Promise<string> {

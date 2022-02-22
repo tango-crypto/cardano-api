@@ -40,9 +40,9 @@ export class BlocksService {
 		} catch(err) {
 			// return Promise.reject(new Error('Invalid page token'));
 		}
-		const txs = await this.ledger.dbClient.getBlockTransactions(blockNumber, size, order, txId);
-		const nextPageToken = txs.length == 0 ? null: Utils.encrypt(txs[txs.length - 1].id.toString());
-		const data = this.mapper.mapArray<Transaction, TransactionDto>(txs, 'TransactionDto', 'Transaction');
+		const txs = await this.ledger.dbClient.getBlockTransactions(blockNumber, size + 1, order, txId);
+		const [nextPageToken, items] = txs.length <= size ? [null, txs]: [Utils.encrypt(txs[size - 1].id.toString()), txs.slice(0, size)];
+		const data = this.mapper.mapArray<Transaction, TransactionDto>(items, 'TransactionDto', 'Transaction');
 		return { data: data, cursor: nextPageToken };
 	}
 }

@@ -32,9 +32,9 @@ export class PoolsService {
 		} catch(err) {
 			// throw new Error('Invalid cursor');
 		}
-		const delegations = await this.ledger.dbClient.getDelegations(poolId, size, order, txId);
-		const nextPageToken = delegations.length == 0 ? null: Utils.encrypt(delegations[delegations.length - 1].tx_id.toString());
-		const data = this.mapper.mapArray<PoolDelegation, PoolDelegationDto>(delegations, 'PoolDelegationDto', 'PoolDelegation')
+		const delegations = await this.ledger.dbClient.getDelegations(poolId, size + 1, order, txId);
+		const [nextPageToken, items] = delegations.length <= size ? [null, delegations]: [Utils.encrypt(delegations[size - 1].tx_id.toString()), delegations.slice(0, size)];
+		const data = this.mapper.mapArray<PoolDelegation, PoolDelegationDto>(items, 'PoolDelegationDto', 'PoolDelegation')
 		return { data: data, cursor: nextPageToken};
 	}
 }
