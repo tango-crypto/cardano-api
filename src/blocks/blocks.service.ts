@@ -31,7 +31,7 @@ export class BlocksService {
 		return this.mapper.map<Block, BlockDto>(block, 'BlockDto', 'Block');
 	}
 
-	async getBlockTransactions(blockNumber: number, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<TransactionDto>> {
+	async getBlockTransactions(blockHashOrNumber: number | string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<TransactionDto>> {
 		let txId = 0;
 		try {
 			const decr = Utils.decrypt(pageToken);
@@ -40,7 +40,7 @@ export class BlocksService {
 		} catch(err) {
 			// return Promise.reject(new Error('Invalid page token'));
 		}
-		const txs = await this.ledger.dbClient.getBlockTransactions(blockNumber, size + 1, order, txId);
+		const txs = await this.ledger.dbClient.getBlockTransactions(blockHashOrNumber, size + 1, order, txId);
 		const [nextPageToken, items] = txs.length <= size ? [null, txs]: [Utils.encrypt(txs[size - 1].id.toString()), txs.slice(0, size)];
 		const data = this.mapper.mapArray<Transaction, TransactionDto>(items, 'TransactionDto', 'Transaction');
 		return { data: data, cursor: nextPageToken };

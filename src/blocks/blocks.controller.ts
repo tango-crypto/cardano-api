@@ -18,8 +18,8 @@ export class BlocksController {
 		return this.blocksService.getLatest();
 	}
 
-	@Get(':blockNumber/transactions')
-	getBlockTransactions(@Param('blockNumber') blockNumber: number, @Query('size') size: number = 50, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<TransactionDto>> {
-		return this.blocksService.getBlockTransactions(blockNumber, Number(size), order, pageToken);
+	@Get(':blockHashOrNumber/transactions')
+	getBlockTransactions(@Param('blockHashOrNumber') blockHashOrNumber: number | string, @Query('size') size: number = 50, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<TransactionDto>> {
+		return this.blocksService.getBlockTransactions(blockHashOrNumber, Number(size), order, pageToken);
 	}
 }
