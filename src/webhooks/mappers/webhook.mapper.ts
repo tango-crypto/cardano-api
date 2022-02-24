@@ -32,7 +32,7 @@ export class WebhookProfile extends AutomapperProfile {
       .forMember(dest => dest.description, mapFrom(src => src.description))
       .forMember(dest => dest.type, fromValue("webhooks"))
       .forMember(dest => dest.callback_url, mapFrom(src => src.callback_url))
-      .forMember(dest => dest.available, mapFrom(src => src.available === "false" ? "false" : "true"))
+      .forMember(dest => dest.available, mapFrom(src => src.available != undefined && (src.available === "false" || src.available == false) ? "false" : "true"))
       .forMember(dest => dest.rules, mapFrom(src => mapper.mapArray(src.rules, Rule, RuleDto)))
       .forMember(dest => dest.create_date, ignore())
       .forMember(dest => dest.update_date, ignore())

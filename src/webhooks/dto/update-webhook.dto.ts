@@ -1,6 +1,5 @@
-import { ValidateIf } from "class-validator";
-import { IsWebhookPaymentAddress } from "../validators/webhook-address.validator";
-import { IsWebhookType } from "../validators/webhook-type.validator";
+import { IsUrl, ValidateIf } from "class-validator";
+import { IsWebhookPaymentAddress, IsWebhookType } from "../validators/webhook.validator";
 import { RuleDto } from "./rule.dto";
 
 export class UpdateWebhookDto {
@@ -15,7 +14,11 @@ export class UpdateWebhookDto {
     name?: string;
     network?: string;
     description?: string;
+
+    @ValidateIf(o => o.callback_url)
+    @IsUrl()
     callback_url?: string;
+
     rules?: RuleDto[];
     available?: string | boolean;
     confirmations?: number;
