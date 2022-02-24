@@ -1,5 +1,6 @@
+import { Type } from "class-transformer";
 import { AutoMap } from "@automapper/classes";
-import { IsIn, IsNotEmpty, IsUrl } from 'class-validator';
+import { ValidateIf, IsIn, IsNotEmpty, IsUrl, ValidateNested } from 'class-validator';
 import { IsWebhookPaymentAddress, IsWebhookType } from "../validators/webhook.validator";
 import { RuleDto } from "./rule.dto";
 
@@ -26,6 +27,9 @@ export class CreateWebhookDto {
     callback_url: string;
 
     @AutoMap({ typeFn: () => RuleDto})
+    @ValidateIf(r => r.rules && r.rules.length > 0)
+    @ValidateNested({each: true})
+    @Type(() => RuleDto)
     rules: RuleDto[];
 
     @AutoMap()

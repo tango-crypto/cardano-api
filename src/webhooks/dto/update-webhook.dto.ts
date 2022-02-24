@@ -1,4 +1,5 @@
-import { IsUrl, ValidateIf } from "class-validator";
+import { Type } from "class-transformer";
+import { IsDefined, IsUrl, ValidateIf, ValidateNested } from "class-validator";
 import { IsWebhookPaymentAddress, IsWebhookType } from "../validators/webhook.validator";
 import { RuleDto } from "./rule.dto";
 
@@ -19,7 +20,11 @@ export class UpdateWebhookDto {
     @IsUrl()
     callback_url?: string;
 
+    @ValidateIf(r => r.rules && r.rules.length > 0)
+    @ValidateNested({each: true})
+    @Type(() => RuleDto)
     rules?: RuleDto[];
+    
     available?: string | boolean;
     confirmations?: number;
 }
