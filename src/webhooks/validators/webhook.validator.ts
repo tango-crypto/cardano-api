@@ -1,5 +1,6 @@
 import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator';
 import { webhookTypes } from '../models/webhook.model';
+import * as cardanoAddresses from 'cardano-addresses';
 
 const payment = webhookTypes.find(w => w == 'payment');
 
@@ -14,7 +15,8 @@ export function IsWebhookPaymentAddress(validationOptions?: ValidationOptions) {
       validator: {
         validate(value: any, args: ValidationArguments) {
           const relatedValue = (args.object as any)['type'];
-          return relatedValue != payment || (typeof value === 'string' && value.startsWith('addr')); // you can return a Promise<boolean> here as well, if you want to make async validation
+          if (relatedValue && relatedValue != payment) return true;
+          return validAddress(value); // you can return a Promise<boolean> here as well, if you want to make async validation
         },
       },
     });
@@ -37,3 +39,26 @@ export function IsWebhookType(validationOptions?: ValidationOptions) {
     });
   };
 }
+
+export async function validAddress(address: string): Promise<boolean> {
+  try {
+    await cardanoAddresses.inspectAddress(address);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+
+export const webhookTypeMap = {
+  'epoch': 'WBH_EPOCH',
+  'block': 'WBH_BLOCK',
+  'transaction': 'WBH_TRANSACTION',
+  'delegation': 'WBH_DELEGATION',
+  'WBH_EPOCH': 'epoch',
+  'WBH_BLOCK': 'block',
+  'WBH_TRANSACTION': 'transaction',
+  'WBH_DELEGATION': 'delegation'
+};
+
+export const staticWebhookType = ['WBH_EPOCH', 'WBH_BLOCK', 'WBH_TRANSACTION', 'WBH_DELEGATION'];

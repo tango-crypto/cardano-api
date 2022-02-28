@@ -5,6 +5,7 @@ import { IsWebhookPaymentAddress, IsWebhookType } from "../validators/webhook.va
 import { RuleDto } from "./rule.dto";
 
 export class CreateWebhookDto {
+    @ValidateIf(w => w.address)
     @IsWebhookPaymentAddress({message: 'Invalid address for payment webhook'})
     address?: string;
 

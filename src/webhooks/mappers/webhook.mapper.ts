@@ -8,6 +8,7 @@ import { UpdateWebhookDto } from '../dto/update-webhook.dto';
 import { WebhookDto } from '../dto/webhook.dto';
 import { Rule } from '../models/rule.model';
 import { Webhook } from '../models/webhook.model';
+import { staticWebhookType, webhookTypeMap } from '../validators/webhook.validator';
 
 
 @Injectable()
@@ -20,8 +21,8 @@ export class WebhookProfile extends AutomapperProfile {
     return (mapper: Mapper) => {
       mapper.createMap(Webhook, WebhookDto)
       .forMember(dest => dest.id, mapFrom(src => src.webhook_id))
-      .forMember(dest => dest.type, mapFrom(src => src.webhook_key.startsWith('addr') ? 'payment': webhookTypeMap[src.webhook_key]))
-      .forMember(dest => dest.address, mapDefer<Webhook>(src => src.webhook_key.startsWith('addr') ? fromValue(src.webhook_key) : ignore()))
+      .forMember(dest => dest.type, mapFrom(src => staticWebhookType.includes(src.webhook_key) ? webhookTypeMap[src.webhook_key] : 'payment'))
+      .forMember(dest => dest.address, mapDefer<Webhook>(src =>  staticWebhookType.includes(src.webhook_key) ? ignore() : fromValue(src.webhook_key)))
       .forMember(dest => dest.create_date, mapFrom(src => new Date(Number(src.create_date)).toISOString()))
       .forMember(dest => dest.update_date, mapFrom(src => new Date(Number(src.update_date)).toISOString()))
       ;
@@ -55,15 +56,3 @@ export class WebhookProfile extends AutomapperProfile {
     };
   }
 }
-
-
-const webhookTypeMap = {
-  'epoch': 'WBH_EPOCH',
-  'block': 'WBH_BLOCK',
-  'transaction': 'WBH_TRANSACTION',
-  'delegation': 'WBH_DELEGATION',
-  'WBH_EPOCH': 'epoch',
-  'WBH_BLOCK': 'block',
-  'WBH_TRANSACTION': 'transaction',
-  'WBH_DELEGATION': 'delegation'
-};

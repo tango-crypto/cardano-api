@@ -13,6 +13,7 @@ import { PaginateResponse } from 'src/models/PaginateResponse';
 import { UpdateWebhookDto } from './dto/update-webhook.dto';
 import { CreateWebhookDto } from './dto/create-webhook.dto';
 import { AccountService } from 'src/providers/account/account.service';
+import * as cardanoAddresses from 'cardano-addresses';
 @Injectable()
 export class WebhooksService {
     client: DynamoClient;
@@ -61,20 +62,27 @@ export class WebhooksService {
     }
 
     async update(accountId: string, id: string, updateWebhook: UpdateWebhookDto): Promise<WebhookDto> {
-      const webhook = this.mapper.mapArray([updateWebhook], Webhook, UpdateWebhookDto)[0];
       const account = await this.accountService.getSubscription(accountId);
       if (!account) {
         throw APIError.notFound(`Account: ${accountId}`);
       }
-      const allowConfirmations = this.accountService.allowWebhookConfirmations(account, webhook.confirmations);
+      const allowConfirmations = this.accountService.allowWebhookConfirmations(account, updateWebhook.confirmations);
       if (!allowConfirmations) {
         throw APIError.badRequest(`Webhook confirmations not allowed for account: ${accountId}`);
       }
+
+      const wbh = await this.findOne(accountId, id);
+      updateWebhook.type = updateWebhook.type || wbh.type;
+      updateWebhook.network = updateWebhook.network || wbh.network;
+      updateWebhook.address = updateWebhook.address || wbh.address;
+      await this.validateWebhook(updateWebhook);
+
       const time = Date.now().toString();
       const keys = {
         PK: `ACCOUNT#${accountId}`,
         SK: `WBH#${id}`
       };
+      const webhook = this.mapper.mapArray([updateWebhook], Webhook, UpdateWebhookDto)[0];
       webhook.update_date = time;
       const updateExpr = [];
       if (account.webhooks_active == 'true' && webhook.available == 'true') {
@@ -95,6 +103,7 @@ export class WebhooksService {
 
     async create(accountId: string, createWebhook: CreateWebhookDto): Promise<WebhookDto> {
       try {
+        await this.validateWebhook(createWebhook);
         const webhook = this.mapper.mapArray([createWebhook], Webhook, CreateWebhookDto)[0];
         const account = await this.accountService.getAccount(accountId);
         if (!account) {
@@ -147,6 +156,19 @@ export class WebhooksService {
 		}
 		await this.client.deleteItem(this.table, keys);
     return true;
+  }
+
+  private async validateWebhook(webhook: UpdateWebhookDto | CreateWebhookDto) {
+    if (webhook.address) {
+      if (webhook.type != 'payment') {
+        throw APIError.badRequest('Field address is only available for webhook of type payment');
+      }
+      const info = await cardanoAddresses.inspectAddress(webhook.address);
+      const network_tag = info.address_type != 8 ? webhook.network == 'testnet' ? 0 : 1 : webhook.network == 'testnet' ? 1097911063 : null;
+      if (info.network_tag != network_tag) {
+        throw APIError.badRequest(`Invalid address ${webhook.address} for network: ${webhook.network}`);
+      }
+    }
   }
 
 }
