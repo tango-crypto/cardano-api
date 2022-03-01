@@ -1,11 +1,11 @@
 import { Type } from "class-transformer";
-import { IsIn, IsNotEmpty, IsUrl, ValidateIf, ValidateNested } from "class-validator";
+import { IsIn, IsUrl, ValidateIf, ValidateNested } from "class-validator";
 import { IsWebhookPaymentAddress, IsWebhookType } from "../validators/webhook.validator";
 import { RuleDto } from "./rule.dto";
 
 export class UpdateWebhookDto {
-    @ValidateIf(w => w.address)
-    @IsWebhookPaymentAddress({message: 'Invalid address'})
+    @ValidateIf(w => w.address || w.type == 'payment')
+    @IsWebhookPaymentAddress({message: 'Invalid or missing address'})
     address?: string;
 
     @ValidateIf(w => w.type)

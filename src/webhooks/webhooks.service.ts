@@ -75,7 +75,7 @@ export class WebhooksService {
       updateWebhook.type = updateWebhook.type || wbh.type;
       updateWebhook.network = updateWebhook.network || wbh.network;
       updateWebhook.address = updateWebhook.address || wbh.address;
-      await this.validateWebhook(updateWebhook);
+      await this.validateWebhookAddress(updateWebhook);
 
       const time = Date.now().toString();
       const keys = {
@@ -103,7 +103,7 @@ export class WebhooksService {
 
     async create(accountId: string, createWebhook: CreateWebhookDto): Promise<WebhookDto> {
       try {
-        await this.validateWebhook(createWebhook);
+        await this.validateWebhookAddress(createWebhook);
         const webhook = this.mapper.mapArray([createWebhook], Webhook, CreateWebhookDto)[0];
         const account = await this.accountService.getAccount(accountId);
         if (!account) {
@@ -158,15 +158,16 @@ export class WebhooksService {
     return true;
   }
 
-  private async validateWebhook(webhook: UpdateWebhookDto | CreateWebhookDto) {
-    if (webhook.address) {
-      if (webhook.type != 'payment') {
-        throw APIError.badRequest('Field address is only available for webhook of type payment');
-      }
-      const info = await cardanoAddresses.inspectAddress(webhook.address);
-      const network_tag = info.address_type != 8 ? webhook.network == 'testnet' ? 0 : 1 : webhook.network == 'testnet' ? 1097911063 : null;
-      if (info.network_tag != network_tag) {
-        throw APIError.badRequest(`Invalid address ${webhook.address} for network: ${webhook.network}`);
+  private async validateWebhookAddress(webhook: UpdateWebhookDto | CreateWebhookDto) {
+    if (webhook.type == 'payment') {
+      try {
+        const info = await cardanoAddresses.inspectAddress(webhook.address);
+        const network_tag = info.address_type != 8 ? webhook.network == 'testnet' ? 0 : 1 : webhook.network == 'testnet' ? 1097911063 : null;
+        if (info.network_tag != network_tag) {
+          throw APIError.badRequest(`Invalid address ${webhook.address} for network: ${webhook.network}`);
+        }
+      } catch (err) {
+        throw APIError.badRequest(`Invalid address ${webhook.address}`);
       }
     }
   }
