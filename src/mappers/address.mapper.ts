@@ -1,4 +1,4 @@
-import { mapFrom } from '@automapper/core';
+import { ignore, mapDefer, mapFrom } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/types';
 import { Injectable } from '@nestjs/common';
@@ -15,6 +15,7 @@ export class AddressProfile extends AutomapperProfile {
     return (mapper: Mapper) => {
       mapper.createMap<Address, AddressDto>('Address', 'AddressDto')
       .forMember(dest => dest.address, mapFrom(src => src.address))
+      .forMember(dest => dest.quantity, mapDefer(src => src.quantity ? mapFrom(src => src.quantity) : ignore()))
       ;
     }
   }
