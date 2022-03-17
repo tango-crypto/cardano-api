@@ -14,6 +14,7 @@ import { NativeScript } from 'src/models/dto/NativeScript.dto';
 
 @Injectable()
 export class StakesService {
+	
 	constructor(
 		private readonly ledger: TangoLedgerService,
 		@InjectMapper('pojo-mapper') private mapper: Mapper
@@ -68,6 +69,11 @@ export class StakesService {
 		const json = Seed.policyScriptToJson(script);
 		const keys = Seed.getScriptKeys(script).map(k => k.to_bech32());
 		return { script: json, keys };
+	}
+
+	getNativeScriptAddress(jsonScript: JsonScript, network: string): string {
+		const script = Seed.buildPolicyScript(jsonScript);
+		return Seed.getScriptAddress(script, network).to_bech32();
 	}
 
 }

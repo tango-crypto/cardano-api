@@ -36,4 +36,9 @@ export class WalletsController {
 	buildNativeScript(@Body() jsonScript: JsonScript): Promise<NativeScript> {
 		return this.stakesService.buildNativeScript(jsonScript);
 	}
+
+	@Post('native_script/address')
+	getNativeScriptAddress(@Body() jsonScript: JsonScript, @Query('network') network = 'mainnet'): string {
+		return this.stakesService.getNativeScriptAddress(jsonScript, network);
+	}
 }

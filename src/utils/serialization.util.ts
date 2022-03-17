@@ -1097,6 +1097,13 @@ export class Seed {
     return result;
   }
 
+  static getScriptAddress(script: Script, network = 'mainnet'): Address {
+		let networkId = network == 'mainnet' ? NetworkInfo.mainnet().network_id() : NetworkInfo.testnet().network_id();
+		const scriptHash = this.getScriptHash(script.root);
+		const credential = StakeCredential.from_scripthash(scriptHash);
+		return BaseAddress.new(networkId, credential, credential).to_address();
+	}
+
   static getScriptKeys(script: Script): Bip32PrivateKey[] {
     const result: Bip32PrivateKey[] = [];
     if (script.keyPair) {
