@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Utils } from 'src/common/utils';
+import { Seed } from 'src/utils/serialization.util';
 import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
 import { Address, Stake } from '@tango-crypto/tango-ledger';
@@ -37,6 +38,23 @@ export class StakesService {
 		const data = this.mapper.mapArray<Address, AddressDto>(items, 'AddressDto', 'Address');
 		return { data: data, cursor: nextPageToken };
 
+	}
+
+	generateRecoveryPhrase(size: number, includeKey: boolean): {phrase: string[], key: string} {
+		const result: {phrase: string[], key: string} = { phrase: [], key: ''};
+		result.phrase = Seed.toMnemonicList(Seed.generateRecoveryPhrase(size));
+		if (includeKey) {
+			result.key = Seed.deriveRootKey(result.phrase).to_bech32();
+		}
+		return result;
+	}
+
+	// getRecoveryPhrase(key: string): string [] {
+	// 	return Seed.toMnemonicList(Seed.getRecoveryPhrase(key));
+	// }
+
+	getRecoveryPhraseKey(phrase: string | string[]): string {
+		return Seed.deriveRootKey(phrase).to_bech32();
 	}
 
 }
