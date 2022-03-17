@@ -1,9 +1,11 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { AddressDto } from 'src/models/dto/Address.dto';
 import { CreateRecoveryPhrase } from 'src/models/dto/CreateRecoveryPhrase.dto';
+import { NativeScript } from 'src/models/dto/NativeScript.dto';
 import { RecoveryPhrase } from 'src/models/dto/RecoveryPhrase.dto';
 import { StakeDto } from 'src/models/dto/Stake.dto';
 import { PaginateResponse } from 'src/models/PaginateResponse';
+import { JsonScript } from 'src/utils/models/json-script.model';
 import { StakesService } from './stakes.service';
 
 @Controller(':accountId/wallets')
@@ -28,5 +30,10 @@ export class WalletsController {
 	@Post('recovery_phrase/key')
 	getRecoveryPhraseKey(@Body() recovery: RecoveryPhrase): string {
 		return this.stakesService.getRecoveryPhraseKey(recovery.phrase);
+	}
+
+	@Post('native_script')
+	buildNativeScript(@Body() jsonScript: JsonScript): Promise<NativeScript> {
+		return this.stakesService.buildNativeScript(jsonScript);
 	}
 }

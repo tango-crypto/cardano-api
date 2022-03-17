@@ -96,7 +96,7 @@ export class Seed {
   }
 
   // missing entropy from Bip32PrivateKey
-  
+
   // static getRecoveryPhrase(rootKey: string) {
   //   const key = Bip32PrivateKey.from_bech32(rootKey);
   //   return entropyToMnemonic(Buffer.from(key.to_raw_key().as_bytes()));
@@ -992,7 +992,7 @@ export class Seed {
     }
   }
 
-  static buildPolicyScript(json: JsonScript, currentSlot: number): Script {
+  static buildPolicyScript(json: JsonScript, currentSlot?: number): Script {
     if (json.type === ScriptTypeEnum.Sig) {
       // Single Issuer
       let keyPair: Bip32KeyPair; // needed to get the signing keys when export (e.g toJSON)
@@ -1058,14 +1058,14 @@ export class Seed {
       } else {
         slot = json.slot;
       }
-      return { root: Seed.buildAfterScript(slot), slot: slot, scripts: [] };
+      return { root: Seed.buildAfterScript(slot), slot: slot, scripts: json.scripts ? json.scripts.map(s => Seed.buildPolicyScript(s, currentSlot)) : [] };
     }
     if (json.type === ScriptTypeEnum.Before) {
       // Before
       let slot = 0;
       if (!json.slot) {
+        slot = currentSlot; // before now
         const lockTime = json.lockTime;
-        slot = currentSlot + 180; // only 3 min to mint tokens
         if (lockTime != 'now') {
           const now = Date.now();
           const datetime = new Date(lockTime).getTime();
@@ -1074,7 +1074,7 @@ export class Seed {
       } else {
         slot = json.slot;
       }
-      return { root: Seed.buildBeforeScript(slot), slot: slot, scripts: [] };
+      return { root: Seed.buildBeforeScript(slot), slot: slot, scripts: json.scripts ? json.scripts.map(s => Seed.buildPolicyScript(s, currentSlot)) : [] };
     }
   }
 
@@ -1084,7 +1084,7 @@ export class Seed {
     if (script.keyHash) {
       result.keyHash = script.keyHash;
     }
-    if (result.type === 'any') {
+    if (result.type === 'atLeast') {
       // Multiple Issuer At least)
       result.require = script.root.as_script_n_of_k().n();
     }

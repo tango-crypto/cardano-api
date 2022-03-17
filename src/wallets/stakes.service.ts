@@ -9,6 +9,8 @@ import { Mapper } from '@automapper/types';
 import { InjectMapper } from '@automapper/nestjs';
 import { StakeDto } from 'src/models/dto/Stake.dto';
 import { AddressDto } from 'src/models/dto/Address.dto';
+import { JsonScript, ScriptTypeEnum } from 'src/utils/models/json-script.model';
+import { NativeScript } from 'src/models/dto/NativeScript.dto';
 
 @Injectable()
 export class StakesService {
@@ -55,6 +57,17 @@ export class StakesService {
 
 	getRecoveryPhraseKey(phrase: string | string[]): string {
 		return Seed.deriveRootKey(phrase).to_bech32();
+	}
+
+	async buildNativeScript(jsonScript: JsonScript): Promise<NativeScript> {
+		let currentSlot = 0;
+		if (jsonScript.lockTime && (jsonScript.type == ScriptTypeEnum.After || jsonScript.type == ScriptTypeEnum.Before)) {
+			currentSlot = (await this.ledger.dbClient.getLatestBlock()).slot_no;
+		}
+		const script = Seed.buildPolicyScript(jsonScript, currentSlot); 
+		const json = Seed.policyScriptToJson(script);
+		const keys = Seed.getScriptKeys(script).map(k => k.to_bech32());
+		return { script: json, keys };
 	}
 
 }
