@@ -18,3 +18,11 @@ services:
     volumes:
       - .:/opt/node_app/app/
       - $HOME/.aws/credentials:/home/node/.aws/credentials
+  redis:
+    image: redis:6.2.6
+    command: redis-server
+    ports:
+      - target: 6379
+        published: 6377
+        protocol: tcp
+        mode: host

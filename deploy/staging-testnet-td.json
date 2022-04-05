@@ -70,6 +70,10 @@
                 {
                     "name": "DYNAMO_DB_ACCOUNT_TABLE_NAME",
                     "valueFrom": "/staging/v1/api/db/table"
+                },
+                {
+                    "name": "REDIS_CLUSTERS",
+                    "valueFrom": "/staging/v1/tyk/redis_cluster"
                 }
             ],
             "user": "node",

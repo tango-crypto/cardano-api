@@ -14,6 +14,7 @@ import { UpdateWebhookDto } from './dto/update-webhook.dto';
 import { CreateWebhookDto } from './dto/create-webhook.dto';
 import { AccountService } from 'src/providers/account/account.service';
 import * as cardanoAddresses from 'cardano-addresses';
+import { MeteringService } from 'src/providers/metering/metering.service';
 @Injectable()
 export class WebhooksService {
     client: DynamoClient;
@@ -22,6 +23,7 @@ export class WebhooksService {
     constructor(
         private readonly configService: ConfigService,
         private readonly accountService: AccountService,
+        private readonly meteringService: MeteringService,
         @InjectMapper('mapper') private mapper: Mapper
     ){
       const config: DynamoDBClientConfig = {
@@ -96,7 +98,10 @@ export class WebhooksService {
           obj[key] = webhook[key];
         }
         return obj;
-      }, {})
+      }, {});
+      if (webhook.available == 'true' && wbh.available == 'false') {
+        await this.meteringService.removeWebhookFails(accountId, id);
+      }
       await this.client.updateItem(this.table, keys, data, null, false, updateExpr);
       return this.findOne(accountId, id);;
     }
@@ -154,6 +159,7 @@ export class WebhooksService {
 			PK: `ACCOUNT#${accountId}`,
 			SK: `WBH#${id}`,
 		}
+    await this.meteringService.removeWebhookFails(accountId, id);
 		await this.client.deleteItem(this.table, keys);
     return true;
   }
