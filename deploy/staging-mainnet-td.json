@@ -74,6 +74,10 @@
                 {
                     "name": "REDIS_CLUSTERS",
                     "valueFrom": "/staging/v1/tyk/redis_cluster"
+                },
+                {
+                    "name": "REDIS_PWD",
+                    "valueFrom": "/staging/v1/tyk/redis_pwd"
                 }
             ],
             "user": "node",
