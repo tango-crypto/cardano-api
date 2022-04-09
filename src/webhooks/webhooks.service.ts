@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { APIError } from 'src/common/errors';
-import { DynamoDbService as DynamoClient } from '@tango-crypto/tango-dynamodb';
+import { DynamoDbService as DynamoClient, UPDATE_RETURN_NONE } from '@tango-crypto/tango-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 import { fromIni } from '@aws-sdk/credential-provider-ini';
 import { ConfigService } from '@nestjs/config';
@@ -102,7 +102,7 @@ export class WebhooksService {
       if (webhook.available == 'true' && wbh.available == 'false') {
         await this.meteringService.removeWebhookFails(accountId, id);
       }
-      await this.client.updateItem(this.table, keys, data, null, false, updateExpr);
+      await this.client.updateItem(this.table, keys, data, null, UPDATE_RETURN_NONE, updateExpr);
       return this.findOne(accountId, id);;
     }
 
