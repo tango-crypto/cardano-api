@@ -32,6 +32,8 @@ import { StakeProfile } from './mappers/stake.mapper';
 import { AddressProfile } from './mappers/address.mapper';
 import { EpochProfile } from './mappers/epoch.mapper';
 import { EpochParametersProfile } from './mappers/epoch-parameters.mapper';
+import { PoliciesService } from './policies/policies.service';
+import { PoliciesController } from './policies/policies.controller';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -41,8 +43,8 @@ import { EpochParametersProfile } from './mappers/epoch-parameters.mapper';
     }),
     WebhooksModule
   ],
-  controllers: [AppController, EpochsController, PoolsController, AddressesController, AssetsController, BlocksController, TransactionsController, WalletsController],
-  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, EpochProfile, EpochParametersProfile, PoolProfile, PoolDelegationProfile, BlockProfile, TransactionProfile, UtxoProfile, StakeProfile, AddressProfile, AssetProfile, MetadataProfile],
+  controllers: [AppController, EpochsController, PoolsController, AddressesController, AssetsController, BlocksController, TransactionsController, WalletsController, PoliciesController],
+  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, EpochProfile, EpochParametersProfile, PoolProfile, PoolDelegationProfile, BlockProfile, TransactionProfile, UtxoProfile, StakeProfile, AddressProfile, AssetProfile, MetadataProfile, PoliciesService],
 })
 export class AppModule /*implements NestModule*/ {
   // configure(consumer: MiddlewareConsumer) {
