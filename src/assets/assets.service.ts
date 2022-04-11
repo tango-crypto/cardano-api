@@ -18,7 +18,9 @@ export class AssetsService {
 
 	async get(identifier: string): Promise<AssetDto> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
-		let asset = await this.ledger.dbClient.getAsset(identifier);
+		let asset = identifier.startsWith("asset") 
+			? await this.ledger.dbClient.getAssetByFingerprint(identifier) 
+			: await this.ledger.dbClient.getAsset(identifier);
 		if (!asset) {
 			throw APIError.notFound(`asset: ${identifier}`);
 		}

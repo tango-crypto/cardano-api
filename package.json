@@ -38,7 +38,7 @@
     "@nestjs/platform-fastify": "^8.0.6",
     "@nestjs/swagger": "^5.1.0",
     "@tango-crypto/tango-dynamodb": "^1.5.0",
-    "@tango-crypto/tango-ledger": "^1.2.1",
+    "@tango-crypto/tango-ledger": "^1.3.0",
     "@tango-crypto/notify-metering": "^1.2.0",
     "axios": "^0.21.3",
     "bip39": "^3.0.4",
