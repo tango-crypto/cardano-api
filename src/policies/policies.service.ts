@@ -6,6 +6,7 @@ import { Utils } from 'src/common/utils';
 import { Asset } from '@tango-crypto/tango-ledger';
 import { AssetDto } from 'src/models/dto/Asset.dto';
 import { PaginateResponse } from 'src/models/PaginateResponse';
+import { APIError } from 'src/common/errors';
 
 @Injectable()
 export class PoliciesService {
@@ -22,9 +23,13 @@ export class PoliciesService {
 		} catch(err) {
 			// throw new Error('Invalid cursor');
 		}
-		const assets = await this.ledger.dbClient.getPolicyAssets(policyId, size + 1, order, fingerprint);
-		const [nextPageToken, items] = assets.length <= size ? [null, assets] : [Utils.encrypt(assets[size - 1].fingerprint.toString()), assets.slice(0, size)];
-		const data = this.mapper.mapArray<Asset, AssetDto>(items, 'AssetDto', 'Asset');
-		return {data, cursor: nextPageToken}
+        try {
+            const assets = await this.ledger.dbClient.getPolicyAssets(policyId, size + 1, order, fingerprint);
+            const [nextPageToken, items] = assets.length <= size ? [null, assets] : [Utils.encrypt(assets[size - 1].fingerprint.toString()), assets.slice(0, size)];
+            const data = this.mapper.mapArray<Asset, AssetDto>(items, 'AssetDto', 'Asset');
+            return {data, cursor: nextPageToken}
+        } catch(err) {
+            throw APIError.badRequest(`invalid policy: ${policyId}`);
+        }
 	}
 }
