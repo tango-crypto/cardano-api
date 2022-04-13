@@ -14,8 +14,18 @@ export class AssetsController {
 		return this.assetsService.get(id);
 	}
 
+	@Get('fingerprint/:id')
+	getByFingerprint(@Param('id') id: string): Promise<AssetDto> {
+		return this.assetsService.getByFingerprint(id);
+	}
+
 	@Get(':id/owners')
-	getAddresses(@Param('id') id: string, @Query('size') size: number = 50, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<AssetOwnerDto>> {
+	getOwners(@Param('id') id: string, @Query('size') size: number = 50, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<AssetOwnerDto>> {
 		return this.assetsService.getOwners(id, Number(size), order, pageToken);
+	}
+
+	@Get('fingerprint/:id/owners')
+	getOwnersByFingerprint(@Param('id') id: string, @Query('size') size: number = 50, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<AssetOwnerDto>> {
+		return this.assetsService.getOwnersByFingerprint(id, Number(size), order, pageToken);
 	}
 }
