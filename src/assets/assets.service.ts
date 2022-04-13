@@ -38,11 +38,16 @@ export class AssetsService {
 		} catch(err) {
 			// throw new Error('Invalid cursor');
 		}
-		const owners = identifier.startsWith("asset") 
-		? await this.ledger.dbClient.getAssetOwnersByFingerprint(identifier, size + 1, order, address, quantity)
-		: await this.ledger.dbClient.getAssetOwners(identifier, size + 1, order, address, quantity);
-		const [nextPageToken, items] = owners.length <= size ? [null, owners] : [Utils.encrypt(owners[size - 1].address + '-' + owners[size - 1].quantity), owners.slice(0, size)];
-		const data = this.mapper.mapArray<AssetOwner, AssetOwnerDto>(items, 'AssetOwnerDto', 'AssetOwner');
-		return {data, cursor: nextPageToken}
+		try {
+
+			const owners = identifier.startsWith("asset") 
+			? await this.ledger.dbClient.getAssetOwnersByFingerprint(identifier, size + 1, order, address, quantity)
+			: await this.ledger.dbClient.getAssetOwners(identifier, size + 1, order, address, quantity);
+			const [nextPageToken, items] = owners.length <= size ? [null, owners] : [Utils.encrypt(owners[size - 1].address + '-' + owners[size - 1].quantity), owners.slice(0, size)];
+			const data = this.mapper.mapArray<AssetOwner, AssetOwnerDto>(items, 'AssetOwnerDto', 'AssetOwner');
+			return {data, cursor: nextPageToken}
+		} catch(err) {
+			throw APIError.badRequest(`invalid asset identifier: ${identifier}`);
+		}
 	}
 }
