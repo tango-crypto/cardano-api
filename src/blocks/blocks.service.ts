@@ -16,17 +16,32 @@ export class BlocksService {
 		@InjectMapper('pojo-mapper') private mapper: Mapper
 		) {}
 
-	async get(blockHashOrNumber: number|string): Promise<BlockDto> {
+	async get(blockNumber: number): Promise<BlockDto> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
-		let block = await this.ledger.dbClient.getBlock(blockHashOrNumber);
-		if (!block) {
-			throw APIError.notFound(`block: ${blockHashOrNumber}`);
+		try {
+			let block = await this.ledger.dbClient.getBlock(blockNumber);
+			if (!block) {
+				throw APIError.notFound(`block number: ${blockNumber}`);
+			}
+			return this.mapper.map<Block, BlockDto>(block, 'BlockDto', 'Block');
+		} catch (err) {
+			throw APIError.isNotFoundError(err) ? err : APIError.badRequest(`invalid block number: ${blockNumber}`);
 		}
-		return this.mapper.map<Block, BlockDto>(block, 'BlockDto', 'Block');
+	}
+
+	async getByHash(blockHash: string): Promise<BlockDto> {
+		try {
+			let block = await this.ledger.dbClient.getBlock(blockHash);
+			if (!block) {
+				throw APIError.notFound(`block hash: ${blockHash}`);
+			}
+			return this.mapper.map<Block, BlockDto>(block, 'BlockDto', 'Block');
+		} catch (err) {
+			throw APIError.isNotFoundError(err) ? err : APIError.badRequest(`invalid block hash: ${blockHash}`);
+		}
 	}
 
 	async getLatest(): Promise<BlockDto> {
-		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
 		const block = await this.ledger.dbClient.getLatestBlock();
 		return this.mapper.map<Block, BlockDto>(block, 'BlockDto', 'Block');
 	}

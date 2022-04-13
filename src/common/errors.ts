@@ -19,4 +19,8 @@ export class APIError {
 		}
 		return new BadRequestException(badRequestError);
 	}
+
+	static isNotFoundError(err: HttpException) {
+		return err instanceof NotFoundException;
+	}
 }
