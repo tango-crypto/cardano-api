@@ -55,10 +55,14 @@ export const webhookTypeMap = {
   'block': 'WBH_BLOCK',
   'transaction': 'WBH_TRANSACTION',
   'delegation': 'WBH_DELEGATION',
+  'nft': 'WBH_NFT',
+  'nft_api': 'WBH_NFT_API',
   'WBH_EPOCH': 'epoch',
   'WBH_BLOCK': 'block',
   'WBH_TRANSACTION': 'transaction',
-  'WBH_DELEGATION': 'delegation'
+  'WBH_DELEGATION': 'delegation',
+  'WBH_NFT': 'nft',
+  'WBH_NFT_API': 'nft_api'
 };
 
-export const staticWebhookType = ['WBH_EPOCH', 'WBH_BLOCK', 'WBH_TRANSACTION', 'WBH_DELEGATION'];
+export const staticWebhookType = ['WBH_EPOCH', 'WBH_BLOCK', 'WBH_TRANSACTION', 'WBH_DELEGATION', 'WBH_NFT', 'WBH_NFT_API'];
