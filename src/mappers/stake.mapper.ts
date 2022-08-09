@@ -1,4 +1,4 @@
-import { mapFrom } from '@automapper/core';
+import { fromValue, ignore, mapDefer, mapFrom } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/types';
 import { Injectable } from '@nestjs/common';
@@ -16,13 +16,13 @@ export class StakeProfile extends AutomapperProfile {
       mapper.createMap<Stake, StakeDto>('Stake', 'StakeDto')
       .forMember(dest => dest.pool_id, mapFrom(src => src.pool_id))
       .forMember(dest => dest.active, mapFrom(src => src.active))
-      .forMember(dest => dest.active_epoch, mapFrom(src => src.active_epoch))
-      .forMember(dest => dest.controlled_total_stake, mapFrom(src => src.controlled_total_stake))
-      .forMember(dest => dest.rewards_sum, mapFrom(src => src.rewards_sum))
-      .forMember(dest => dest.withdrawals_sum, mapFrom(src => src.withdrawals_sum))
-      .forMember(dest => dest.reserves_sum, mapFrom(src => src.reserves_sum))
-      .forMember(dest => dest.treasury_sum, mapFrom(src => src.treasury_sum))
-      .forMember(dest => dest.withdraw_available, mapFrom(src => src.withdraw_available))
+      .forMember(dest => dest.active_epoch, mapDefer<Stake>(src => src.active_epoch ? fromValue(Number(src.active_epoch)) : ignore()))
+      .forMember(dest => dest.controlled_total_stake, mapFrom(src => Number(src.controlled_total_stake)))
+      .forMember(dest => dest.rewards_sum, mapFrom(src => Number(src.rewards_sum)))
+      .forMember(dest => dest.withdrawals_sum, mapFrom(src => Number(src.withdrawals_sum)))
+      .forMember(dest => dest.reserves_sum, mapFrom(src => Number(src.reserves_sum)))
+      .forMember(dest => dest.treasury_sum, mapFrom(src => Number(src.treasury_sum)))
+      .forMember(dest => dest.withdraw_available, mapFrom(src => Number(src.withdraw_available)))
       ;
     }
   }

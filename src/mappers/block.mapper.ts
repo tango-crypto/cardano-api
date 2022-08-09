@@ -1,9 +1,10 @@
-import { ignore, mapFrom } from '@automapper/core';
+import { fromValue, ignore, mapDefer, mapFrom } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/types';
 import { Injectable } from '@nestjs/common';
-import {  Block } from '@tango-crypto/tango-ledger';
+import {  Block, Pool } from '@tango-crypto/tango-ledger';
 import { BlockDto } from 'src/models/dto/Block.dto';
+import { PoolDto } from 'src/models/dto/Pool.dto';
 
 @Injectable()
 export class BlockProfile extends AutomapperProfile {
@@ -16,26 +17,26 @@ export class BlockProfile extends AutomapperProfile {
       mapper.createMap<Block, BlockDto>('Block', 'BlockDto')
       .forMember(dest => dest.id, ignore())
       .forMember(dest => dest.hash, mapFrom(src => src.hash))
-      .forMember(dest => dest.epoch_no, mapFrom(src => src.epoch_no))
-      .forMember(dest => dest.slot_no, mapFrom(src => src.slot_no))
-      .forMember(dest => dest.epoch_slot_no, mapFrom(src => src.epoch_slot_no))
-      .forMember(dest => dest.block_no, mapFrom(src => src.block_no))
-      .forMember(dest => dest.previous_block, mapFrom(src => src.previous_block))
-      .forMember(dest => dest.next_block, mapFrom(src => src.next_block))
-      .forMember(dest => dest.merkle_root, mapFrom(src => src.merkle_root))
+      .forMember(dest => dest.epoch_no, mapFrom(src => Number(src.epoch_no)))
+      .forMember(dest => dest.slot_no, mapFrom(src => Number(src.slot_no)))
+      .forMember(dest => dest.epoch_slot_no, mapDefer<Block>(src => src.epoch_slot_no ? fromValue(Number(src.epoch_slot_no)) : ignore()))
+      .forMember(dest => dest.block_no, mapFrom(src => Number(src.block_no)))
+      .forMember(dest => dest.previous_block, mapDefer<Block>(src => src.previous_block ? fromValue(Number(src.previous_block)) : ignore()))
+      .forMember(dest => dest.next_block, mapDefer<Block>(src => src.next_block ? fromValue(Number(src.next_block)) : ignore()))
+      .forMember(dest => dest.merkle_root, mapDefer<Block>(src => src.merkle_root ? fromValue(Number(src.merkle_root)) : ignore()))
       .forMember(dest => dest.slot_leader_id, ignore())
       .forMember(dest => dest.slot_leader, mapFrom(src => src.slot_leader))
-      .forMember(dest => dest.out_sum, mapFrom(src => src.out_sum))
-      .forMember(dest => dest.fees, mapFrom(src => src.fees))
-      .forMember(dest => dest.confirmations, mapFrom(src => src.confirmations))
-      .forMember(dest => dest.size, mapFrom(src => src.size))
+      .forMember(dest => dest.out_sum, mapDefer<Block>(src => src.out_sum ? fromValue(Number(src.out_sum)) : ignore()))
+      .forMember(dest => dest.fees, mapDefer<Block>(src => src.fees ? fromValue(Number(src.fees)) : ignore()))
+      .forMember(dest => dest.confirmations, mapDefer<Block>(src => src.confirmations ? fromValue(Number(src.confirmations)) : ignore()))
+      .forMember(dest => dest.size, mapDefer<Block>(src => src.size ? fromValue(Number(src.size)) : ignore()))
       .forMember(dest => dest.time, mapFrom(src => src.time))
-      .forMember(dest => dest.tx_count, mapFrom(src => src.tx_count))
-      .forMember(dest => dest.proto_major, mapFrom(src => src.proto_major))
-      .forMember(dest => dest.proto_minor, mapFrom(src => src.proto_minor))
+      .forMember(dest => dest.tx_count, mapDefer<Block>(src => src.tx_count ? fromValue(Number(src.tx_count)) : ignore()))
+      .forMember(dest => dest.proto_major, mapDefer<Block>(src => src.proto_major ? fromValue(Number(src.proto_major)) : ignore()))
+      .forMember(dest => dest.proto_minor, mapDefer<Block>(src => src.proto_minor ? fromValue(Number(src.proto_minor)) : ignore()))
       .forMember(dest => dest.vrf_key, mapFrom(src => src.vrf_key))
       .forMember(dest => dest.op_cert, mapFrom(src => src.op_cert))
-      .forMember(dest => dest.pool, mapFrom(src => src.pool))
+      .forMember(dest => dest.pool, mapDefer<Block>(src => src.pool ? fromValue(mapper.map<Pool, PoolDto>(src.pool, 'PoolDto', 'Pool')) : ignore()))
       ;
     }
   }

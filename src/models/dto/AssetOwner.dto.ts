@@ -1,5 +1,5 @@
 export interface AssetOwnerDto {
     address: string;
-    quantity: string;
+    quantity: number;
     share: number
 }
