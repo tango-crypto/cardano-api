@@ -129,7 +129,7 @@ export class WebhooksService {
           SK: `WBH#${id}`, 
           webhook_id: id,
           account_id: `ACCOUNT#${accountId}`,
-          webhook_key: webhook.webhook_key, // WBH_PAYMENT, WBH_TRANSACTION, WBH_BLOCK, WBH_EPOCH, WBH_DELEGATION, WBH_NFT, WBH_NFT_API, addr_xxx, etc.
+          webhook_key: webhook.webhook_key, // WBH_PAYMENT, WBH_TRANSACTION, WBH_BLOCK, WBH_EPOCH, WBH_DELEGATION, WBH_NFT, WBH_NFT_API, addr_xxxxxx, etc.
           name: webhook.name,
           network: webhook.network,
           description: webhook.description || '',
