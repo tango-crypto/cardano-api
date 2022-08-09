@@ -58,6 +58,8 @@ export function IsValidValue(validationOptions?: ValidationOptions) {
                         return typeof value == 'string';
                     case 'number':
                         return !Number.isNaN(Number(value));
+                    case 'boolean':
+                        return typeof value == "boolean"
                     default:
                         return false;
                 }
