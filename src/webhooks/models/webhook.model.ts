@@ -46,4 +46,4 @@ export class Webhook {
     confirmations: number;
 }
 
-export const webhookTypes = ['payment', 'epoch', 'block', 'delegation', 'transaction', 'nft', 'nft_api'];
+export const webhookTypes = ['payment', 'epoch', 'block', 'delegation', 'transaction', 'asset', 'nft_api'];
