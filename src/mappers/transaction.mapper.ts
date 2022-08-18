@@ -44,8 +44,8 @@ export class TransactionProfile extends AutomapperProfile {
       .forMember(dest => dest.asset_policy_id, ignore())
       .forMember(dest => dest.asset_name, ignore())
       .forMember(dest => dest.assets, mapDefer<Transaction>(src => src.assets ? fromValue(mapper.mapArray<Asset, AssetDto>(src.assets, 'AssetDto', 'Asset')) : ignore()))
-      .forMember(dest => dest.inputs, mapDefer<Transaction>(src => src.inputs ? fromValue(mapper.mapArray<Utxo, UtxoDto>(src.inputs, 'UtxoDto', 'Utxo')): ignore()))
-      .forMember(dest => dest.outputs, mapDefer<Transaction>(src => src.outputs ? fromValue(mapper.mapArray<Utxo, UtxoDto>(src.outputs, 'UtxoDto', 'Utxo')): ignore()))
+      .forMember(dest => dest.inputs, mapDefer<Transaction>(src => src.inputs ? fromValue(src.inputs.length == 0 ? [] : typeof src.inputs[0] == 'string' ? src.inputs : mapper.mapArray<Utxo, UtxoDto>(src.inputs as Utxo[], 'UtxoDto', 'Utxo')): ignore()))
+      .forMember(dest => dest.outputs, mapDefer<Transaction>(src => src.outputs ? fromValue(src.outputs.length == 0 ? [] : typeof src.outputs[0] == 'string' ? src.outputs : mapper.mapArray<Utxo, UtxoDto>(src.outputs as Utxo[], 'UtxoDto', 'Utxo')): ignore()))
       ;
     }
   }

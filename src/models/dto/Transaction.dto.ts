@@ -31,6 +31,6 @@ export interface TransactionDto {
     asset_policy_id?: string;
     asset_name?: string;
     assets?: AssetDto[];
-    inputs?: UtxoDto[];
-    outputs?: UtxoDto[];
+    inputs?: UtxoDto[] | string[];
+    outputs?: UtxoDto[] | string[];
 }
