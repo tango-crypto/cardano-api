@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Metering } from '@tango-crypto/notify-metering';
 import Redis from 'ioredis';
+import { TIER_1, TIER_2 } from 'src/utils/constants';
 
 @Injectable()
 export class MeteringService {
@@ -28,4 +29,20 @@ export class MeteringService {
     async removeWebhookFails(account: string, wbhId: string): Promise<boolean> {
         return this.client.resetWebhookFails(account, wbhId);
     }
+
+    async getNftFee(accountId: string): Promise<{ fee: number, token_name: string }> {
+        let fee: number;
+        const { tier, nft_free_quota, nft_fees, nft_minted, token_name } = await this.client.getNftQuota(accountId);
+        console.log('QUOTA:', tier, nft_free_quota, nft_fees, nft_minted, token_name);
+        if (tier == 'enterprise' || nft_free_quota > nft_minted) {
+          fee = 0;
+        } else {
+          fee = nft_fees[this.getTier(nft_minted)];
+        }
+        return { fee, token_name };
+      }
+    
+      private getTier(nftMinted: number): string {
+        return nftMinted <= TIER_1 ? 'tier1' : nftMinted <= TIER_2 ? 'tier2' : 'tier3';
+      }
 }

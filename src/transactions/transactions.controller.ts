@@ -1,8 +1,10 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Query, Headers } from '@nestjs/common';
 import { MetadataDto } from 'src/models/dto/Metadata.dto';
 import { TransactionDto } from 'src/models/dto/Transaction.dto';
 import { UtxoDto } from 'src/models/dto/Utxo.dto';
 import { PaginateResponse } from 'src/models/PaginateResponse';
+import { BuildTxDto } from './dto/buildTx.dto';
+import { BuildTxResponseDto } from './dto/buildTxResponse.dto';
 import { SubmitTxDto } from './dto/submitTx.dto';
 import { SubmitTxResponseDto } from './dto/submitTxResponse.dto';
 import { TransactionsService } from './transactions.service';
@@ -28,8 +30,14 @@ export class TransactionsController {
 
 	@Post('submit')
 	@HttpCode(200)
-	async submit(@Param('accountId') userId: string, @Body() submitTx: SubmitTxDto): Promise<SubmitTxResponseDto> {
-		let txId = await this.transactionsService.submit(userId, submitTx.tx);
+	async submit(@Headers('x-api-key') accountId: string, @Body() submitTx: SubmitTxDto): Promise<SubmitTxResponseDto> {
+		const txId = await this.transactionsService.submit(accountId, submitTx.tx);
 		return { tx_id: txId };
+	}
+
+	@Post('build')
+	@HttpCode(200)
+	async buildTx(@Headers('x-api-key') accountId: string, @Body() payload: BuildTxDto): Promise<BuildTxResponseDto> {
+		return this.transactionsService.buildTx(accountId, payload);
 	}
 }

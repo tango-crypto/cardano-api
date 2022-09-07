@@ -3,62 +3,51 @@ import { Asset } from "./asset.model";
 import { Seed } from "../serialization.util";
 import { CoinSelectionChange } from "./coin-selection-change.model";
 import { Payment } from "./payment.model";
+import { CoinSelection } from "./coin-selection.model";
 
 export class MultisigTransaction {
-    utxos: TransactionUnspentOutput[];
-    outputs: Payment[];
-    change: CoinSelectionChange[];
     txBody: TransactionBody;
-    txHash: TransactionHash;
     vkeyWitnesses: Vkeywitnesses;
     nativeScripts: NativeScripts;
-    transaction: Transaction;
-    numberOfWitnesses: number;
-    config: any;
-    encoding: BufferEncoding;
     metadata: AuxiliaryData;
-    assets: Asset[];
+    txHash: TransactionHash;
+    coinSelection: CoinSelection;
+    vkeys: { [key: string]: number };
+    constructor() {
+        this.vkeyWitnesses = Vkeywitnesses.new();
+        this.nativeScripts = NativeScripts.new();
+    }
 
-    constructor(
-        utxos: TransactionUnspentOutput[],
-        outputs: Payment[],
-        change: CoinSelectionChange[],
+    static new(
+        coinSelection: CoinSelection, 
         txBody: TransactionBody, 
         scripts: NativeScript[], 
         privateKeys: PrivateKey[], 
-        numberOfWitnesses: number, 
+        vkeys: { [key: string]: number },
         config: any, 
         encoding: BufferEncoding, 
         metadata?: AuxiliaryData, 
-        assets?: Asset[]) {
-        this.utxos = utxos;
-        this.outputs = outputs;
-        this.change = change;
-        
-        // this.transaction = this.buildTx(txBody, scripts, privateKeys, metadata);
-        this.config = config;
-        this.encoding = encoding;
-        this.metadata = metadata;
-        this.assets = assets;
-
-        this.vkeyWitnesses = Vkeywitnesses.new();
-        this.nativeScripts = NativeScripts.new();
+        tokens?: Asset[]
+    ): MultisigTransaction {
+        const multisig = new MultisigTransaction();
+        multisig.metadata = metadata;
+        multisig.vkeys = vkeys;
 
         scripts.forEach(s => {
-            this.nativeScripts.add(s);
+            multisig.nativeScripts.add(s);
         });
-        this.numberOfWitnesses = numberOfWitnesses;
 
-        this.txBody = this.adjustFee(txBody);
-        this.txHash = hash_transaction(this.txBody);
+        const numberOfWitnesses = Object.values(vkeys).reduce((total, cur) => total + cur, 0) + scripts.reduce((t, c) => t + c.get_required_signers().len(), 0);
+        multisig.txBody = multisig.adjustFee(txBody, coinSelection, tokens, numberOfWitnesses, config, encoding);
+        multisig.txHash = hash_transaction(multisig.txBody);
 
         privateKeys.forEach(prvKey => {
             // add keyhash witnesses
-            const vkeyWitness = make_vkey_witness(this.txHash, prvKey);
-            this.vkeyWitnesses.add(vkeyWitness);
+            const vkeyWitness = make_vkey_witness(multisig.txHash, prvKey);
+            multisig.vkeyWitnesses.add(vkeyWitness);
         });
 
-
+        return multisig
     }
 
     addKeyWitnesses(...privateKeys: PrivateKey[]): void {
@@ -69,35 +58,31 @@ export class MultisigTransaction {
         });
 	}
 
-	addScriptWitness(...scripts: NativeScript[]): void {
-        scripts.forEach(s => {
-            this.nativeScripts.add(s);
-        });
-	}
-
-    adjustFee(txBody: TransactionBody): TransactionBody {
-        const tx = this.fakeTx(txBody);
-        const txFee = this.txFee(tx);
+    adjustFee(txBody: TransactionBody, coinSelection: CoinSelection, tokens: Asset[], numberOfWitnesses: number, config: any, encoding: BufferEncoding): TransactionBody {
         const bodyFee = parseInt(txBody.fee().to_str());
+        const tx = this.fakeTx(txBody, numberOfWitnesses);
+        const txFee = this.txFee(tx, config);
 
         console.log(`Fees: initial = ${bodyFee}, adjusted = ${txFee}`);
         if (txFee < bodyFee) {
             const feeDiff = bodyFee - txFee;
-            const feeDiffPerChange = Math.ceil(feeDiff/this.change.length);
-			this.change = this.change.map(c => {
+            const feeDiffPerChange = Math.ceil(feeDiff/coinSelection.change.length);
+			const change = coinSelection.change.map(c => {
 				c.amount.quantity += feeDiffPerChange;
 				return c;
 			});
 
-            const outputs = this.outputs.map(output => {
-				let address = Address.from_bech32(output.address);
+            coinSelection.change = change;
+
+            const outputs = coinSelection.outputs.map(output => {
+				let address = Seed.getAddress(output.address);
 				let amount = Value.new(
 					BigNum.from_str(output.amount.quantity.toString())
 				);
 	
 				// add tx assets
 				if(output.assets && output.assets.length > 0){
-					let multiAsset = Seed.buildMultiAssets(output.assets, this.encoding);
+					let multiAsset = Seed.buildMultiAssets(output.assets, encoding);
 					amount.set_multiasset(multiAsset);
 				}
 	
@@ -107,15 +92,15 @@ export class MultisigTransaction {
 				);
 			});
 
-            outputs.push(...this.change.map(change => {
-				let address = Address.from_bech32(change.address);
+            outputs.push(...change.map(ch => {
+				let address = Seed.getAddress(ch.address);
 				let amount = Value.new(
-					BigNum.from_str(change.amount.quantity.toString())
+					BigNum.from_str(ch.amount.quantity.toString())
 				);
 	
 				// add tx assets
-				if(change.assets && change.assets.length > 0){
-					let multiAsset = Seed.buildMultiAssets(change.assets, this.encoding);
+				if(ch.assets && ch.assets.length > 0){
+					let multiAsset = Seed.buildMultiAssets(ch.assets, encoding);
 					amount.set_multiasset(multiAsset);
 				}
 	
@@ -127,8 +112,8 @@ export class MultisigTransaction {
 
             const txOutputs = TransactionOutputs.new();
 			outputs.forEach(txout => txOutputs.add(txout));
-            console.log('Final outputs:', JSON.stringify(this.outputs, null, 2));
-            console.log('Final change:', this.change);
+            console.log('Final change:', change);
+            this.coinSelection = coinSelection;
             const body = TransactionBody.new(txBody.inputs(), txOutputs, BigNum.from_str(txFee.toString()), txBody.ttl());
 
             // metadata
@@ -136,17 +121,18 @@ export class MultisigTransaction {
                 const dataHash = hash_auxiliary_data(this.metadata);
                 body.set_auxiliary_data_hash(dataHash);
             }
+            
             // mint tokens
-            if (this.assets) {
-                const mint = Seed.buildTransactionMint(this.assets, this.encoding);
+            if (tokens) {
+                const mint = Seed.buildTransactionMint(tokens, encoding);
                 body.set_mint(mint);
             }
 
             // set tx validity start interval
 		    body.set_validity_start_interval(txBody.validity_start_interval());
+           
             return body;
 
-            // this.transaction = Transaction.new(body, this.transaction.witness_set(), this.transaction.auxiliary_data());
         } else {
             return txBody;
         }
@@ -164,14 +150,106 @@ export class MultisigTransaction {
 			witnesses,
 			this.metadata
 		);
+
         return Buffer.from(tx.to_bytes()).toString('hex');
     }
 
-    private txFee(tx: Transaction) {
-        return parseInt(min_fee(tx, LinearFee.new(BigNum.from_str(this.config.protocols.txFeePerByte.toString()), BigNum.from_str(this.config.protocols.txFeeFixed.toString()))).to_str());
+    toBytes(): Uint8Array {
+        const encoder = new TextEncoder();
+        const keys = Array.from(Array(this.vkeyWitnesses.len()).keys()).map(i => this.vkeyWitnesses.get(i).to_bytes()).map(k => MultisigTransaction.buff2hex(k));
+        const scripts = Array.from(Array(this.nativeScripts.len()).keys()).map(i => this.nativeScripts.get(i).to_bytes()).map(s =>
+            MultisigTransaction.buff2hex(s));
+        const data = {
+            body: MultisigTransaction.buff2hex(this.txBody.to_bytes()),
+            keys: keys,
+            scripts: scripts,
+            metadata: this.metadata ? MultisigTransaction.buff2hex(this.metadata.to_bytes()): null
+        };
+        return encoder.encode(JSON.stringify(data));
     }
 
-    private fakeTx(txBody: TransactionBody) {
+    toString(): string {
+        const data = this.toJSON();
+        return JSON.stringify(data);
+    }
+
+    getCoinSelection(): CoinSelection {
+        return this.coinSelection;
+    }
+
+    getFee(): number {
+        return Number(this.txBody.fee().to_str());
+    }
+
+    getHash(): string {
+        return Buffer.from(this.txHash.to_bytes()).toString('hex');
+    }
+
+    static fromBytes(bytes: Uint8Array): MultisigTransaction {
+        const decoder = new TextDecoder();
+        const { body, keys, scripts, metadata } = JSON.parse(decoder.decode(bytes));
+        const multisig = new MultisigTransaction();
+        multisig.txBody = TransactionBody.from_bytes(MultisigTransaction.hexToBuff(body));
+        multisig.txHash = hash_transaction(multisig.txBody);
+        multisig.metadata = metadata ? AuxiliaryData.from_bytes(MultisigTransaction.hexToBuff(metadata)) : null;
+        const vKyes: Vkeywitness[] = keys.map((k:any) => Vkeywitness.from_bytes(MultisigTransaction.hexToBuff(k)));
+        for (const key of vKyes) {
+            multisig.vkeyWitnesses.add(key);
+        }
+        const nScripts: NativeScript[] = scripts.map((k:any) => NativeScript.from_bytes(MultisigTransaction.hexToBuff(k)));
+        for (const script of nScripts) {
+            multisig.nativeScripts.add(script);
+        }
+
+        return multisig;
+    }
+
+    private toJSON(): any {
+        const keys = Array.from(Array(this.vkeyWitnesses.len()).keys()).map(i => this.vkeyWitnesses.get(i).to_bytes()).map(k => Buffer.from(k).toString('hex'));
+        const scripts = Array.from(Array(this.nativeScripts.len()).keys()).map(i => this.nativeScripts.get(i).to_bytes()).map(s => Buffer.from(s).toString('hex'));
+        return {
+            body: Buffer.from(this.txBody.to_bytes()).toString('hex'),
+            keys: keys,
+            scripts: scripts,
+            metadata: this.metadata ? Buffer.from(this.metadata.to_bytes()).toString('hex') : null,
+            vkeys: Buffer.from(JSON.stringify(this.vkeys)).toString('hex'),
+        };
+    }
+
+    private static fromJSON(text: string) {
+        const { body, keys, scripts, metadata, vkeys } = JSON.parse(text);
+        const multisig = new MultisigTransaction();
+        multisig.txBody = TransactionBody.from_bytes(Buffer.from(body, 'hex'));
+        multisig.txHash = hash_transaction(multisig.txBody);
+        multisig.metadata = metadata ? AuxiliaryData.from_bytes(Buffer.from(metadata, 'hex')) : null;
+        const vKyes: Vkeywitness[] = keys.map((k: any) => Vkeywitness.from_bytes(Buffer.from(k, 'hex')));
+        for (const key of vKyes) {
+            multisig.vkeyWitnesses.add(key);
+        }
+        const nScripts: NativeScript[] = scripts.map((k: any) => NativeScript.from_bytes(Buffer.from(k, 'hex')));
+        for (const script of nScripts) {
+            multisig.nativeScripts.add(script);
+        }
+        multisig.vkeys = JSON.parse(Buffer.from(vkeys, 'hex').toString());
+        return multisig;
+    }
+
+    private static buff2hex(buffer: Uint8Array): string { // buffer is an ArrayBuffer
+    return Array.from(buffer.values())
+        .map(x => x.toString(16).padStart(2, '0'))
+        .join('');
+    }
+
+    private static hexToBuff(hexString: string) {
+        return new Uint8Array(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+    }
+
+    private txFee(tx: Transaction, config: any) {
+        return parseInt(min_fee(tx, 
+            LinearFee.new(BigNum.from_str(config.protocols.txFeePerByte.toString()), BigNum.from_str(config.protocols.txFeeFixed.toString()))).to_str());
+    }
+
+    private fakeTx(txBody: TransactionBody, numberOfWitnesses: number) {
         const fakeWitnesses = Vkeywitnesses.new();
         const fakeKey = this.fakePrivateKey();
         const rawKey = fakeKey.to_raw_key();
@@ -179,9 +257,9 @@ export class MultisigTransaction {
         const fakeVkeyWitness = Vkeywitness.new(
             Vkey.new(rawKey.to_public()),
             // rawKey.sign(txHash.to_bytes())
-            rawKey.sign(Buffer.from([...Array(100).keys()]))
+            rawKey.sign(Buffer.from(Array.from(Array(100).keys())))
         );
-        for (let i = 0; i < this.numberOfWitnesses; i++) {
+        for (let i = 0; i < numberOfWitnesses; i++) {
             fakeWitnesses.add(fakeVkeyWitness);
         }
 
@@ -191,7 +269,7 @@ export class MultisigTransaction {
             witnessSet.set_native_scripts(this.nativeScripts);
         }
 
-        const cloneMetadata = AuxiliaryData.from_bytes(this.metadata.to_bytes());
+        const cloneMetadata = this.metadata ? AuxiliaryData.from_bytes(this.metadata.to_bytes()) : null;
         const tx = Transaction.new(
             txBody,
             witnessSet,
@@ -209,5 +287,4 @@ export class MultisigTransaction {
             )
         );
     }
-
 }
