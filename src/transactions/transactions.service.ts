@@ -122,7 +122,6 @@ export class TransactionsService {
 				submitPayload.eventType = 'ApiMint-Transaction';
 				submitPayload.metadata = { mint_quantity: mintQuantity };	
 			}
-			console.log('SUBMIT payload:', JSON.stringify(submitPayload, null, 2));
 			const input: SendMessageCommandInput = {
 				QueueUrl: `https://sqs.${region}.amazonaws.com/${accountId}/${queueName}`,
 				MessageBody: JSON.stringify(submitPayload)

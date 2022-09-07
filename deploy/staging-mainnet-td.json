@@ -78,6 +78,26 @@
                 {
                     "name": "REDIS_PWD",
                     "valueFrom": "/staging/v1/tyk/redis_pwd"
+                },
+                {
+                    "name": "BUSINESS_ADDRESS",
+                    "valueFrom": "/staging/v1/api/business_address/mainnet"
+                },
+                {
+                    "name": "BUSINESS_POLICY_ID",
+                    "valueFrom": "/staging/v1/api/business_policy_id/mainnet"
+                },
+                {
+                    "name": "BUSINESS_POLICY_SCRIPT",
+                    "valueFrom": "/staging/v1/api/business_policy_script/mainnet"
+                },
+                {
+                    "name": "BUSINESS_POLICY_SCRIPT_KEYS",
+                    "valueFrom": "/staging/v1/api/business_policy_script_keys/mainnet"
+                },
+                {
+                    "name": "BUSINESS_TOKEN_NAME",
+                    "valueFrom": "/v1/api/business_token_name/mainnet"
                 }
             ],
             "user": "node",
