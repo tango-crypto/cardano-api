@@ -19,6 +19,7 @@ export class MultisigTransaction {
     }
 
     static new(
+        total: number,
         coinSelection: CoinSelection, 
         txBody: TransactionBody, 
         scripts: NativeScript[], 
@@ -38,7 +39,7 @@ export class MultisigTransaction {
         });
 
         const numberOfWitnesses = Object.values(vkeys).reduce((total, cur) => total + cur, 0) + scripts.reduce((t, c) => t + c.get_required_signers().len(), 0);
-        multisig.txBody = multisig.adjustFee(txBody, coinSelection, tokens, numberOfWitnesses, config, encoding);
+        multisig.txBody = multisig.adjustFee(total, txBody, coinSelection, tokens, numberOfWitnesses, config, encoding);
         multisig.txHash = hash_transaction(multisig.txBody);
 
         privateKeys.forEach(prvKey => {
@@ -58,24 +59,47 @@ export class MultisigTransaction {
         });
 	}
 
-    adjustFee(txBody: TransactionBody, coinSelection: CoinSelection, tokens: Asset[], numberOfWitnesses: number, config: any, encoding: BufferEncoding): TransactionBody {
+    adjustFee(total: number, txBody: TransactionBody, coinSelection: CoinSelection, tokens: Asset[], numberOfWitnesses: number, config: any, encoding: BufferEncoding): TransactionBody {
         const bodyFee = parseInt(txBody.fee().to_str());
         const tx = this.fakeTx(txBody, numberOfWitnesses);
-        const txFee = this.txFee(tx, config);
+        let txFee = this.txFee(tx, config);
 
         console.log(`Fees: initial = ${bodyFee}, adjusted = ${txFee}`);
         if (txFee < bodyFee) {
+            let txCost = 0;
             const feeDiff = bodyFee - txFee;
-            const feeDiffPerChange = Math.ceil(feeDiff/coinSelection.change.length);
-			const change = coinSelection.change.map(c => {
+            const feeDiffPerChange = Math.floor(feeDiff / coinSelection.change.length);
+            console.log('Each change increase their revenue by:', feeDiffPerChange);
+			let outputs = coinSelection.change.map(c => {
 				c.amount.quantity += feeDiffPerChange;
-				return c;
-			});
+                if (c.amount.quantity < 0) {
+                    throw new Error('not enough funds');
+                }
+                if (c.amount.quantity < config.protocols.minUTxOValue) {
+                    // throw new Error(`Cannot build tx, seller revenue: ${(quantity / 1000000).toFixed(6)} is less than minimum allowed value per UTXO (${(config.protocols.minUTxOValue / 1000000).toFixed(6)}) ADA`);
+                    return null;
+                }
+                txCost += c.amount.quantity;
+				let address = Seed.getAddress(c.address);
+				let amount = Value.new(
+					BigNum.from_str(c.amount.quantity.toString())
+				);
+	
+				// add tx assets
+				if(c.assets && c.assets.length > 0){
+					let multiAsset = Seed.buildMultiAssets(c.assets, encoding);
+					amount.set_multiasset(multiAsset);
+				}
+	
+				return TransactionOutput.new(
+					address,
+					amount
+				);
+			}).filter(c => !!c);
 
-            coinSelection.change = change;
-
-            const outputs = coinSelection.outputs.map(output => {
+            outputs.push(...coinSelection.outputs.map(output => {
 				let address = Seed.getAddress(output.address);
+                txCost += output.amount.quantity;
 				let amount = Value.new(
 					BigNum.from_str(output.amount.quantity.toString())
 				);
@@ -90,29 +114,17 @@ export class MultisigTransaction {
 					address,
 					amount
 				);
-			});
-
-            outputs.push(...change.map(ch => {
-				let address = Seed.getAddress(ch.address);
-				let amount = Value.new(
-					BigNum.from_str(ch.amount.quantity.toString())
-				);
-	
-				// add tx assets
-				if(ch.assets && ch.assets.length > 0){
-					let multiAsset = Seed.buildMultiAssets(ch.assets, encoding);
-					amount.set_multiasset(multiAsset);
-				}
-	
-				return TransactionOutput.new(
-					address,
-					amount
-				);
 			}));
+
+            const remaining = total - txCost - txFee;
+            if (remaining > 0) {
+                txFee += remaining; // avoid ValueNotConservedUTxO, so add remaining to fee;
+                console.log(`There is remaining (add to final fee): ${remaining}`);
+            }
 
             const txOutputs = TransactionOutputs.new();
 			outputs.forEach(txout => txOutputs.add(txout));
-            console.log('Final change:', change);
+            console.log('Final change:', coinSelection.change);
             this.coinSelection = coinSelection;
             const body = TransactionBody.new(txBody.inputs(), txOutputs, BigNum.from_str(txFee.toString()), txBody.ttl());
 

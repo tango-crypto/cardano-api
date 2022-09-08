@@ -69,6 +69,7 @@ import { Payment } from './models/payment.model';
 import { CoinSelectionChange } from './models/coin-selection-change.model';
 import { MultisigTransaction } from './models/multisig-transaction';
 import * as cbor from 'borc';
+import { CoinSelectionInputDto } from './models/dto/api.coin-selection-input.dto';
 
 const phrasesLengthMap: { [key: number]: number } = {
   12: 128,
@@ -547,16 +548,11 @@ export class Seed {
   //   return new MultisigTransaction(utxos, outputs, change, txBody, scripts, signingKeys, numberOfWitnesses, config, encoding, metadata, tokens);
   // }
 
-  static buildTransactionMultisig(coinSelection: CoinSelection, ttl: number, scripts: NativeScript[], tokens: Asset[] = null, signingKeys: PrivateKey[] = null, opts: { [key: string]: any } = { changeAddress: "", data: null, startSlot: 0, config: Mainnet }, encoding: BufferEncoding = 'hex'): MultisigTransaction {
+  static buildTransactionMultisig(total: number, coinSelection: CoinSelection, ttl: number, scripts: NativeScript[], tokens: Asset[] = null, signingKeys: PrivateKey[] = null, opts: { [key: string]: any } = { changeAddress: "", data: null, startSlot: 0, config: Mainnet }, encoding: BufferEncoding = 'hex'): MultisigTransaction {
     const config = opts.config || Mainnet;
     let metadata = opts.data ? Seed.buildTransactionMetadata(opts.data) : null;
     const startSlot = opts.startSlot || 0;
     const selectionfee = parseInt(config.protocols.maxTxSize * config.protocols.txFeePerByte + config.protocols.txFeeFixed); // 16384 * 44 + 155381 = 876277
-    const currentfee = coinSelection.inputs.reduce((acc, c) => c.amount.quantity + acc, 0)
-      + (coinSelection.withdrawals?.reduce((acc, c) => c.amount.quantity + acc, 0) || 0)
-      - coinSelection.outputs.reduce((acc, c) => c.amount.quantity + acc, 0)
-      - coinSelection.change.reduce((acc, c) => c.amount.quantity + acc, 0)
-      - (coinSelection.deposits?.reduce((acc, c) => c.quantity + acc, 0) || 0);
 
     // add witnesses Ed25519KeyHash from input addresses
     const vkeys: { [key: string]: number } = {};
@@ -606,29 +602,30 @@ export class Seed {
 
     // adjust changes to match maximum fee
     if (coinSelection.change && coinSelection.change.length > 0) {
-      const feeDiff = selectionfee - currentfee;
-      const feeDiffPerChange = Math.abs(Math.ceil(feeDiff / coinSelection.change.length));
+      const feeDiffPerChange = Math.abs(Math.ceil(selectionfee / coinSelection.change.length));
       for (let i = 0; i < coinSelection.change.length; i++) {
         const change = coinSelection.change[i];
-        change.amount.quantity = feeDiff > 0 ? change.amount.quantity - feeDiffPerChange : change.amount.quantity + feeDiffPerChange;
+        change.amount.quantity -= feeDiffPerChange;
 
-        let address = Seed.getAddress(change.address);
-        let amount = Value.new(
-          Seed.toBigNum(change.amount.quantity)
-        );
-
-        // add tx assets
-        if (change.assets && change.assets.length > 0) {
-          let multiAsset = Seed.buildMultiAssets(change.assets, encoding);
-          amount.set_multiasset(multiAsset);
+        if (change.amount.quantity >= config.protocols.minUTxOValue) {
+          let address = Seed.getAddress(change.address);
+          let amount = Value.new(
+            Seed.toBigNum(change.amount.quantity)
+          );
+  
+          // add tx assets
+          if (change.assets && change.assets.length > 0) {
+            let multiAsset = Seed.buildMultiAssets(change.assets, encoding);
+            amount.set_multiasset(multiAsset);
+          }
+  
+          const out = TransactionOutput.new(
+            address,
+            amount
+          );
+  
+          outputs.push(out);
         }
-
-        const out = TransactionOutput.new(
-          address,
-          amount
-        );
-
-        outputs.push(out);
       }
     }
 
@@ -654,7 +651,7 @@ export class Seed {
     txBody.set_validity_start_interval(startSlot);
 
     // add inputs witnesses
-    return MultisigTransaction.new(coinSelection, txBody, scripts, signingKeys, vkeys, config, encoding, metadata, tokens);
+    return MultisigTransaction.new(total, coinSelection, txBody, scripts, signingKeys, vkeys, config, encoding, metadata, tokens);
   }
 
   static rebuildTransaction(partialTx: Transaction, witnessSet: TransactionWitnessSet): Transaction {
@@ -1284,6 +1281,27 @@ export class Seed {
       return before?.slot;
     }
     return null;
+  }
+
+  static getTransactionUnspentOutputs(input: CoinSelectionInputDto) {
+			const txHash = TransactionHash.from_bytes(Buffer.from(input.hash, 'hex'));
+			const inn = TransactionInput.new(txHash, input.index);
+			const multias = MultiAsset.new();
+			for (const { policy_id, asset_name, quantity } of input.assets) {
+				const policyHash = Seed.getScriptHash(Seed.buildPolicyScript({
+					"type": ScriptTypeEnum.Sig,
+					"keyHash": "4da965a049dfd15ed1ee19fba6e2974a0b79fc416dd1796a1f97f5e1"
+				  }).root);
+				const ass = Assets.new();
+				ass.insert(AssetName.new(Buffer.from(asset_name)), BigNum.from_str(quantity.toString()))
+				multias.insert(policyHash, ass);
+			}
+			const value = Value.new_from_assets(multias);
+			value.set_coin(BigNum.from_str(input.value.toString()));
+			const out = TransactionOutput.new(Address.from_bech32(input.address), value);
+			const t = TransactionUnspentOutput.new(inn, out);
+      return t;
+			// console.log('Output:', Buffer.from(t.to_bytes()).toString('hex'));
   }
 
   private static isInteger(value: any) {

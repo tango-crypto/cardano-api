@@ -1,4 +1,4 @@
-import { AssetName, hash_transaction, make_vkey_witness, NativeScript, PrivateKey, ScriptHash, Transaction as SerializeTransaction } from '@emurgo/cardano-serialization-lib-nodejs';
+import { Address, AssetName, Assets, BigNum, hash_transaction, make_vkey_witness, MultiAsset, NativeScript, PrivateKey, ScriptHash, Transaction as SerializeTransaction, TransactionHash, TransactionInput, TransactionOutput, TransactionUnspentOutput, Value } from '@emurgo/cardano-serialization-lib-nodejs';
 import { Injectable } from '@nestjs/common';
 import { Utils } from 'src/common/utils';
 import { APIError } from 'src/common/errors';
@@ -23,7 +23,7 @@ import { AmountUnitEnum } from 'src/utils/models/amount-unit-enum.model';
 import * as _ from 'lodash';
 import { MeteringService } from 'src/providers/metering/metering.service';
 import { DynamoDbService as DynamoClient } from '@tango-crypto/tango-dynamodb';
-import { JsonScript } from 'src/utils/models/json-script.model';
+import { JsonScript, ScriptTypeEnum } from 'src/utils/models/json-script.model';
 import { Script } from 'src/utils/models/script.model';
 
 @Injectable()
@@ -151,14 +151,22 @@ export class TransactionsService {
 				},
 				assets: i.assets
 			})),
-			outputs: outputs || [],
+			outputs: outputs?.map(o => ({
+				address: o.address,
+				amount: {
+					quantity: o.value,
+					unit: AmountUnitEnum.Lovelace
+				},
+				assets: o.assets
+			})) || [],
 			change: []
 		};
 
 		let txMetadata = {};
 		let ttl = Number.MAX_SAFE_INTEGER;
+		let total = 0;
 		let spendableTotal = 0;
-		let outputCosts = (outputs || []).reduce((acc, o) => acc + o.amount.quantity, 0);
+		let outputCosts = (outputs || []).reduce((acc, o) => acc + o.value, 0);
 
 		if (burnouts?.assets) {
 			assets.push(...burnouts.assets);
@@ -182,6 +190,7 @@ export class TransactionsService {
 			const input = inputs[i];
 			const assets = input.assets;
 			const amount = input.value;
+			total += amount;
 			if (!assets || assets.length == 0) {
 				spendableTotal += amount;
 				continue;
@@ -289,7 +298,7 @@ export class TransactionsService {
 		const changes = spendableTotal - outputCosts;
 
 		// send back any remaining funds
-		if (change_address && changes >= config.protocols.minUTxOValue) {
+		if (change_address && changes > 0) {
 			coinSelection.change.push({
 				address: change_address,
 				amount: {
@@ -301,14 +310,16 @@ export class TransactionsService {
 			throw APIError.badRequest(`not enough funds`);
 		}
 
-		const multisigTx = Seed.buildTransactionMultisig(coinSelection, ttl, scripts, assets, signingKeys, { data: Object.keys(txMetadata).length > 0 ? txMetadata : null, config });
-
-		const hash = multisigTx.getHash();
-
-		// console.log('Selection:', JSON.stringify(multisigTx.getCoinSelection(), null, 2));
-		return { tx_id: hash, tx: Buffer.from(multisigTx.toBytes()).toString('hex') };
-
-
+		try {
+			const multisigTx = Seed.buildTransactionMultisig(total, coinSelection, ttl, scripts, assets, signingKeys, { data: Object.keys(txMetadata).length > 0 ? txMetadata : null, config });
+	
+			const hash = multisigTx.getHash();
+	
+			// console.log('Selection:', JSON.stringify(multisigTx.getCoinSelection(), null, 2));
+			return { tx_id: hash, tx: Buffer.from(multisigTx.toBytes()).toString('hex') };
+		} catch (err) {
+			throw APIError.badRequest(err.message);
+		}
 	}
 
 	deserialize(cborHex: string): { txId: string, txCborHex: string, mintQuantity: number } {
