@@ -189,7 +189,7 @@ export class TransactionsService {
 			const inputAssets: Asset[] = [];
 			// get all input assets and add only those not been burn
 			for (let { policy_id, asset_name, quantity } of assets) {
-				const burn = burnouts.assets?.find(a => a.policy_id == policy_id && a.asset_name == asset_name)?.quantity || 0;
+				const burn = burnouts?.assets?.find(a => a.policy_id == policy_id && a.asset_name == asset_name)?.quantity || 0;
 				const r = quantity + burn;
 				if (r > 0) {
 					inputAssets.push({
