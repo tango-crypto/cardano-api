@@ -193,33 +193,41 @@ export class TransactionsService {
 			total += amount;
 			if (!assets || assets.length == 0) {
 				spendableTotal += amount;
-				continue;
-			}
-			const inputAssets: Asset[] = [];
-			// get all input assets and add only those not been burn
-			for (let { policy_id, asset_name, quantity } of assets) {
-				const burn = burnouts?.assets?.find(a => a.policy_id == policy_id && a.asset_name == asset_name)?.quantity || 0;
-				const r = quantity + burn;
-				if (r > 0) {
-					inputAssets.push({
-						policy_id: policy_id,
-						asset_name: Buffer.from(asset_name).toString('hex'),
-						quantity: r
-					})
+				coinSelection.outputs.push({
+					address: input.address,
+					amount: {
+						quantity: amount,
+						unit: AmountUnitEnum.Lovelace,
+					},
+					assets: []
+				});
+			} else {
+				const inputAssets: Asset[] = [];
+				// get all input assets and add only those not been burn
+				for (let { policy_id, asset_name, quantity } of assets) {
+					const burn = burnouts?.assets?.find(a => a.policy_id == policy_id && a.asset_name == asset_name)?.quantity || 0;
+					const r = quantity + burn;
+					if (r > 0) {
+						inputAssets.push({
+							policy_id: policy_id,
+							asset_name: Buffer.from(asset_name).toString('hex'),
+							quantity: r
+						})
+					}
 				}
+	
+				// add previuos tokens utxo
+				const minAda = Seed.getMinUtxoValueWithAssets(inputAssets, config, 'hex');
+				spendableTotal += amount - minAda;
+				coinSelection.outputs.push({
+					address: input.address,
+					amount: {
+						quantity: minAda,
+						unit: AmountUnitEnum.Lovelace,
+					},
+					assets: inputAssets,
+				});
 			}
-
-			// add previuos tokens utxo
-			const minAda = Seed.getMinUtxoValueWithAssets(inputAssets, config, 'hex');
-			spendableTotal += amount - minAda;
-			coinSelection.outputs.push({
-				address: input.address,
-				amount: {
-					quantity: minAda,
-					unit: AmountUnitEnum.Lovelace,
-				},
-				assets: inputAssets,
-			});
 		}
 
 		// add minting tokens
@@ -315,7 +323,7 @@ export class TransactionsService {
 	
 			const hash = multisigTx.getHash();
 	
-			// console.log('Selection:', JSON.stringify(multisigTx.getCoinSelection(), null, 2));
+			console.log('Selection:', JSON.stringify(multisigTx.getCoinSelection(), null, 2));
 			return { tx_id: hash, tx: Buffer.from(multisigTx.toBytes()).toString('hex') };
 		} catch (err) {
 			throw APIError.badRequest(err.message);
