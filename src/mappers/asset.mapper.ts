@@ -20,12 +20,14 @@ export class AssetProfile extends AutomapperProfile {
       .forMember(dest => dest.asset_name, mapFrom(src => src.asset_name))
       .forMember(dest => dest.fingerprint, mapFrom(src => src.fingerprint))
       .forMember(dest => dest.quantity, mapFrom(src => Number(src.quantity)))
+      .forMember(dest => dest.transactions, mapDefer<Asset>(src => src.transactions ? fromValue(Number(src.transactions)) : ignore()))
+      .forMember(dest => dest.created_at, mapDefer<Asset>(src => src.created_at ? fromValue(src.created_at) : ignore()))
       .forMember(dest => dest.mint_quantity, mapDefer<Asset>(src => src.mint_quantity ? fromValue(Number(src.mint_quantity)) : ignore()))
       .forMember(dest => dest.burn_quantity, mapDefer<Asset>(src => src.burn_quantity ? fromValue(Number(src.burn_quantity)) : ignore()))
       .forMember(dest => dest.mint_or_burn_quantity, mapDefer<Asset>(src => src.mint_or_burn_quantity ? fromValue(Number(src.mint_or_burn_quantity)) : ignore()))
       .forMember(dest => dest.initial_mint_tx_hash, mapFrom(src => src.initial_mint_tx_hash))
       .forMember(dest => dest.on_chain_metadata, ignore())
-      .forMember(dest => dest.metadata, mapDefer<Asset>(src => src.metadata ? fromValue(mapper.map<Metadata, MetadataDto>(src.metadata, 'MetadataDto', 'Metadata')) : ignore()))
+      .forMember(dest => dest.metadata, mapDefer<Asset>(src => src.metadata ? fromValue(mapper.mapArray<Metadata, MetadataDto>(src.metadata, 'MetadataDto', 'Metadata')) : ignore()))
       ;
 
       mapper.createMap<AssetOwner, AssetOwnerDto>('AssetOwner', 'AssetOwnerDto')
