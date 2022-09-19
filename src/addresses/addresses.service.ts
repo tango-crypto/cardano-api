@@ -55,6 +55,23 @@ export class AddressesService {
 		return {data, cursor: nextPageToken}
 	}
 
+	async getAssetUtxos(address: string, asset: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<UtxoDto>> {
+		if (!Utils.isValidAddress(address)) throw APIError.badRequest(`invalid address: ${address}`);
+		let tx_id = -1;
+		let index = 0;
+		try {
+			const [tx, i] = Utils.decrypt(pageToken).split('-');
+			tx_id = tx ? Number(tx) : -1;
+			index = i ? Number(i): 0;
+		} catch(err) {
+			// throw new Error('Invalid cursor');
+		}
+		const utxos = await this.ledger.dbClient.getAddressAssetUtxos(address, asset, size + 1, order, tx_id, index);
+		const [nextPageToken, items] = utxos.length <= size ? [null, utxos] : [Utils.encrypt(`${utxos[size - 1].tx_id}-${utxos[size - 1].index}`), utxos.slice(0, size)];
+		const data = this.mapper.mapArray<Utxo, UtxoDto>(items, 'UtxoDto', 'Utxo');
+		return {data, cursor: nextPageToken}
+	}
+
 	async getUtxos(address: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<UtxoDto>> {
 		if (!Utils.isValidAddress(address)) throw APIError.badRequest(`invalid address: ${address}`);
 		let txId = 0;

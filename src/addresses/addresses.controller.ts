@@ -5,6 +5,7 @@ import { PaginateResponse } from 'src/models/PaginateResponse';
 import { AssetDto } from 'src/models/dto/Asset.dto';
 import { UtxoDto } from 'src/models/dto/Utxo.dto';
 import { TransactionDto } from 'src/models/dto/Transaction.dto';
+import { Utxo } from '@tango-crypto/tango-ledger';
 
 @Controller(':accountId/addresses')
 export class AddressesController {
@@ -23,6 +24,11 @@ export class AddressesController {
 	@Get(':address/assets')
 	getAssets(@Param('address') address: string, @Query('size') size: number = 50, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<AssetDto>> {
 		return this.addressesService.getAssets(address, Number(size), order, pageToken);
+	}
+
+	@Get(':address/assets/:asset/utxos')
+	getAssetUtxos(@Param('address') address: string, @Param('asset') asset: string, @Query('size') size: number = 50, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<Utxo>> {
+		return this.addressesService.getAssetUtxos(address, asset, Number(size), order, pageToken);
 	}
 
 	@Get(':address/transactions')
