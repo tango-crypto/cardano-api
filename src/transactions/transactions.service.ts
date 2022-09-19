@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Utils } from 'src/common/utils';
 import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
-import { Metadata, Transaction, Utxo } from '@tango-crypto/tango-ledger';
+import { Metadata, Transaction, Utxo, Script as LedgerScript } from '@tango-crypto/tango-ledger';
 import { SQSClient, SendMessageCommand, SendMessageCommandInput, SQSClientConfig } from "@aws-sdk/client-sqs";
 import { fromIni } from '@aws-sdk/credential-provider-ini';
 import { ConfigService } from '@nestjs/config';
@@ -23,8 +23,9 @@ import { AmountUnitEnum } from 'src/utils/models/amount-unit-enum.model';
 import * as _ from 'lodash';
 import { MeteringService } from 'src/providers/metering/metering.service';
 import { DynamoDbService as DynamoClient } from '@tango-crypto/tango-dynamodb';
-import { JsonScript, ScriptTypeEnum } from 'src/utils/models/json-script.model';
 import { Script } from 'src/utils/models/script.model';
+import { ScriptDto } from 'src/models/dto/Script.dto';
+import { AssetDto } from 'src/models/dto/Asset.dto';
 
 @Injectable()
 export class TransactionsService {
@@ -77,10 +78,36 @@ export class TransactionsService {
 
 	async getUtxos(txHash: string): Promise<{ hash: string, inputs: UtxoDto[], outputs: UtxoDto[] }> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
-		const { hash, inputs, outputs } = await this.ledger.dbClient.getTransactionUtxos(txHash);
+		const { hash, inputs, outputs } = await this.ledger.dbClient.getTransactionUtxosFull(txHash);
 		const inputUtxos = this.mapper.mapArray<Utxo, UtxoDto>(inputs, 'UtxoDto', 'Utxo');
 		const outputUtxos = this.mapper.mapArray<Utxo, UtxoDto>(outputs, 'UtxoDto', 'Utxo');
 		return { hash, inputs: inputUtxos, outputs: outputUtxos };
+	}
+
+	async getCollaterals(txHash: string): Promise<{ hash: string, inputs: UtxoDto[], outputs: UtxoDto[] }> {
+		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
+		const { hash, inputs, outputs } = await this.ledger.dbClient.getTransactionCollaterals(txHash);
+		const inputUtxos = this.mapper.mapArray<Utxo, UtxoDto>(inputs, 'UtxoDto', 'Utxo');
+		const outputUtxos = this.mapper.mapArray<Utxo, UtxoDto>(outputs, 'UtxoDto', 'Utxo');
+		return { hash, inputs: inputUtxos, outputs: outputUtxos };
+	}
+
+	async getMints(txHash: string,size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<AssetDto>> {
+		let identifier = '';
+		try {
+			identifier = Utils.decrypt(pageToken);
+		} catch (err) {
+			// throw new Error('Invalid cursor');
+		}
+		const assets = await this.ledger.dbClient.getTransactionMints(txHash, size + 1, order, identifier);
+		const data = this.mapper.mapArray<Asset, AssetDto>(assets, 'AssetDto', 'Asset');
+		const [nextPageToken, items] = data.length <= size ? [null, data] : [Utils.encrypt(data[size - 1].fingerprint), data.slice(0, size)];
+		return { data: items, cursor: nextPageToken };
+	}
+
+	async getScripts(txHash: string): Promise<ScriptDto[]> {
+		const scripts = await this.ledger.dbClient.getTransactionScripts(txHash);
+		return this.mapper.mapArray<LedgerScript, ScriptDto>(scripts, 'ScriptDto', 'Script');
 	}
 
 	async getMetadata(txHash: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<MetadataDto>> {

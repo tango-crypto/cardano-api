@@ -35,6 +35,7 @@ import { EpochParametersProfile } from './mappers/epoch-parameters.mapper';
 import { PoliciesService } from './policies/policies.service';
 import { PoliciesController } from './policies/policies.controller';
 import { MeteringService } from './providers/metering/metering.service';
+import { ScriptProfile } from './mappers/script.mapper';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -45,7 +46,7 @@ import { MeteringService } from './providers/metering/metering.service';
     WebhooksModule
   ],
   controllers: [AppController, EpochsController, PoolsController, AddressesController, AssetsController, BlocksController, TransactionsController, WalletsController, PoliciesController],
-  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, EpochProfile, EpochParametersProfile, PoolProfile, PoolDelegationProfile, BlockProfile, TransactionProfile, UtxoProfile, StakeProfile, AddressProfile, AssetProfile, MetadataProfile, PoliciesService, MeteringService],
+  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, EpochProfile, EpochParametersProfile, PoolProfile, PoolDelegationProfile, BlockProfile, TransactionProfile, UtxoProfile, StakeProfile, AddressProfile, AssetProfile, MetadataProfile, ScriptProfile, PoliciesService, MeteringService],
 })
 export class AppModule /*implements NestModule*/ {
   // configure(consumer: MiddlewareConsumer) {

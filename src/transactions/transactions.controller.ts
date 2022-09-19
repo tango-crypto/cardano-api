@@ -1,5 +1,7 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Query, Headers } from '@nestjs/common';
+import { AssetDto } from 'src/models/dto/Asset.dto';
 import { MetadataDto } from 'src/models/dto/Metadata.dto';
+import { ScriptDto } from 'src/models/dto/Script.dto';
 import { TransactionDto } from 'src/models/dto/Transaction.dto';
 import { UtxoDto } from 'src/models/dto/Utxo.dto';
 import { PaginateResponse } from 'src/models/PaginateResponse';
@@ -21,6 +23,21 @@ export class TransactionsController {
 	@Get(':txHash/utxos')
 	getUtxos(@Param('txHash') txHash: string): Promise<{hash: string, inputs: UtxoDto[], outputs: UtxoDto[]}> {
 		return this.transactionsService.getUtxos(txHash);
+	}
+
+	@Get(':txHash/scripts')
+	getScripts(@Param('txHash') txHash: string): Promise<ScriptDto[]> {
+		return this.transactionsService.getScripts(txHash);
+	}
+
+	@Get(':txHash/collaterals')
+	getCollaterals(@Param('txHash') txHash: string): Promise<{hash: string, inputs: UtxoDto[], outputs: UtxoDto[]}> {
+		return this.transactionsService.getCollaterals(txHash);
+	}
+
+	@Get(':txHash/mints')
+	getMints(@Param('txHash') txHash: string, @Query('size') size: number = 50, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<AssetDto>> {
+		return this.transactionsService.getMints(txHash, Number(size), order, pageToken);
 	}
 
 	@Get(':txHash/metadata')
