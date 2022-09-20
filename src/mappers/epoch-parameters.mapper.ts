@@ -2,7 +2,8 @@ import { fromValue, ignore, mapDefer, mapFrom } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/types';
 import { Injectable } from '@nestjs/common';
-import {  EpochParameters, Metadata } from '@tango-crypto/tango-ledger';
+import {  CostModel, EpochParameters, Metadata } from '@tango-crypto/tango-ledger';
+import { CostModelDto } from 'src/models/dto/CostModel.dto';
 import { EpochParametersDto } from 'src/models/dto/EpochParameters.dto';
 
 @Injectable()
@@ -33,6 +34,23 @@ export class EpochParametersProfile extends AutomapperProfile {
       .forMember(dest => dest.min_utxo, mapDefer<EpochParameters>(src => src.min_utxo ? fromValue(Number(src.min_utxo)) : ignore()))
       .forMember(dest => dest.min_pool_cost, mapDefer<EpochParameters>(src => src.min_pool_cost ? fromValue(Number(src.min_pool_cost)) : ignore()))
       .forMember(dest => dest.nonce, mapFrom(src => src.nonce))
+      .forMember(dest => dest.coins_per_utxo_size, mapDefer<EpochParameters>(src => src.coins_per_utxo_size ? fromValue(Number(src.coins_per_utxo_size)) : ignore()))
+      .forMember(dest => dest.price_mem, mapDefer<EpochParameters>(src => src.price_mem ? fromValue(Number(src.price_mem)) : ignore()))
+      .forMember(dest => dest.price_step, mapDefer<EpochParameters>(src => src.price_step ? fromValue(Number(src.price_step)) : ignore()))
+      .forMember(dest => dest.max_tx_ex_mem, mapDefer<EpochParameters>(src => src.max_tx_ex_mem ? fromValue(Number(src.max_tx_ex_mem)) : ignore()))
+      .forMember(dest => dest.max_tx_ex_steps, mapDefer<EpochParameters>(src => src.max_tx_ex_steps ? fromValue(Number(src.max_tx_ex_steps)) : ignore()))
+      .forMember(dest => dest.max_block_ex_mem, mapDefer<EpochParameters>(src => src.max_block_ex_mem ? fromValue(Number(src.max_block_ex_mem)) : ignore()))
+      .forMember(dest => dest.max_block_ex_steps, mapDefer<EpochParameters>(src => src.max_block_ex_steps ? fromValue(Number(src.max_block_ex_steps)) : ignore()))
+      .forMember(dest => dest.max_val_size, mapDefer<EpochParameters>(src => src.max_val_size ? fromValue(Number(src.max_val_size)) : ignore()))
+      .forMember(dest => dest.collateral_percent, mapDefer<EpochParameters>(src => src.collateral_percent ? fromValue(Number(src.collateral_percent)) : ignore()))
+      .forMember(dest => dest.max_collateral_inputs, mapDefer<EpochParameters>(src => src.max_collateral_inputs ? fromValue(Number(src.max_collateral_inputs)) : ignore()))
+      .forMember(dest => dest.cost_model, mapDefer<EpochParameters>(src => src.cost_model ? fromValue(mapper.map<CostModel, CostModelDto>(src.cost_model, 'CostModelDto', 'CostModel')) : ignore()))
+      .forMember(dest => dest.block_id, ignore())
+      ;
+
+      mapper.createMap<CostModel, CostModelDto>('CostModel', 'CostModelDto')
+      .forMember(dest => dest.hash, mapDefer<CostModel>(src => src.hash ? fromValue(src.hash) : ignore()))
+      .forMember(dest => dest.costs, mapDefer<CostModel>(src => src.costs ? fromValue(src.costs) : ignore()))
       .forMember(dest => dest.block_id, ignore())
       ;
     }

@@ -20,9 +20,9 @@ export class EpochsService {
 
 	async getParameters(epoch: number): Promise<EpochParametersDto> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
-		const parameters = await this.ledger.dbClient.getEpochParamters(epoch);
+		const parameters = await this.ledger.dbClient.getEpochParameters(epoch);
 		if (!parameters) {
-			throw APIError.notFound(`epoch: ${epoch}`);
+			throw APIError.notFound(`parameters for epoch: ${epoch}`);
 		}
 		return this.mapper.map<EpochParameters, EpochParametersDto>(parameters, 'EpochParametersDto', 'EpochParameters');
 	}
