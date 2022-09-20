@@ -29,6 +29,7 @@ export class EpochParametersProfile extends AutomapperProfile {
       .forMember(dest => dest.monetary_expand_rate_rho, mapDefer<EpochParameters>(src => src.monetary_expand_rate_rho ? fromValue(Number(src.monetary_expand_rate_rho)) : ignore()))
       .forMember(dest => dest.treasury_growth_rate_tau, mapDefer<EpochParameters>(src => src.treasury_growth_rate_tau ? fromValue(Number(src.treasury_growth_rate_tau)) : ignore()))
       .forMember(dest => dest.decentralisation, mapDefer<EpochParameters>(src => src.decentralisation ? fromValue(Number(src.decentralisation)) : ignore()))
+      .forMember(dest => dest.extra_entropy, mapDefer<EpochParameters>(src => src.extra_entropy ? fromValue(src.extra_entropy) : ignore()))
       .forMember(dest => dest.protocol_major, mapDefer<EpochParameters>(src => src.protocol_major ? fromValue(Number(src.protocol_major)) : ignore()))
       .forMember(dest => dest.protocol_minor, mapDefer<EpochParameters>(src => src.protocol_minor ? fromValue(Number(src.protocol_minor)) : ignore()))
       .forMember(dest => dest.min_utxo, mapDefer<EpochParameters>(src => src.min_utxo ? fromValue(Number(src.min_utxo)) : ignore()))
