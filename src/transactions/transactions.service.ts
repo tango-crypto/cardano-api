@@ -354,7 +354,7 @@ export class TransactionsService {
 		const txBody = tx.body();
 		const txHash = hash_transaction(txBody);
 		const txId = Buffer.from(txHash.to_bytes()).toString('hex');
-		const assets = txBody.mint().get(this.policyScriptHash);
+		const assets = txBody.mint()?.get(this.policyScriptHash);
 		if (!!assets) { // api mint
 			const mintQuantity = Number(assets.get(this.assetName).to_str());
 			const witnessSet = tx.witness_set();
