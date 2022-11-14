@@ -1,10 +1,9 @@
-import { Address, AssetName, Assets, BigNum, hash_transaction, make_vkey_witness, MultiAsset, NativeScript, PrivateKey, ScriptHash, Transaction as SerializeTransaction, TransactionHash, TransactionInput, TransactionOutput, TransactionUnspentOutput, Value } from '@emurgo/cardano-serialization-lib-nodejs';
+import { AssetName, hash_transaction, make_vkey_witness, NativeScript, PrivateKey, ScriptHash, Transaction as SerializeTransaction } from '@emurgo/cardano-serialization-lib-nodejs';
 import { Injectable } from '@nestjs/common';
 import { Utils } from 'src/common/utils';
 import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
 import { Metadata, Transaction, Utxo, Script as LedgerScript } from '@tango-crypto/tango-ledger';
-import { SQSClient, SendMessageCommand, SendMessageCommandInput, SQSClientConfig } from "@aws-sdk/client-sqs";
 import { fromIni } from '@aws-sdk/credential-provider-ini';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
@@ -26,10 +25,12 @@ import { DynamoDbService as DynamoClient } from '@tango-crypto/tango-dynamodb';
 import { Script } from 'src/utils/models/script.model';
 import { ScriptDto } from 'src/models/dto/Script.dto';
 import { AssetDto } from 'src/models/dto/Asset.dto';
+import { EventBridgeClient, EventBridgeClientConfig, PutEventsCommand } from '@aws-sdk/client-eventbridge';
+import { DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
 
 @Injectable()
 export class TransactionsService {
-	client: SQSClient;
+	ebClient: EventBridgeClient;
 	dynamoClient: DynamoClient;
 	table: string;
 	businessAddress: string;
@@ -39,6 +40,8 @@ export class TransactionsService {
 	scriptKeys: PrivateKey[];
 	policyScriptHash: ScriptHash;
 	assetName: AssetName;
+	network: string;
+	eventBusName: string;
 
 	constructor(
 		private readonly ledger: TangoLedgerService,
@@ -46,14 +49,14 @@ export class TransactionsService {
 		private readonly meteringService: MeteringService,
 		@InjectMapper('pojo-mapper') private mapper: Mapper
 	) {
-		const config: SQSClientConfig = {
+		const config: any = {
 			region: this.configService.get<string>('AWS_REGION'),
 		};
 		const env = this.configService.get<string>('NODE_ENV');
 		if (env == 'development') {
 			config.credentials = fromIni({ profile: 'tangocrypto' });
 		}
-		this.client = new SQSClient(config);
+		this.ebClient = new EventBridgeClient(config);
 		this.dynamoClient = new DynamoClient(config);
 		this.table = this.configService.get<string>('DYNAMO_DB_ACCOUNT_TABLE_NAME');
 
@@ -63,6 +66,8 @@ export class TransactionsService {
 		this.scriptKeys = JSON.parse(this.configService.get<string>('BUSINESS_POLICY_SCRIPT_KEYS')).map((key: string) => Seed.getPrivateKey(key)) as PrivateKey[];
 		this.policyScriptHash = Seed.getScriptHash(this.policyScript.root);
 		this.assetName = AssetName.new(Buffer.from(this.configService.get<string>('BUSINESS_TOKEN_NAME')));
+		this.network = this.configService.get<string>('NETWORK') || 'mainnet';
+		this.eventBusName = this.configService.get<string>('SUBMIT_EVENTBUS_NAME');
 
 	}
 
@@ -92,7 +97,7 @@ export class TransactionsService {
 		return { hash, inputs: inputUtxos, outputs: outputUtxos };
 	}
 
-	async getMints(txHash: string,size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<AssetDto>> {
+	async getMints(txHash: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<AssetDto>> {
 		let identifier = '';
 		try {
 			identifier = Utils.decrypt(pageToken);
@@ -130,31 +135,53 @@ export class TransactionsService {
 			// get tx content
 			const { txId, txCborHex, mintQuantity } = this.deserialize(cborHex);
 
-			//send SQS message
-			const region = this.configService.get<string>('AWS_REGION');
-			const accountId = this.configService.get<string>('AWS_ACCOUNT_ID');
-			const queueName = this.configService.get<string>('QUEUE_NAME');
-			const network = this.configService.get<string>('NETWORK') || 'mainnet';
-			const eventKey = crypto.randomUUID().replace(/-/g, '');
+			//send EventBridge message
+			const eventKey = crypto.randomUUID();
+			const date = new Date();
 			const submitPayload: any = {
 				eventKey,
 				userId,
 				txId,
 				txBody: txCborHex,
-				network: network,
-				timestamp: Date.now()
-			};
-			if (mintQuantity) {
-				submitPayload.confirmations = 0; // send to cardano-events-confirmations
-				submitPayload.eventType = 'ApiMint-Transaction';
-				submitPayload.metadata = { mint_quantity: mintQuantity };	
+				network: this.network,
+				timestamp: date.getTime(),
+				// ttl,
+				// confirmations,
+				// eventType: 'Nft-Transaction'
 			}
-			const input: SendMessageCommandInput = {
-				QueueUrl: `https://sqs.${region}.amazonaws.com/${accountId}/${queueName}`,
-				MessageBody: JSON.stringify(submitPayload)
+			if (mintQuantity) {
+				// submitPayload.confirmations = 0; // send to cardano-events-confirmations
+				submitPayload.eventType = 'ApiMint-Transaction';
+				submitPayload.metadata = { mint_quantity: mintQuantity };
+			}
+
+			const params = {
+				Entries: [
+					{
+						EventBusName: this.eventBusName,
+						Source: 'tango.cardano-api',
+						DetailType: 'tx-submit',
+						Time: date,
+						Detail: JSON.stringify({
+							result: 'submit',
+							detailItem: {
+								eventKey: eventKey,
+								network: this.network,
+								data: submitPayload
+							}
+						})
+					}
+				]
 			};
-			const command = new SendMessageCommand(input);
-			await this.client.send(command);
+			const command = new PutEventsCommand(params);
+			await this.ebClient.send(command);
+
+			// const input: SendMessageCommandInput = {
+			// 	QueueUrl: `https://sqs.${region}.amazonaws.com/${accountId}/${queueName}`,
+			// 	MessageBody: JSON.stringify(submitPayload)
+			// };
+			// const command = new SendMessageCommand(input);
+			// await this.client.send(command);
 			return txId;
 		} catch (err) {
 			let errorMessage = err.isAxiosError && err.response && err.response.data ? err.response.data : err.message;
@@ -339,9 +366,9 @@ export class TransactionsService {
 
 		try {
 			const multisigTx = Seed.buildTransactionMultisig(total, coinSelection, ttl, scripts, assets, signingKeys, { data: Object.keys(txMetadata).length > 0 ? txMetadata : null, config });
-	
+
 			const hash = multisigTx.getHash();
-	
+
 			// console.log('Selection:', JSON.stringify(multisigTx.getCoinSelection(), null, 2));
 			return { tx_id: hash, tx: multisigTx.build() };
 		} catch (err) {
@@ -368,7 +395,7 @@ export class TransactionsService {
 				witnessSet,
 				data
 			);
-			return { txId: Seed.getTxId(tx1), txCborHex: Buffer.from(tx1.to_bytes()).toString('hex'), mintQuantity  }
+			return { txId: Seed.getTxId(tx1), txCborHex: Buffer.from(tx1.to_bytes()).toString('hex'), mintQuantity }
 		} else {
 			return { txId, txCborHex: cborHex, mintQuantity: 0 }
 		}

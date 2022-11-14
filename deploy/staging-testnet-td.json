@@ -32,12 +32,12 @@
             "volumesFrom": [],
             "secrets": [
                 {
-                    "name": "AWS_ACCOUNT_ID",
-                    "valueFrom": "/staging/v1/aws/acount_id"
-                },
-                {
                     "name": "AWS_REGION",
                     "valueFrom": "/v1/aws/region"
+                },
+                {
+                    "name": "SUBMIT_EVENTBUS_NAME",
+                    "valueFrom": "/staging/v1/cardano-submit/eventbus"
                 },
                 {
                     "name": "DB_DEBUG",
@@ -62,10 +62,6 @@
                 {
                     "name": "DB_USER",
                     "valueFrom": "/staging/v1/db/testnet/user"
-                },
-                {
-                    "name": "QUEUE_NAME",
-                    "valueFrom": "/staging/v1/cardano-submit/queue"
                 },
                 {
                     "name": "DYNAMO_DB_ACCOUNT_TABLE_NAME",
