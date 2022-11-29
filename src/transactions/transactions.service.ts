@@ -184,6 +184,7 @@ export class TransactionsService {
 			// await this.client.send(command);
 			return txId;
 		} catch (err) {
+			console.log('Submit Error:', err);
 			let errorMessage = err.isAxiosError && err.response && err.response.data ? err.response.data : err.message;
 			throw APIError.badRequest(errorMessage || err);
 		}

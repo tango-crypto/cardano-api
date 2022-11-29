@@ -1,6 +1,6 @@
 {
   "name": "cardano-api",
-  "version": "1.6.6",
+  "version": "1.6.7",
   "description": "Cardano Http API",
   "author": "",
   "private": true,
@@ -27,7 +27,7 @@
     "@automapper/pojos": "^7.2.1",
     "@automapper/types": "^6.2.1",
     "@aws-sdk/client-dynamodb": "^3.35.0",
-    "@aws-sdk/client-eventbridge": "^3.209.0",
+    "@aws-sdk/client-eventbridge": "^3.210.0",
     "@aws-sdk/credential-provider-ini": "^3.34.0",
     "@emurgo/cardano-serialization-lib-nodejs": "^10.0.4",
     "@nestjs/common": "^8.0.0",
