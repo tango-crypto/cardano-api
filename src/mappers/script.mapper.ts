@@ -20,7 +20,7 @@ export class ScriptProfile extends AutomapperProfile {
       .forMember(dest => dest.hash, mapFrom(src => src.hash))
       .forMember(dest => dest.json, mapDefer<Script>(src => src.json ? fromValue(src.json) : ignore()))
       .forMember(dest => dest.code, mapDefer<Script>(src => src.code ? fromValue(src.code) : ignore()))
-      .forMember(dest => dest.serialised_size, mapDefer<Script>(src => src.serialised_size ? fromValue(src.serialised_size) : ignore()))
+      .forMember(dest => dest.serialised_size, mapDefer<Script>(src => src.serialised_size ? fromValue(Number(src.serialised_size)) : ignore()))
       .forMember(dest => dest.datum, mapDefer<Script>(src => src.datum ? fromValue(mapper.map<Datum, DatumDto>(src.datum, 'DatumDto', 'Datum')) : ignore()))
       .forMember(dest => dest.redeemer, mapDefer<Script>(src => src.redeemer ? fromValue(mapper.map<Redeemer, RedeemerDto>(src.redeemer, 'RedeemerDto', 'Redeemer')) : ignore()))
       ;
