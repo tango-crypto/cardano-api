@@ -25,8 +25,10 @@ import { DynamoDbService as DynamoClient } from '@tango-crypto/tango-dynamodb';
 import { Script } from 'src/utils/models/script.model';
 import { ScriptDto } from 'src/models/dto/Script.dto';
 import { AssetDto } from 'src/models/dto/Asset.dto';
-import { EventBridgeClient, EventBridgeClientConfig, PutEventsCommand } from '@aws-sdk/client-eventbridge';
-import { DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
+import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
+import { EvaluateTxResponseDto } from './dto/evaluateTxResponse.dto'
+import { UtxoDto as EvaluateUtxo } from 'src/transactions/dto/evaluateTx.dto';;
+import { OgmiosService } from 'src/providers/ogmios/ogmios.service';
 
 @Injectable()
 export class TransactionsService {
@@ -42,11 +44,13 @@ export class TransactionsService {
 	assetName: AssetName;
 	network: string;
 	eventBusName: string;
+	ogmiosPort: number;
 
 	constructor(
 		private readonly ledger: TangoLedgerService,
 		private readonly configService: ConfigService,
 		private readonly meteringService: MeteringService,
+		private readonly ogmiosService: OgmiosService,
 		@InjectMapper('pojo-mapper') private mapper: Mapper
 	) {
 		const config: any = {
@@ -68,6 +72,7 @@ export class TransactionsService {
 		this.assetName = AssetName.new(Buffer.from(this.configService.get<string>('BUSINESS_TOKEN_NAME')));
 		this.network = this.configService.get<string>('NETWORK') || 'mainnet';
 		this.eventBusName = this.configService.get<string>('SUBMIT_EVENTBUS_NAME');
+		this.ogmiosPort = this.configService.get<number>('OGMIOS_PORT') || 3337;
 
 	}
 
@@ -375,6 +380,14 @@ export class TransactionsService {
 		} catch (err) {
 			throw APIError.badRequest(err.message);
 		}
+	}
+
+	async evaluateTx(cborHex: string, utxos?: EvaluateUtxo[]): Promise<EvaluateTxResponseDto> {
+		const server = await this.meteringService.getServer(this.network, this.ogmiosPort);
+        if (!server) {
+            throw APIError.badRequest(`Cannot find a server, please try again later :(`);
+        }
+		return this.ogmiosService.evaluateTx(server, cborHex, utxos);
 	}
 
 	deserialize(cborHex: string): { txId: string, txCborHex: string, mintQuantity: number } {

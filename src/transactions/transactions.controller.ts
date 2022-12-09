@@ -7,6 +7,8 @@ import { UtxoDto } from 'src/models/dto/Utxo.dto';
 import { PaginateResponse } from 'src/models/PaginateResponse';
 import { BuildTxDto } from './dto/buildTx.dto';
 import { BuildTxResponseDto } from './dto/buildTxResponse.dto';
+import { EvaluateTxDto } from './dto/evaluateTx.dto';
+import { EvaluateTxResponseDto } from './dto/evaluateTxResponse.dto';
 import { SubmitTxDto } from './dto/submitTx.dto';
 import { SubmitTxResponseDto } from './dto/submitTxResponse.dto';
 import { TransactionsService } from './transactions.service';
@@ -50,6 +52,12 @@ export class TransactionsController {
 	async submit(@Headers('x-api-key') accountId: string, @Body() submitTx: SubmitTxDto): Promise<SubmitTxResponseDto> {
 		const txId = await this.transactionsService.submit(accountId, submitTx.tx);
 		return { tx_id: txId };
+	}
+
+	@Post('evaluate')
+	@HttpCode(200)
+	async evaluate(@Headers('x-api-key') accountId: string, @Body() evaluateTx: EvaluateTxDto): Promise<EvaluateTxResponseDto> {
+		return this.transactionsService.evaluateTx(evaluateTx.tx, evaluateTx.utxos);
 	}
 
 	@Post('build')
