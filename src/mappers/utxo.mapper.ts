@@ -29,6 +29,7 @@ export class UtxoProfile extends AutomapperProfile {
       .forMember(dest => dest.asset_name, mapFrom(src => src.asset_name))
       .forMember(dest => dest.fingerprint, mapFrom(src => src.fingerprint))
       .forMember(dest => dest.assets, mapDefer<Utxo>(src => src.assets ? fromValue(mapper.mapArray<Asset, AssetDto>(src.assets, 'AssetDto', 'Asset')) : ignore()))
+      .forMember(dest => dest.datum, mapDefer<Utxo>(src => src.datum ? fromValue(mapper.map<Datum, DatumDto>(src.datum, 'DatumDto', 'Datum')) : ignore()))
       .forMember(dest => dest.inline_datum, mapDefer<Utxo>(src => src.inline_datum ? fromValue(mapper.map<Datum, DatumDto>(src.inline_datum, 'DatumDto', 'Datum')) : ignore()))
       .forMember(dest => dest.reference_script, mapDefer<Utxo>(src => src.reference_script ? fromValue(mapper.map<Script, ScriptDto>(src.reference_script, 'ScriptDto', 'Script')) : ignore()))
       .forMember(dest => dest.script, mapDefer<Utxo>(src => src.script ? fromValue(mapper.map<Script, ScriptDto>(src.script, 'ScriptDto', 'Script')) : ignore()))

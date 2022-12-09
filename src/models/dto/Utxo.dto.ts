@@ -14,6 +14,7 @@ export interface UtxoDto {
     asset_name?: string;
     fingerprint?: string;
     assets?: AssetDto[];
+    datum?: DatumDto;
     inline_datum?: DatumDto;
 	reference_script?: ScriptDto;
     script?: ScriptDto;

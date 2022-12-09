@@ -1,3 +1,5 @@
+import { UtxoDto } from "src/models/dto/Utxo.dto";
+
 export interface EvaluateTxDto {
     tx: string;
     utxos?: UtxoDto[];
@@ -49,4 +51,4 @@ export interface TxOutDto {
     script?: Script;
 }
 
-export declare type UtxoDto = [TxInDto, TxOutDto];
+export declare type OgmiosUtxoDto = [TxInDto, TxOutDto];
