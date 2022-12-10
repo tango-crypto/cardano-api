@@ -387,7 +387,7 @@ export class TransactionsService {
         if (!server) {
 			throw APIError.badRequest(`Cannot find a server, please try again later :(`);
         }
-		const mapUtxos = utxos.map<OgmiosUtxoDto>(utxo => {
+		const mapUtxos = utxos?.map<OgmiosUtxoDto>(utxo => {
 			const { hash, index, address, value, assets, datum, script } = utxo;
 			const txIn: TxInDto = { hash, index };
 			const txOut: TxOutDto = { address, value, assets, datum, script };
