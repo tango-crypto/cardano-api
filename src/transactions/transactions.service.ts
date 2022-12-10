@@ -386,7 +386,7 @@ export class TransactionsService {
 		try {
 			const server = await this.meteringService.getServer(this.network, this.ogmiosPort);
 			if (!server) {
-				// throw APIError.badRequest(`Cannot find a server, please try again later :(`);
+				throw APIError.badRequest(`Cannot find a server, please try again later :(`);
 			}
 			const mapUtxos = utxos?.map<OgmiosUtxoDto>(utxo => {
 				const { hash, index, address, value, assets, datum, script } = utxo;
