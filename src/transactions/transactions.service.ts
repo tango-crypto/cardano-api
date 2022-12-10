@@ -383,18 +383,19 @@ export class TransactionsService {
 	}
 
 	async evaluateTx(cborHex: string, utxos?: UtxoDto[]): Promise<EvaluateTxResponseDto> {
-		const server = await this.meteringService.getServer(this.network, this.ogmiosPort);
-        if (!server) {
-			throw APIError.badRequest(`Cannot find a server, please try again later :(`);
-        }
-		const mapUtxos = utxos?.map<OgmiosUtxoDto>(utxo => {
-			const { hash, index, address, value, assets, datum, script } = utxo;
-			const txIn: TxInDto = { hash, index };
-			const txOut: TxOutDto = { address, value, assets, datum, script };
-			return [txIn, txOut];
-		});
 		try {
-			return this.ogmiosService.evaluateTx(server, cborHex, mapUtxos);
+			const server = await this.meteringService.getServer(this.network, this.ogmiosPort);
+			if (!server) {
+				// throw APIError.badRequest(`Cannot find a server, please try again later :(`);
+			}
+			const mapUtxos = utxos?.map<OgmiosUtxoDto>(utxo => {
+				const { hash, index, address, value, assets, datum, script } = utxo;
+				const txIn: TxInDto = { hash, index };
+				const txOut: TxOutDto = { address, value, assets, datum, script };
+				return [txIn, txOut];
+			});
+
+			return await this.ogmiosService.evaluateTx(server, cborHex, mapUtxos);
 		} catch (err) {
 			console.log('Evaluate Error:', err);
 			let errorMessage = err.isAxiosError && err.response && err.response.data ? err.response.data : err.message;
