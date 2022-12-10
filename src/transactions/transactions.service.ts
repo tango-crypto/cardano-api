@@ -393,7 +393,13 @@ export class TransactionsService {
 			const txOut: TxOutDto = { address, value, assets, datum, script };
 			return [txIn, txOut];
 		});
-		return this.ogmiosService.evaluateTx(server, cborHex, mapUtxos);
+		try {
+			return this.ogmiosService.evaluateTx(server, cborHex, mapUtxos);
+		} catch (err) {
+			console.log('Evaluate Error:', err);
+			let errorMessage = err.isAxiosError && err.response && err.response.data ? err.response.data : err.message;
+			throw APIError.badRequest(errorMessage || err);
+		}
 	}
 
 	deserialize(cborHex: string): { txId: string, txCborHex: string, mintQuantity: number } {
