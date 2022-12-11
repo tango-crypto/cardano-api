@@ -397,8 +397,8 @@ export class TransactionsService {
 
 			return await this.ogmiosService.evaluateTx(server, cborHex, mapUtxos);
 		} catch (err) {
-			console.log('Evaluate Error:', err);
-			throw err;
+			let errorMessage = err.isAxiosError && err.response?.data?.message ? err.response.data.message : err.message;
+			throw APIError.badRequest(errorMessage || err);
 		}
 	}
 
