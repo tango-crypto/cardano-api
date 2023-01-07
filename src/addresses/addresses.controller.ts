@@ -6,6 +6,7 @@ import { AssetDto } from 'src/models/dto/Asset.dto';
 import { UtxoDto } from 'src/models/dto/Utxo.dto';
 import { TransactionDto } from 'src/models/dto/Transaction.dto';
 import { Utxo } from '@tango-crypto/tango-ledger';
+import { InspectAddress } from 'cardano-addresses';
 
 @Controller(':accountId/addresses')
 export class AddressesController {
@@ -34,5 +35,10 @@ export class AddressesController {
 	@Get(':address/transactions')
 	getTransactions(@Param('address') address: string, @Query('size') size: number = 50, @Query('order') order: string, @Query('cursor') pageToken: string): Promise<PaginateResponse<TransactionDto>> {
 		return this.addressesService.getTransactions(address, Number(size), order, pageToken);
+	}
+
+	@Get(':address/info')
+	getRawInfo(@Param('address') address: string): Promise<InspectAddress> {
+		return this.addressesService.rawInfo(address);
 	}
 }

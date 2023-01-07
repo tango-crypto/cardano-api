@@ -10,6 +10,7 @@ import { Mapper } from '@automapper/types';
 import { AssetDto } from 'src/models/dto/Asset.dto';
 import { UtxoDto } from 'src/models/dto/Utxo.dto';
 import { TransactionDto } from 'src/models/dto/Transaction.dto';
+import { InspectAddress, inspectAddress } from 'cardano-addresses';
 
 @Injectable()
 export class AddressesService {
@@ -107,6 +108,14 @@ export class AddressesService {
 		const [nextPageToken, items] = txs.length <= size ? [null, txs]: [Utils.encrypt(txs[size - 1].id.toString()), txs.slice(0, size)];
 		const data = this.mapper.mapArray<Transaction, TransactionDto>(items, 'TransactionDto', 'Transaction');
 		return { data: data, cursor: nextPageToken };
+	}
+
+	async rawInfo(address: string, rootXPub?: string): Promise<InspectAddress> {
+		try {
+			return await inspectAddress(address, rootXPub);
+		} catch (error) {
+			return null;
+		}
 	}
 
 
