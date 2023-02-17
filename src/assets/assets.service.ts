@@ -19,9 +19,7 @@ export class AssetsService {
 	async get(identifier: string): Promise<AssetDto> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
 		try {
-			let asset = identifier.startsWith("asset") 
-				? await this.ledger.dbClient.getAssetByFingerprint(identifier) 
-				: await this.ledger.dbClient.getAsset(identifier);
+			let asset = await this.ledger.dbClient.getAsset(identifier);
 			if (!asset) {
 				throw APIError.notFound(`asset identifier: ${identifier}`);
 			}
@@ -32,7 +30,7 @@ export class AssetsService {
 	}
 
 	async getByFingerprint(fingerprint: string): Promise<AssetDto> {
-		let asset = await this.ledger.dbClient.getAssetByFingerprint(fingerprint) 
+		let asset = await this.ledger.dbClient.getAsset(fingerprint) 
 		if (!asset) {
 			throw APIError.notFound(`asset fingerprint: ${fingerprint}`);
 		}
@@ -72,7 +70,7 @@ export class AssetsService {
 			// throw new Error('Invalid cursor');
 		}
 		try {
-			const owners = await this.ledger.dbClient.getAssetOwnersByFingerprint(fingerprint, size + 1, order, address, quantity);
+			const owners = await this.ledger.dbClient.getAssetOwners(fingerprint, size + 1, order, address, quantity);
 			const [nextPageToken, items] = owners.length <= size ? [null, owners] : [Utils.encrypt(owners[size - 1].address + '-' + owners[size - 1].quantity), owners.slice(0, size)];
 			const data = this.mapper.mapArray<AssetOwner, AssetOwnerDto>(items, 'AssetOwnerDto', 'AssetOwner');
 			return {data, cursor: nextPageToken}

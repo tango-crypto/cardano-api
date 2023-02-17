@@ -18,6 +18,7 @@ export class AssetProfile extends AutomapperProfile {
       mapper.createMap<Asset, AssetDto>('Asset', 'AssetDto')
       .forMember(dest => dest.policy_id, mapFrom(src => src.policy_id))
       .forMember(dest => dest.asset_name, mapFrom(src => src.asset_name))
+      .forMember(dest => dest.asset_name_label, mapFrom(src => src.asset_name_label))
       .forMember(dest => dest.fingerprint, mapFrom(src => src.fingerprint))
       .forMember(dest => dest.quantity, mapFrom(src => Number(src.quantity)))
       .forMember(dest => dest.mint_transactions, mapDefer<Asset>(src => src.mint_transactions ? fromValue(Number(src.mint_transactions)) : ignore()))
