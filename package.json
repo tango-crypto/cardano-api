@@ -1,6 +1,6 @@
 {
   "name": "cardano-api",
-  "version": "1.7.1",
+  "version": "1.8.0",
   "description": "Cardano Http API",
   "author": "",
   "private": true,
