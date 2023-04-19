@@ -60,7 +60,11 @@ export class AccountService {
     }
 
     async getSubscription(accountId: string): Promise<Subscription> {
-        return this.client.getItem<Subscription>(this.table, {PK: `ACCOUNT#${accountId}`, SK: 'SUBSCRIPTION'});
+        const { item, $error } = await this.client.getItem<Subscription>(this.table, {PK: `ACCOUNT#${accountId}`, SK: 'SUBSCRIPTION'});
+        if ($error) {
+            return null;
+        } 
+        return item;
     }
 
     allowWebhookConfirmations(account: Subscription, confirmations?: number): boolean {

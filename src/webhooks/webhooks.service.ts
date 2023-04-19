@@ -56,8 +56,8 @@ export class WebhooksService {
     }
 
     async findOne(accountId: string, id: string): Promise<WebhookDto> {
-      const item = await this.client.getItem<Webhook>(this.table, {PK: `ACCOUNT#${accountId}`, SK: `WBH#${id}`});
-      if (!item) {
+      const {item, $error} = await this.client.getItem<Webhook>(this.table, {PK: `ACCOUNT#${accountId}`, SK: `WBH#${id}`});
+      if ($error) {
         throw APIError.notFound(`webhook for id: ${id} and accountId: ${accountId}`);
       } 
       return this.mapper.mapArray([item], WebhookDto, Webhook)[0];
