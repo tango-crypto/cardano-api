@@ -26,8 +26,8 @@ export const ruleFieldTypes = {
     'size': 'number',
     'fee': 'number',
     'no': 'number',
-    'nft_minted': 'boolean',
-    'ft_minted': 'boolean'
+    'nft_minted': 'number',
+    'ft_minted': 'number'
 }
 
 export const operatorMapping: {[key: string]: string[] } = {
