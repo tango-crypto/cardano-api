@@ -2,9 +2,9 @@ import { MetadataDto } from "./Metadata.dto";
 export interface AssetDto {
     policy_id: string;
     asset_name: string;
+    quantity: number;
     asset_name_label?: number;
     fingerprint?: string;
-    quantity: number;
     created_at?: string;
     mint_transactions?: number;
     mint_quantity?: number;

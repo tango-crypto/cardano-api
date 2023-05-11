@@ -11,11 +11,17 @@ import { AssetDto } from 'src/models/dto/Asset.dto';
 import { UtxoDto } from 'src/models/dto/Utxo.dto';
 import { TransactionDto } from 'src/models/dto/Transaction.dto';
 import { InspectAddress, inspectAddress } from 'cardano-addresses';
+import { ValueDto } from 'src/models/dto/Value.dto';
+import { ConfigService } from '@nestjs/config';
+import { Mainnet, Testnet } from 'src/utils/config/network.config';
+import { Value } from 'src/models/Value';
+import { CoinSelectionDto } from 'src/models/dto/CoinSelection.dto';
 
 @Injectable()
 export class AddressesService {
 	constructor(
 		private readonly ledger: TangoLedgerService,
+		private readonly configService: ConfigService,
 		@InjectMapper('pojo-mapper') private mapper: Mapper) {}
 
 	async get(address: string): Promise<AddressDetailDto> {
@@ -75,22 +81,9 @@ export class AddressesService {
 
 	async getUtxos(address: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<UtxoDto>> {
 		if (!Utils.isValidAddress(address)) throw APIError.badRequest(`invalid address: ${address}`);
-		let txId = 0;
-		let index = 0;
-		try {
-			const decr = Utils.decrypt(pageToken).split('-');
-			const number = decr[0] ? Number(decr[0]) : Number.NaN;
-			const i = decr[1] ? Number(decr[1]) : Number.NaN;
-			txId = !Number.isNaN(number) ? number : 0;
-			index = !Number.isNaN(i) ? i : 0;
-		} catch(err) {
-			// return Promise.reject(new Error('Invalid page token'));
-		}
-		// order = 'desc'; // WARNING!!! We need to figure it out why ASC query plan is consuming more rows :(
-		const utxos = await this.ledger.dbClient.getAddressUtxos(address, size + 1, order, txId, index);
-		const [nextPageToken, items] = utxos.length <= size ? [null, utxos]: [Utils.encrypt(`${utxos[size - 1].tx_id}-${utxos[size - 1].index}`), utxos.slice(0, size)];
-		const data = this.mapper.mapArray<Utxo, UtxoDto>(items, 'UtxoDto', 'Utxo');
-		return { data: data, cursor: nextPageToken };
+		const { utxos, cursor } = await Utils.getUtxos(this.ledger.dbClient, address, size, order, pageToken);
+		const data = this.mapper.mapArray<Utxo, UtxoDto>(utxos, 'UtxoDto', 'Utxo');
+		return { data: data, cursor };
 	}
 
 	async getTransactions(address: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<TransactionDto>> {
@@ -116,6 +109,13 @@ export class AddressesService {
 		} catch (error) {
 			return null;
 		}
+	}
+
+	async coinSelection(address: string, { value, max_input_count, check_min_utxo }: CoinSelectionDto): Promise<{selection: UtxoDto[], change?: ValueDto}> {
+		const utxos = await Utils.getAllUtxos(this.ledger.dbClient, address, 50, 'desc', 'hex');
+		const config = this.configService.get<string>('NETWORK') != 'mainnet' ? Testnet : Mainnet;
+		const { selection, change } = Utils.coinSelection(utxos, new Value(value.lovelace, value.assets), config, max_input_count, check_min_utxo);
+		return { selection: this.mapper.mapArray<Utxo, UtxoDto>(selection, 'UtxoDto', 'Utxo'), change: this.mapper.map<Value, ValueDto>(change, 'ValueDto', 'Value') };
 	}
 
 

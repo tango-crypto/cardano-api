@@ -6,9 +6,9 @@ export interface EvaluateTxDto {
 }
 
 export interface Asset {
-    quantity: number;
     policy_id: string;
     asset_name: string;
+    quantity: number;
 }
 
 export interface Datum {

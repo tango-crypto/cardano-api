@@ -270,7 +270,7 @@ export class TransactionsService {
 			}
 
 			// add previuos tokens utxo
-			const minAda = Seed.getMinUtxoValueWithAssets(inputAssets, config, 'hex');
+			const minAda = Seed.getMinUtxoValueWithAssets(input.address, inputAssets, null, null, config, 'hex');
 			spendableTotal += amount - minAda;
 			coinSelection.outputs.push({
 				address: input.address,
@@ -316,7 +316,7 @@ export class TransactionsService {
 				mints += mintTokens.length;
 				assets.push(...mintTokens);
 
-				const minAda = Seed.getMinUtxoValueWithAssets(mintTokens, config, 'hex');
+				const minAda = Seed.getMinUtxoValueWithAssets(recipient, mintTokens, null, null, config, 'hex');
 				outputCosts += minAda;
 
 				// add recipient output tokens

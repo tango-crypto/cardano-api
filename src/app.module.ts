@@ -42,6 +42,7 @@ import { ScriptsService } from './scripts/scripts.service';
 import { DatumsController } from './datums/datums.controller';
 import { DatumsService } from './datums/datums.service';
 import { OgmiosService } from './providers/ogmios/ogmios.service';
+import { ValueProfile } from './mappers/value.mapper';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -52,7 +53,7 @@ import { OgmiosService } from './providers/ogmios/ogmios.service';
     WebhooksModule
   ],
   controllers: [AppController, EpochsController, PoolsController, AddressesController, AssetsController, BlocksController, TransactionsController, WalletsController, PoliciesController, ScriptsController, DatumsController],
-  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, EpochProfile, EpochParametersProfile, PoolProfile, PoolDelegationProfile, BlockProfile, TransactionProfile, UtxoProfile, StakeProfile, AddressProfile, AssetProfile, MetadataProfile, ScriptProfile, DatumProfile, PoliciesService, MeteringService, ScriptsService, DatumsService, OgmiosService],
+  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, EpochProfile, EpochParametersProfile, PoolProfile, PoolDelegationProfile, BlockProfile, TransactionProfile, UtxoProfile, ValueProfile, StakeProfile, AddressProfile, AssetProfile, MetadataProfile, ScriptProfile, DatumProfile, PoliciesService, MeteringService, ScriptsService, DatumsService, OgmiosService],
 })
 export class AppModule /*implements NestModule*/ {
   // configure(consumer: MiddlewareConsumer) {

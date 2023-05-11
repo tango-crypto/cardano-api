@@ -52,6 +52,12 @@ import {
   hash_auxiliary_data,
   ByronAddress,
   TransactionBuilderConfigBuilder,
+  min_ada_for_output,
+  PlutusData,
+  DataCost,
+  DataHash,
+  ScriptRef,
+  PlutusScript,
 } from '@emurgo/cardano-serialization-lib-nodejs';
 import { generateMnemonic, mnemonicToEntropy } from 'bip39';
 import { Asset } from './models/asset.model';
@@ -92,6 +98,7 @@ export const CARDANO_COIN_TYPE = 1815;
 export const CARDANO_EXTERNAL = 0; // for receive payments
 export const CARDANO_CHANGE = 1; // for inner change on utxo
 export const CARDANO_CHIMERIC = 2; // for stake address
+export type PlutusType = 'plutusV1' | 'plutusV2';
 
 export class Seed {
   static generateRecoveryPhrase(size = 15): string {
@@ -331,8 +338,10 @@ export class Seed {
       marginFee <= 0
         ? 0
         : coinSelection.change.findIndex((c) => {
-          const minAda = Seed.getMinUtxoValueWithAssets(
+          const minAda = Seed.getMinUtxoValueWithAssets(c.address,
             c.assets,
+            null,
+            null,
             opts.config,
             'hex',
           );
@@ -701,7 +710,7 @@ export class Seed {
       const assetGroups = groups[policy_id].reduce(
         (dict: { [key: string]: number }, asset: Asset) => {
           dict[asset.asset_name] =
-            (dict[asset.asset_name] || 0) + +asset.quantity;
+            (dict[asset.asset_name] || 0) + Number(asset.quantity);
           return dict;
         },
         {},
@@ -734,7 +743,7 @@ export class Seed {
       const assetGroups = groups[policy_id].reduce(
         (dict: { [key: string]: number }, asset: Asset) => {
           dict[asset.asset_name] =
-            (dict[asset.asset_name] || 0) + +asset.quantity;
+            (dict[asset.asset_name] || 0) + Number(asset.quantity);
           return dict;
         },
         {},
@@ -1047,28 +1056,60 @@ export class Seed {
     return ScriptHash.from_bytes(Buffer.from(policyId, 'hex'));
   }
 
+  static getMinUtxoValue(address: string | Address, config: any = Mainnet): number {
+    const addr: Address = typeof address == 'string' ? Seed.getAddress(address) : address;
+    const output = TransactionOutput.new(addr, Value.zero());
+    const min = min_ada_for_output(output, Seed.getDataCost(config.protocols.utxoCostPerByte));
+    return Number.parseInt(min.to_str());
+  }
+
   static getMinUtxoValueWithAssets(
+    address: string | Address,
     tokenAssets: Asset[],
+    datum: PlutusData | DataHash | null,
+    scriptRef: ScriptRef | null,
     config: any = Mainnet,
     encoding: BufferEncoding = 'utf8',
   ): number {
-    let assets = Value.new(Seed.toBigNum(1000000));
-    let multiAsset = MultiAsset.new();
-    const groups = tokenAssets.reduce((dict: { [key: string]: Asset[] }, asset: Asset) => {
-      (dict[asset.policy_id] = dict[asset.policy_id] || []).push(asset);
-      return dict;
-    }, {});
+    const multiAsset = MultiAsset.new();
+    const groups = tokenAssets.reduce(
+      (dict: { [key: string]: Asset[] }, asset: Asset) => {
+        (dict[asset.policy_id] = dict[asset.policy_id] || []).push(asset);
+        return dict;
+      },
+      {},
+    );
     for (const policy_id in groups) {
       const scriptHash = Seed.getScriptHashFromPolicy(policy_id);
-      let asset = Assets.new();
-      groups[policy_id].forEach(a => {
-        asset.insert(AssetName.new(Buffer.from(a.asset_name, encoding)), Seed.toBigNum(a.quantity));
+      const asset = Assets.new();
+      groups[policy_id].forEach((a) => {
+        asset.insert(
+          AssetName.new(Buffer.from(a.asset_name, encoding)),
+          Seed.toBigNum(a.quantity),
+        );
       });
       multiAsset.insert(scriptHash, asset);
     }
-    assets.set_multiasset(multiAsset);
-    let min = min_ada_required(assets, false, Seed.toBigNum(config.protocols.utxoCostPerWord));
+    const addr: Address = typeof address == 'string' ? Seed.getAddress(address) : address;
+    const value = Value.new_from_assets(multiAsset);
+    const output = TransactionOutput.new(addr, value);
+    if (datum) {
+      (datum instanceof PlutusData) ? output.set_plutus_data(datum) : output.set_data_hash(datum);
+    }
+    if (scriptRef) {
+      output.set_script_ref(scriptRef);
+    }
+    const min = min_ada_for_output(output, Seed.getDataCost(config.protocols.utxoCostPerByte));
     return Number.parseInt(min.to_str());
+  }
+
+  static getDataHash(hash: string): DataHash {
+    return DataHash.from_hex(hash);
+  }
+
+  static getScriptRef(type: PlutusType, code: string): ScriptRef {
+    const bytes = Buffer.from(code, 'hex')
+    return ScriptRef.new_plutus_script((type == 'plutusV2' ? PlutusScript.from_bytes_v2(bytes) : PlutusScript.from_bytes(bytes)));
   }
 
   static buildPolicyJsonScript(
@@ -1304,11 +1345,15 @@ export class Seed {
 			// console.log('Output:', Buffer.from(t.to_bytes()).toString('hex'));
   }
 
+  static getDataCost(utxoCostPerByte: number): DataCost {
+    return DataCost.new_coins_per_byte(Seed.toBigNum(utxoCostPerByte));
+  }
+
   private static isInteger(value: any) {
     return Number.isInteger(Number(value));
   }
 
-  private static toBigNum(quantity: number): BigNum {
+  private static toBigNum(quantity: number | bigint): BigNum {
     return BigNum.from_str(quantity.toString());
   }
 }

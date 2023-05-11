@@ -20,7 +20,7 @@ export class AssetProfile extends AutomapperProfile {
       .forMember(dest => dest.asset_name, mapFrom(src => src.asset_name))
       .forMember(dest => dest.asset_name_label, mapFrom(src => src.asset_name_label))
       .forMember(dest => dest.fingerprint, mapFrom(src => src.fingerprint))
-      .forMember(dest => dest.quantity, mapFrom(src => Number(src.quantity)))
+      .forMember(dest => dest.quantity, mapFrom(src => parseInt(src.quantity.toString())))
       .forMember(dest => dest.mint_transactions, mapDefer<Asset>(src => src.mint_transactions ? fromValue(Number(src.mint_transactions)) : ignore()))
       .forMember(dest => dest.created_at, mapDefer<Asset>(src => src.created_at ? fromValue(src.created_at) : ignore()))
       .forMember(dest => dest.mint_quantity, mapDefer<Asset>(src => src.mint_quantity ? fromValue(Number(src.mint_quantity)) : ignore()))
