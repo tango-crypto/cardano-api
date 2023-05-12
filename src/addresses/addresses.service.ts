@@ -16,6 +16,7 @@ import { ConfigService } from '@nestjs/config';
 import { Mainnet, Testnet } from 'src/utils/config/network.config';
 import { Value } from 'src/models/Value';
 import { CoinSelectionDto } from 'src/models/dto/CoinSelection.dto';
+import { MAX_TRANSACTION_INPUTS } from 'src/utils/constants';
 
 @Injectable()
 export class AddressesService {
@@ -114,8 +115,14 @@ export class AddressesService {
 	async coinSelection(address: string, { value, max_input_count, check_min_utxo }: CoinSelectionDto): Promise<{selection: UtxoDto[], change?: ValueDto}> {
 		const utxos = await Utils.getAllUtxos(this.ledger.dbClient, address, 50, 'desc', 'hex');
 		const config = this.configService.get<string>('NETWORK') != 'mainnet' ? Testnet : Mainnet;
-		const { selection, change } = Utils.coinSelection(utxos, new Value(value.lovelace, value.assets), config, max_input_count, check_min_utxo);
-		return { selection: this.mapper.mapArray<Utxo, UtxoDto>(selection, 'UtxoDto', 'Utxo'), change: this.mapper.map<Value, ValueDto>(change, 'ValueDto', 'Value') };
+		const checkMinUtxo = check_min_utxo != undefined ? check_min_utxo : true;
+		const maxInputCount = Math.min(max_input_count || Number.MAX_SAFE_INTEGER, MAX_TRANSACTION_INPUTS);
+		try {
+			const { selection, change } = Utils.coinSelection(utxos, new Value(value.lovelace, value.assets), config, maxInputCount, checkMinUtxo);
+			return { selection: this.mapper.mapArray<Utxo, UtxoDto>(selection, 'UtxoDto', 'Utxo'), change: this.mapper.map<Value, ValueDto>(change, 'ValueDto', 'Value') };
+		} catch(err) {
+			throw APIError.badRequest(err.message);
+		}
 	}
 
 

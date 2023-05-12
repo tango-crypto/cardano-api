@@ -21,6 +21,10 @@ export class Value {
         }, new Map<string, Asset>()) : new Map<string, Asset>()
     }
 
+    addAda(coin: number) {
+        this.coin += coin;
+    }
+
     add(other: Value) {
         this.coin += other.coin
         for (const [key, asset] of other.assets.entries()) {
@@ -50,6 +54,14 @@ export class Value {
         return this.coin == 0 && this.assets.size == 0;
     }
 
+    isAdaOnly(): boolean {
+        return this.assets.size == 0;
+    }
+
+    isAssetOnly(): boolean {
+        return this.coin == 0 && this.assets.size > 0;
+    }
+
     isFulfilled(other: Value): boolean {
         return this.isCoinFulfilled(other) && this.isAssetFulfilled(other);
     }
@@ -59,7 +71,7 @@ export class Value {
     }
 
     isAssetFulfilled(other: Value): boolean {
-        return [...other.assets.entries()].every(([key, asset]) => this.assets.has(key) && this.assets.get(key).quantity >= asset.quantity);
+        return [...other.assets.entries()].every(([key, asset]) => this.assets.get(key)?.quantity >= asset.quantity);
     }
 
     containsAsset(other: Value): boolean {

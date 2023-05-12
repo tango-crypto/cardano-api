@@ -27,26 +27,35 @@ const UNPRINTABLE_CHARACTERS_REGEXP = /[\p{Cc}\p{Cn}\p{Cs}]+/gu;
 
 export class Utils {
 
-	static coinSelection(utxos: Utxo[], requestedValue: Value, config: any, maxInputCount?: number, checkMinUtxo = true): {selection: Utxo[], change?: Value} {
+	static coinSelection(utxos: Utxo[], requestedValue: Value, config: any, maxInputCount: number, checkMinUtxo = true): {selection: Utxo[], change?: Value} {
 		let selection: Utxo[] = [];
 		const selectedValue = new Value(); // empty
 		const inputs = utxos.sort((a, b) => Number(a.value) - Number(b.value));
+		let lockedAda = 0;
 		while (!selectedValue.isFulfilled(requestedValue)) {
 			if (inputs.length == 0) {
 				throw new Error(`Insufficient UTxO balance`);
 			}
 
 			const utxo = inputs.pop();
-			const value = new Value(Number(utxo.value), utxo.assets);
-
-			if (!selectedValue.isCoinFulfilled(requestedValue) || (!selectedValue.isAssetFulfilled(requestedValue) && value.containsAsset(requestedValue))) {
-				selection.push(utxo);
-				selectedValue.add(value);
+			const [spendable, total] = Utils.getSpendable(utxo, config, 'hex');
+			const value = new Value(spendable, utxo.assets);
+			// UTxO doesn't provide assets (needed or not) and doesn't provide ADA (needed or not)
+			if ((selectedValue.isAssetFulfilled(requestedValue) || !value.containsAsset(requestedValue)) && (value.isAssetOnly() || selectedValue.isCoinFulfilled(requestedValue))) {
+				continue;
 			}
 
-			if (maxInputCount && selection.length > maxInputCount) {
-				throw new Error(`Max input count: ${maxInputCount} exceeded`);
+			lockedAda += total - spendable;
+			selection.push(utxo);
+			selectedValue.add(value);
+
+			if (selection.length > maxInputCount) {
+				throw new Error(`Maximum transaction inputs: ${maxInputCount} exceeded`);
 			}
+		}
+
+		if (lockedAda > 0) {
+			selectedValue.addAda(lockedAda);
 		}
 
 		if (checkMinUtxo) {
@@ -125,12 +134,16 @@ export class Utils {
 	}
 
 
-	static getSpendable(utxo: Utxo, config: any, encoding: BufferEncoding = 'hex'): number {
+	static getSpendable(utxo: Utxo, config: any, encoding: BufferEncoding = 'hex'): number[] {
 		const assets = utxo.assets || [];
+		const total = Number(utxo.value);
+		if (assets.length == 0) {
+			return [total, total];
+		}
 		const datum = utxo.datum_hash ? Seed.getDataHash(utxo.datum_hash) : utxo.datum?.hash ? Seed.getDataHash(utxo.datum?.hash) : null ;
 		const scriptRef = utxo.reference_script ? Seed.getScriptRef(utxo.reference_script.type as PlutusType, utxo.reference_script.code) : null;
 		const minAda = Seed.getMinUtxoValueWithAssets(utxo.address, assets, datum, scriptRef, config, encoding);
-		return Number(utxo.value) - minAda;
+		return [total - minAda, total];
 	}
 
 	static getAssetsMatch(value: {[key: string]: number}, assets: Asset[]) {
