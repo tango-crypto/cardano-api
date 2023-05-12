@@ -61,12 +61,11 @@ export class StakesService {
 		const checkMinUtxo = check_min_utxo != undefined ? check_min_utxo : true;
 		const maxInputCount = Math.min(max_input_count || Number.MAX_SAFE_INTEGER, MAX_TRANSACTION_INPUTS);
 		let message = 'Not enough funds';
-		let count = 0;
 		do {
 			const { data, cursor } = await this.getAddresses(stakeAddress, size, order, pageToken);
 			pageToken = cursor;
 			for (const { address } of data) {
-				const outputs = await Utils.getAllUtxos(this.ledger.dbClient, address, 50, 'desc', 'hex');
+				const outputs = await Utils.getAllUtxos(this.ledger.dbClient, address, 100, 'desc', 'hex');
 				if (outputs.length == 0) {
 					continue;
 				}

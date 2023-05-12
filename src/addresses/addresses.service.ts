@@ -113,7 +113,7 @@ export class AddressesService {
 	}
 
 	async coinSelection(address: string, { value, max_input_count, check_min_utxo }: CoinSelectionDto): Promise<{selection: UtxoDto[], change?: ValueDto}> {
-		const utxos = await Utils.getAllUtxos(this.ledger.dbClient, address, 50, 'desc', 'hex');
+		const utxos = await Utils.getAllUtxos(this.ledger.dbClient, address, 100, 'desc', 'hex');
 		const config = this.configService.get<string>('NETWORK') != 'mainnet' ? Testnet : Mainnet;
 		const checkMinUtxo = check_min_utxo != undefined ? check_min_utxo : true;
 		const maxInputCount = Math.min(max_input_count || Number.MAX_SAFE_INTEGER, MAX_TRANSACTION_INPUTS);
