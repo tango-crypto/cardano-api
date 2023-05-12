@@ -31,7 +31,6 @@ export class Utils {
 		let selection: Utxo[] = [];
 		const selectedValue = new Value(); // empty
 		const inputs = utxos.sort((a, b) => Number(a.value) - Number(b.value));
-		let lockedAda = 0;
 		while (!selectedValue.isFulfilled(requestedValue)) {
 			if (inputs.length == 0) {
 				throw new Error(`Insufficient UTxO balance`);
@@ -45,17 +44,15 @@ export class Utils {
 				continue;
 			}
 
-			lockedAda += total - spendable;
+			if (value.containsAsset(requestedValue)) {
+				value.addAda(total - spendable);
+			}
 			selection.push(utxo);
 			selectedValue.add(value);
 
 			if (selection.length > maxInputCount) {
 				throw new Error(`Maximum transaction inputs: ${maxInputCount} exceeded`);
 			}
-		}
-
-		if (lockedAda > 0) {
-			selectedValue.addAda(lockedAda);
 		}
 
 		if (checkMinUtxo) {
