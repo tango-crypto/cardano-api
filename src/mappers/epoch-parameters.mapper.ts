@@ -52,7 +52,6 @@ export class EpochParametersProfile extends AutomapperProfile {
       mapper.createMap<CostModel, CostModelDto>('CostModel', 'CostModelDto')
       .forMember(dest => dest.hash, mapDefer<CostModel>(src => src.hash ? fromValue(src.hash) : ignore()))
       .forMember(dest => dest.costs, mapDefer<CostModel>(src => src.costs ? fromValue(src.costs) : ignore()))
-      .forMember(dest => dest.block_id, ignore())
       ;
     }
   }
