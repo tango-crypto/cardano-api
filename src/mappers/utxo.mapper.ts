@@ -4,10 +4,10 @@ import type { Mapper } from '@automapper/types';
 import { Injectable } from '@nestjs/common';
 import { Asset, Datum, Utxo } from '@tango-crypto/tango-ledger';
 import { Script } from '@tango-crypto/tango-ledger/dist/src/models/script';
-import { AssetDto } from 'src/models/dto/Asset.dto';
-import { DatumDto } from 'src/models/dto/Datum.dto';
-import { ScriptDto } from 'src/models/dto/Script.dto';
-import { UtxoDto } from 'src/models/dto/Utxo.dto';
+import { AssetDto } from '../models/dto/Asset.dto';
+import { DatumDto } from '../models/dto/Datum.dto';
+import { ScriptDto } from '../models/dto/Script.dto';
+import { UtxoDto } from '../models/dto/Utxo.dto';
 
 @Injectable()
 export class UtxoProfile extends AutomapperProfile {

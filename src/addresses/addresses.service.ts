@@ -1,22 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { Utils } from 'src/common/utils';
-import { APIError } from 'src/common/errors';
-import { AddressDetailDto } from 'src/models/dto/AddressDetail.dto';
-import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
+import { Utils } from '../common/utils';
+import { APIError } from '../common/errors';
+import { AddressDetailDto } from '../models/dto/AddressDetail.dto';
+import { TangoLedgerService } from '../providers/tango-ledger/tango-ledger.service';
 import { Transaction, Utxo, Asset } from '@tango-crypto/tango-ledger';
-import { PaginateResponse } from 'src/models/PaginateResponse';
+import { PaginateResponse } from '../models/PaginateResponse';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/types';
-import { AssetDto } from 'src/models/dto/Asset.dto';
-import { UtxoDto } from 'src/models/dto/Utxo.dto';
-import { TransactionDto } from 'src/models/dto/Transaction.dto';
+import { AssetDto } from '../models/dto/Asset.dto';
+import { UtxoDto } from '../models/dto/Utxo.dto';
+import { TransactionDto } from '../models/dto/Transaction.dto';
 import { InspectAddress, inspectAddress } from 'cardano-addresses';
-import { ValueDto } from 'src/models/dto/Value.dto';
+import { ValueDto } from '../models/dto/Value.dto';
 import { ConfigService } from '@nestjs/config';
-import { Mainnet, Testnet } from 'src/utils/config/network.config';
-import { Value } from 'src/models/Value';
-import { CoinSelectionDto } from 'src/models/dto/CoinSelection.dto';
-import { MAX_TRANSACTION_INPUTS } from 'src/utils/constants';
+import { Mainnet, Testnet } from '../utils/config/network.config';
+import { Value } from '../models/Value';
+import { CoinSelectionDto } from '../models/dto/CoinSelection.dto';
+import { MAX_TRANSACTION_INPUTS } from '../utils/constants';
+import { Seed } from '../utils/serialization.util';
 
 @Injectable()
 export class AddressesService {
@@ -117,9 +118,18 @@ export class AddressesService {
 		const config = this.configService.get<string>('NETWORK') != 'mainnet' ? Testnet : Mainnet;
 		const checkMinUtxo = check_min_utxo != undefined ? check_min_utxo : true;
 		const maxInputCount = Math.min(max_input_count || Number.MAX_SAFE_INTEGER, MAX_TRANSACTION_INPUTS);
+		const assets = value.assets || []
+		const minUtxo = Seed.getMinUtxoValueWithAssets(address, assets, null, null, config, 'hex');
+		let ada = value.lovelace || minUtxo;
+		if (ada < minUtxo) {
+			throw APIError.badRequest(`Invalid ADA amount ${ada}, it should be >= ${minUtxo}`);
+		}
 		try {
-			const { selection, change } = Utils.coinSelection(utxos, new Value(value.lovelace, value.assets), config, maxInputCount, checkMinUtxo);
-			return { selection: this.mapper.mapArray<Utxo, UtxoDto>(selection, 'UtxoDto', 'Utxo'), change: this.mapper.map<Value, ValueDto>(change, 'ValueDto', 'Value') };
+			const { selection, change } = Utils.coinSelection(utxos, new Value(ada, assets), config, maxInputCount, checkMinUtxo);
+			return { 
+				selection: this.mapper.mapArray<Utxo, UtxoDto>(selection, 'UtxoDto', 'Utxo'), 
+				...(!change.isEmpty() && { change: this.mapper.map<Value, ValueDto>(change, 'ValueDto', 'Value')  })
+			}
 		} catch(err) {
 			throw APIError.badRequest(err.message);
 		}

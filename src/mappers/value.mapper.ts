@@ -2,8 +2,8 @@ import { mapFrom } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/types';
 import { Injectable } from '@nestjs/common';
-import { Value } from 'src/models/Value';
-import { ValueDto } from 'src/models/dto/Value.dto';
+import { Value } from '../models/Value';
+import { ValueDto } from '../models/dto/Value.dto';
 
 @Injectable()
 export class ValueProfile extends AutomapperProfile {
