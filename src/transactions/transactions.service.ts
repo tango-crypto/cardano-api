@@ -405,14 +405,13 @@ export class TransactionsService {
 	deserialize(cborHex: string): { txId: string, txCborHex: string, mintQuantity: number } {
 		const tx = SerializeTransaction.from_bytes(Buffer.from(cborHex, 'hex'));
 		const txBody = tx.body();
-		const txHash = hash_transaction(txBody);
-		const txId = Buffer.from(txHash.to_bytes()).toString('hex');
 		const assets = txBody.mint()?.get(this.policyScriptHash);
 		if (!!assets) { // api mint
 			const mintQuantity = Number(assets.get(this.assetName).to_str());
 			const witnessSet = tx.witness_set();
 			const data = tx.auxiliary_data();
 			const vkeys = witnessSet.vkeys();
+			const txHash = hash_transaction(txBody);
 			const vkeyWitness = make_vkey_witness(txHash, this.scriptKeys[this.scriptKeys.length - 1]); // add last sign key
 			vkeys.add(vkeyWitness);
 			witnessSet.set_vkeys(vkeys);
@@ -423,7 +422,7 @@ export class TransactionsService {
 			);
 			return { txId: Seed.getTxId(tx1), txCborHex: Buffer.from(tx1.to_bytes()).toString('hex'), mintQuantity }
 		} else {
-			return { txId, txCborHex: cborHex, mintQuantity: 0 }
+			return { txId: Seed.getFixedTxId(cborHex), txCborHex: cborHex, mintQuantity: 0 }
 		}
 	}
 }

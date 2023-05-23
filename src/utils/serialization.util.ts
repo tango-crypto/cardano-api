@@ -58,6 +58,7 @@ import {
   DataHash,
   ScriptRef,
   PlutusScript,
+  FixedTransaction,
 } from '@emurgo/cardano-serialization-lib-nodejs';
 import { generateMnemonic, mnemonicToEntropy } from 'bip39';
 import { Asset } from './models/asset.model';
@@ -76,6 +77,7 @@ import { CoinSelectionChange } from './models/coin-selection-change.model';
 import { MultisigTransaction } from './models/multisig-transaction';
 import * as cbor from 'borc';
 import { CoinSelectionInputDto } from './models/dto/api.coin-selection-input.dto';
+import blake2b from 'blake2b';
 
 const phrasesLengthMap: { [key: number]: number } = {
   12: 128,
@@ -811,9 +813,14 @@ export class Seed {
   static getTxId(transaction: Transaction): string {
     const txBody = transaction.body();
     const txHash = hash_transaction(txBody);
-    const txId = Buffer.from(txHash.to_bytes()).toString('hex');
-    return txId;
+    return txHash.to_hex();
   }
+
+  static getFixedTxId(cborHex: string):  string {
+    const rawBody = FixedTransaction.from_hex(cborHex).raw_body();
+    const txHash = TransactionHash.from_bytes(blake2b(32).update(rawBody).digest('binary'));
+    return txHash.to_hex();
+}
 
   static harden(num: number): number {
     return 0x80000000 + num;
