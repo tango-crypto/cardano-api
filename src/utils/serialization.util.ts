@@ -77,7 +77,7 @@ import { CoinSelectionChange } from './models/coin-selection-change.model';
 import { MultisigTransaction } from './models/multisig-transaction';
 import * as cbor from 'borc';
 import { CoinSelectionInputDto } from './models/dto/api.coin-selection-input.dto';
-import blake2b from 'blake2b';
+import * as blake2b from 'blake2b';
 
 const phrasesLengthMap: { [key: number]: number } = {
   12: 128,
