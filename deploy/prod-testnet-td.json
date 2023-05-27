@@ -94,6 +94,10 @@
                 {
                     "name": "BUSINESS_TOKEN_NAME",
                     "valueFrom": "/v1/api/business_token_name/testnet"
+                },
+                {
+                    "name": "OGMIOS_PORT",
+                    "valueFrom": "/prod/v1/cardano-submit/testnet/server_port"
                 }
             ],
             "user": "node",
