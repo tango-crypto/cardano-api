@@ -18,6 +18,8 @@ services:
     volumes:
       - .:/opt/node_app/app/
       - $HOME/.aws/credentials:/home/node/.aws/credentials
+      - /opt/node_app/app/node_modules # anonymous volume for node_modules only
+
   redis:
     image: redis:6.2.6
     command: redis-server

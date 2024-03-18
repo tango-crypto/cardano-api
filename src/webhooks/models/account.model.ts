@@ -7,9 +7,11 @@ export class Account {
     @AutoMap()
     id: string;
     @AutoMap()
-    subscription: Subscription;
+    subscription?: Subscription;
     @AutoMap({ typeFn: () => Application})
     applications: Application[];
     @AutoMap({ typeFn: () => Webhook})
     webhooks: Webhook[];
+    password: string;
+    username?: string;
 }

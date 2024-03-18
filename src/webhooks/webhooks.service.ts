@@ -110,7 +110,7 @@ export class WebhooksService {
       try {
         await this.validateWebhookAddress(createWebhook);
         const webhook = this.mapper.mapArray([createWebhook], Webhook, CreateWebhookDto)[0];
-        const account = await this.accountService.getAccount(accountId);
+        const account = await this.accountService.findOne(accountId);
         if (!account) {
           throw APIError.notFound(`Account: ${accountId}`);
         }

@@ -24,7 +24,16 @@ export class AccountService {
         this.table = this.configService.get<string>('DYNAMO_DB_ACCOUNT_TABLE_NAME');
     }
 
-    async getAccount(id: string, keyHash?: string): Promise<Account> {
+    async findOne(id: string, keyHash?: string): Promise<Account> {
+        // TODO: use ScyllaDB here to fecth the user info
+        return Promise.resolve({
+            id: '1qazxsw2',
+            username: 'test_user',
+            // subscription: {},
+            applications: [],
+            webhooks: [],
+            password: '$2b$10$x6nByI7/3SV9GWjwDXSW7.I4LsMzfOJH9C7Dcfv/5EgSOZpOMiIBS' // encrypted (123)
+        });
         const keyConditions = [
 			{ key: 'PK', expr: 'pk', op: '=' }			
 		];
@@ -51,7 +60,8 @@ export class AccountService {
             id: id,
             subscription: item.subscription[0],
             applications: item.applications,
-            webhooks: item.webhooks
+            webhooks: item.webhooks,
+            password: '123'
         }
 		if (keyHash) {
 			account.subscription.api_key_hash = api_key_hash;

@@ -43,6 +43,8 @@ import { DatumsController } from './datums/datums.controller';
 import { DatumsService } from './datums/datums.service';
 import { OgmiosService } from './providers/ogmios/ogmios.service';
 import { ValueProfile } from './mappers/value.mapper';
+import { AuthModule } from './auth/auth.module';
+import { JwtService } from '@nestjs/jwt';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -50,10 +52,11 @@ import { ValueProfile } from './mappers/value.mapper';
       options: [{ name: 'mapper', pluginInitializer: classes }, {name: 'pojo-mapper', pluginInitializer: pojos}],
       // singular: true,
     }),
-    WebhooksModule
+    WebhooksModule,
+    AuthModule
   ],
   controllers: [AppController, EpochsController, PoolsController, AddressesController, AssetsController, BlocksController, TransactionsController, WalletsController, PoliciesController, ScriptsController, DatumsController],
-  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, EpochProfile, EpochParametersProfile, PoolProfile, PoolDelegationProfile, BlockProfile, TransactionProfile, UtxoProfile, ValueProfile, StakeProfile, AddressProfile, AssetProfile, MetadataProfile, ScriptProfile, DatumProfile, PoliciesService, MeteringService, ScriptsService, DatumsService, OgmiosService],
+  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, EpochProfile, EpochParametersProfile, PoolProfile, PoolDelegationProfile, BlockProfile, TransactionProfile, UtxoProfile, ValueProfile, StakeProfile, AddressProfile, AssetProfile, MetadataProfile, ScriptProfile, DatumProfile, PoliciesService, MeteringService, ScriptsService, DatumsService, OgmiosService, JwtService],
 })
 export class AppModule /*implements NestModule*/ {
   // configure(consumer: MiddlewareConsumer) {
