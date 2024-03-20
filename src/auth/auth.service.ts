@@ -1,24 +1,17 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { AccountService } from 'src/providers/account/account.service';
-import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
+import { Injectable } from '@nestjs/common';
+import { ApplicationService } from 'src/providers/account/application.service';
 
 @Injectable()
 export class AuthService {
 
-    constructor(private readonly usersService: AccountService, private readonly jwtService: JwtService) { }
+    constructor(private applicationService: ApplicationService) { }
 
-
-    async signIn(username: string, pass: string): Promise<{ access_token: string }> {
-        const user = await this.usersService.findOne(username);
-        if (!user || !(await bcrypt.compare(pass, user.password))) {
-            throw new UnauthorizedException();
+    async isValidApp(appId: string, userId: string): Promise<boolean> {
+        const application = await this.applicationService.findOne(userId, appId);
+        if (!application || !application.active) {
+            return false;
         }
-
-        const payload = { sub: user.id, username: user.username };
-
-        return {
-            access_token: await this.jwtService.signAsync(payload)
-        };
+        // Do we need to check if user is active?
+        return true;
     }
 }

@@ -1,80 +1,72 @@
-import { DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
-import { fromIni } from '@aws-sdk/credential-provider-ini';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DynamoDbService as DynamoClient } from '@tango-crypto/tango-dynamodb';
 import { Account } from 'src/webhooks/models/account.model';
 import { Subscription } from 'src/webhooks/models/subscription.model';
+import { ScyllaService } from '../scylla/scylla.service';
+import { mapping } from 'cassandra-driver';
+import { User } from 'src/webhooks/models/user.model';
+import { Webhook } from 'src/webhooks/models/webhook.model';
+import { Application } from 'src/webhooks/models/application.model';
+import { SubscriptionService } from './subscription.service';
+import { ApplicationService } from './application.service';
+import { WebhookService } from './webhook.service';
 
 @Injectable()
 export class AccountService {
-    client: DynamoClient;
     table: string;
+    userMapper: mapping.ModelMapper<User>;
+    webhookMapper: mapping.ModelMapper<Webhook>;
 
-    constructor(private readonly configService: ConfigService) {
-        const config: DynamoDBClientConfig = {
-            region: this.configService.get<string>('AWS_REGION'),
+    constructor(private subscriptionService: SubscriptionService, private applicationService: ApplicationService, private webhookService: WebhookService, private scyllaService: ScyllaService) {
+        const mappingOptions: mapping.MappingOptions = {
+            models: {
+                'User': {
+                    tables: ['users'],
+                    mappings: new mapping.DefaultTableMappings
+                },
+                'Webhook': {
+                    tables: ['webhooks'],
+                    mappings: new mapping.DefaultTableMappings
+                }
+            }
+        }
+
+        this.webhookMapper = this.scyllaService.createMapper(mappingOptions).forModel('Webhook');
+        this.userMapper = this.scyllaService.createMapper(mappingOptions).forModel('User');
+    }
+
+    async findOne(id: string): Promise<Account> {
+        const result = await this.subscriptionService.findOne(id);
+        if (!result) return null;
+        const applications = await this.applicationService.findAll(id);
+        const webhooks = await this.webhookService.findAll(id);
+        const { user_id,
+            user_first_name,
+            user_last_name,
+            user_email,
+            user_password, 
+            user_start_time,
+            user_end_time,
+            user_active,
+            ...subscription } = result;
+        const user = {
+            id: user_id,
+            first_name: user_first_name,
+            last_name: user_last_name,
+            email: user_email,
+            password: user_password,
+            start_time: user_start_time,
+            end_time: user_end_time,
+            active: user_active,
+            subscription,
+            applications,
+            webhooks
         };
-        const env = this.configService.get<string>('NODE_ENV');
-        if (env == 'development') {
-            config.credentials = fromIni({ profile: 'tangocrypto' });
-        }
-
-        this.client = new DynamoClient(config);
-        this.table = this.configService.get<string>('DYNAMO_DB_ACCOUNT_TABLE_NAME');
+        return user;
     }
 
-    async findOne(id: string, keyHash?: string): Promise<Account> {
-        // TODO: use ScyllaDB here to fecth the user info
-        return Promise.resolve({
-            id: '1qazxsw2',
-            username: 'test_user',
-            // subscription: {},
-            applications: [],
-            webhooks: [],
-            password: '$2b$10$x6nByI7/3SV9GWjwDXSW7.I4LsMzfOJH9C7Dcfv/5EgSOZpOMiIBS' // encrypted (123)
-        });
-        const keyConditions = [
-			{ key: 'PK', expr: 'pk', op: '=' }			
-		];
-		const exprAttrs = {
-			'pk': `ACCOUNT#${id}`
-		};
-		let records = [];
-		let token = '';
-		do {
-			const {items, nextToken} = await this.client.getItems<any>(this.table, keyConditions, null, exprAttrs, null, 50, token);
-			if (items.length == 0 && !token) {
-				return null;
-			}
-			records.push(...items);
-			token = nextToken;
-		} while(token);
-		let item: {id: string, subscription: any[], applications: any[], webhooks: any[]} = records.reduce((acc, cur) => {
-			let {type, ...attrs} = cur;
-			(acc[type] = acc[type] || []).push(attrs);
-			return acc;
-		}, {id: id, subscription: [], applications: [], webhooks: []});
-		const api_key_hash = item.subscription[0].api_key_hash;
-        const account: Account = {
-            id: id,
-            subscription: item.subscription[0],
-            applications: item.applications,
-            webhooks: item.webhooks,
-            password: '123'
-        }
-		if (keyHash) {
-			account.subscription.api_key_hash = api_key_hash;
-		}
-		return account;
-    }
-
-    async getSubscription(accountId: string): Promise<Subscription> {
-        const { item, $error } = await this.client.getItem<Subscription>(this.table, {PK: `ACCOUNT#${accountId}`, SK: 'SUBSCRIPTION'});
-        if ($error) {
-            return null;
-        } 
-        return item;
+    async getSubscription(id: string): Promise<Subscription> {
+        return this.subscriptionService.findOne(id);
     }
 
     allowWebhookConfirmations(account: Subscription, confirmations?: number): boolean {

@@ -1,5 +1,5 @@
 # Image base used to install and build the code
-FROM node:14.17.6 AS build
+FROM node:16.14.2 AS build
 
 # Set our node environment, either development or production
 ARG NODE_ENV=development
@@ -36,7 +36,7 @@ RUN npm run build
 #
 # Build image used in production
 #
-FROM node:14.17.6-slim AS prod
+FROM node:16.14.2-slim AS prod
 LABEL org.opencontainers.image.source https://github.com/tango-crypto/cardano-api
 
 # Using Tiny process manager to forward signals to Node

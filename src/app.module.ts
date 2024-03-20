@@ -44,7 +44,7 @@ import { DatumsService } from './datums/datums.service';
 import { OgmiosService } from './providers/ogmios/ogmios.service';
 import { ValueProfile } from './mappers/value.mapper';
 import { AuthModule } from './auth/auth.module';
-import { JwtService } from '@nestjs/jwt';
+import { ScyllaService } from './providers/scylla/scylla.service';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -56,7 +56,7 @@ import { JwtService } from '@nestjs/jwt';
     AuthModule
   ],
   controllers: [AppController, EpochsController, PoolsController, AddressesController, AssetsController, BlocksController, TransactionsController, WalletsController, PoliciesController, ScriptsController, DatumsController],
-  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, EpochProfile, EpochParametersProfile, PoolProfile, PoolDelegationProfile, BlockProfile, TransactionProfile, UtxoProfile, ValueProfile, StakeProfile, AddressProfile, AssetProfile, MetadataProfile, ScriptProfile, DatumProfile, PoliciesService, MeteringService, ScriptsService, DatumsService, OgmiosService, JwtService],
+  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, EpochProfile, EpochParametersProfile, PoolProfile, PoolDelegationProfile, BlockProfile, TransactionProfile, UtxoProfile, ValueProfile, StakeProfile, AddressProfile, AssetProfile, MetadataProfile, ScriptProfile, DatumProfile, PoliciesService, MeteringService, ScriptsService, DatumsService, OgmiosService, ScyllaService],
 })
 export class AppModule /*implements NestModule*/ {
   // configure(consumer: MiddlewareConsumer) {

@@ -2,11 +2,11 @@ import { AutoMap } from "@automapper/classes";
 import { Rule } from "./rule.model";
 
 export class Webhook {
-    PK?: string;
-    SK?: string;
+    @AutoMap()
+    user_id: string;
+
+    @AutoMap()
     webhook_id: string; 
-    account_id: string;
-    active?: string;
 
     @AutoMap()
     webhook_key: string; 
@@ -28,7 +28,7 @@ export class Webhook {
     last_trigger_date: Date | string;
 
     @AutoMap({ typeFn: () => Rule})
-    rules: Rule[];
+    rules?: Rule[];
 
     @AutoMap()
     create_date: Date | string;
@@ -40,7 +40,7 @@ export class Webhook {
     type: string;
 
     @AutoMap()
-    available: string;
+    active: boolean;
 
     @AutoMap()
     confirmations: number;

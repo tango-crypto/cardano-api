@@ -2,33 +2,59 @@ import { AutoMap } from "@automapper/classes";
 
 export class Subscription {
     @AutoMap()
-    available: string;
+    user_id?: string;
+
     @AutoMap()
-    currency: string;
+    user_first_name?: string;
+
     @AutoMap()
-    webhooks_active: string;
+    user_last_name?: string;
+
     @AutoMap()
-    webhook_auth_token: string;
+    user_email?: string;
+
     @AutoMap()
-    end_date: string;
+    user_password?: string;
+
     @AutoMap()
-    tier: string;
+    user_start_time?: string;
+
     @AutoMap()
-    api_key: string;
+    user_end_time?: string;
+
+    @AutoMap()
+    user_active?: boolean;
+
     @AutoMap()
     api_key_hash: string;
+
     @AutoMap()
-    applications_count: number;
+    tier: string;
+
     @AutoMap()
-    webhooks_count: number;
-    @AutoMap()
-    name: string;
-    @AutoMap()
-    start_date: string;
+    currency: string;
+
     @AutoMap()
     price: number;
+
     @AutoMap()
-    id: string;
+    applications_count: number;
+
     @AutoMap()
-    type: string;
+    webhooks_count: number;
+
+    @AutoMap()
+    webhooks_active: boolean;
+
+    @AutoMap()
+    webhooks_auth_token: string;
+
+    @AutoMap()
+    start_time: string;
+
+    @AutoMap()
+    end_time: string;
+
+    @AutoMap()
+    active: boolean;
 }

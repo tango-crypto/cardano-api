@@ -21,7 +21,6 @@ import { Seed } from 'src/utils/serialization.util';
 import { AmountUnitEnum } from 'src/utils/models/amount-unit-enum.model';
 import * as _ from 'lodash';
 import { MeteringService } from 'src/providers/metering/metering.service';
-import { DynamoDbService as DynamoClient } from '@tango-crypto/tango-dynamodb';
 import { Script } from 'src/utils/models/script.model';
 import { ScriptDto } from 'src/models/dto/Script.dto';
 import { AssetDto } from 'src/models/dto/Asset.dto';
@@ -33,7 +32,6 @@ import { OgmiosUtxoDto, TxInDto, TxOutDto } from './dto/evaluateTx.dto';
 @Injectable()
 export class TransactionsService {
 	ebClient: EventBridgeClient;
-	dynamoClient: DynamoClient;
 	table: string;
 	businessAddress: string;
 	policyId: string;
@@ -61,7 +59,6 @@ export class TransactionsService {
 			config.credentials = fromIni({ profile: 'tangocrypto' });
 		}
 		this.ebClient = new EventBridgeClient(config);
-		this.dynamoClient = new DynamoClient(config);
 		this.table = this.configService.get<string>('DYNAMO_DB_ACCOUNT_TABLE_NAME');
 
 		this.businessAddress = this.configService.get<string>('BUSINESS_ADDRESS');

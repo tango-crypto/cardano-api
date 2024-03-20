@@ -1,0 +1,90 @@
+DROP KEYSPACE IF EXISTS cardanodb;
+
+CREATE KEYSPACE cardanodb WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 3};
+
+USE cardanodb;
+
+DROP TABLE IF EXISTS subscriptions;
+CREATE TABLE subscriptions (
+    user_id text,
+    user_first_name text,
+    user_last_name text,
+    user_email text,
+    user_password text,
+    user_start_time timestamp,
+    user_end_time timestamp,
+    user_active boolean,
+    api_key_hash text,
+    tier text,
+    currency text,
+    price decimal,
+    applications_count int,
+    webhooks_count int,
+    webhooks_active boolean,
+    webhooks_auth_token text,
+    start_time timestamp,
+    end_time timestamp,
+    active boolean,
+    PRIMARY KEY (user_id, active)
+);
+
+DROP TABLE IF EXISTS applications;
+CREATE TABLE applications (
+    user_id text,
+    app_id text,
+    base_url text,
+    name text,
+    description text,
+    network text,
+    create_time timestamp,
+    update_time timestamp,
+    active boolean,
+    PRIMARY KEY (user_id, app_id)
+);
+
+DROP TYPE IF EXISTS Rule;
+CREATE TYPE Rule (
+    field text,
+    operator text,
+    value blob,
+);
+
+DROP TABLE IF EXISTS webhooks;
+CREATE TABLE webhooks (
+    user_id text,
+    webhook_id text, 
+    webhook_key text, 
+    name text,
+    network text,
+    description text,
+    callback_url text,
+    auth_token text,
+    last_trigger_date timestamp,
+    confirmations int,
+    rules frozen<list<Rule>>,
+    create_date timestamp,
+    update_date timestamp,
+    active boolean,
+    PRIMARY KEY (user_id, webhook_id)
+);
+
+DROP TABLE IF EXISTS users;
+CREATE TABLE users (
+   id text,
+   first_name text,
+   last_name text,
+   email text,
+   password text,
+   start_time timestamp,
+   end_time timestamp,
+   active boolean,
+   PRIMARY KEY (id)
+);
+
+INSERT INTO users(id, first_name, last_name, email, password, start_time, end_time, active) VALUES ('8120536a5efc478b92809f8f1987a76e', 'Test', 'User', 'testuser@mail.com', '$2b$10$x6nByI7/3SV9GWjwDXSW7.I4LsMzfOJH9C7Dcfv/5EgSOZpOMiIBS', '2024-03-19 14:17:00', null, true);
+
+INSERT INTO subscriptions(user_id, user_first_name, user_last_name, user_email, user_password, user_start_time, user_end_time, user_active, api_key_hash, tier, currency, price, applications_count, webhooks_count, webhooks_active, webhooks_auth_token, start_time, end_time, active) VALUES ('8120536a5efc478b92809f8f1987a76e', 'Test', 'User', 'testuser@mail.com', '$2b$10$x6nByI7/3SV9GWjwDXSW7.I4LsMzfOJH9C7Dcfv/5EgSOZpOMiIBS', '2024-03-19 14:17:00', null, true, '291759bb', 'free', 'ADA', 0, 1, 1, true, '7Ovuh9mVeE3fS0-PtRsR6', '2024-03-19 14:17:00', null, true);
+
+INSERT INTO applications(user_id, app_id, base_url, name, description, network, create_time, update_time, active) VALUES('8120536a5efc478b92809f8f1987a76e', '6e2ab6cc28d943f48a84d92ad9b5392d', 'https://tangocrypto.com/8120536a5efc478b92809f8f1987a76e', 'test app', 'description', 'testnet', '2024-03-19 14:17:00', null, true);
+
+INSERT INTO webhooks(user_id, webhook_id, webhook_key, name, network, description, callback_url, auth_token, last_trigger_date, confirmations, rules, create_date, update_date, active) VALUES ('8120536a5efc478b92809f8f1987a76e', '39518c4ab750498aa5edd7a1b72a4f37', 'WBH_PAYMENT', 'webhook', 'testnet', 'description', 'https://www.callback.com', '7Ovuh9mVeE3fS0-PtRsR6', null, null, [], '2024-03-19 14:17:00', null, true);
