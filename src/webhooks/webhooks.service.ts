@@ -51,7 +51,7 @@ export class WebhooksService {
       //   size,
       //   next,
       // );
-      // const webhooks = this.mapper.mapArray(items, WebhookDto, Webhook);
+      // const webhooks = this.mapper.mapArray(items, Webhook, WebhookDto);
       // return { data: webhooks, cursor: nextToken || null };
     }
 
@@ -61,7 +61,7 @@ export class WebhooksService {
       // if ($error) {
       //   throw APIError.notFound(`webhook for id: ${id} and accountId: ${accountId}`);
       // } 
-      // return this.mapper.mapArray([item], WebhookDto, Webhook)[0];
+      // return this.mapper.mapArray([item], Webhook, WebhookDto)[0];
     }
 
     async update(accountId: string, id: string, updateWebhook: UpdateWebhookDto): Promise<WebhookDto> {
@@ -87,7 +87,7 @@ export class WebhooksService {
       //   PK: `ACCOUNT#${accountId}`,
       //   SK: `WBH#${id}`
       // };
-      // const webhook = this.mapper.mapArray([updateWebhook], Webhook, UpdateWebhookDto)[0];
+      // const webhook = this.mapper.mapArray([updateWebhook], UpdateWebhookDto, Webhook)[0];
       // webhook.update_date = time;
       // const updateExpr = [];
       // if (account.webhooks_active == 'true' && webhook.available == 'true') {
@@ -114,7 +114,7 @@ export class WebhooksService {
       
       // try {
       //   await this.validateWebhookAddress(createWebhook);
-      //   const webhook = this.mapper.mapArray([createWebhook], Webhook, CreateWebhookDto)[0];
+      //   const webhook = this.mapper.mapArray([createWebhook], CreateWebhookDto, Webhook)[0];
       //   const account = await this.accountService.findOne(accountId);
       //   if (!account) {
       //     throw APIError.notFound(`Account: ${accountId}`);

@@ -17,6 +17,6 @@ export class DatumsService {
 		if (!datum) {
 			throw APIError.notFound(`datum: ${hash}`);
 		}
-		return this.mapper.map<Datum, DatumDto>(datum, 'DatumDto', 'Datum');
+		return this.mapper.map<Datum, DatumDto>(datum, 'Datum', 'DatumDto');
     }
 }

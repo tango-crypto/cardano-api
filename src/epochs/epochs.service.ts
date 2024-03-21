@@ -15,7 +15,7 @@ export class EpochsService {
 
 	async getLatest(): Promise<EpochDto> {
 		const epoch = await this.ledger.dbClient.getLatestEpoch();
-		return this.mapper.map<Epoch, EpochDto>(epoch, 'EpochDto', 'Epoch');
+		return this.mapper.map<Epoch, EpochDto>(epoch, 'Epoch', 'EpochDto');
 	}
 
 	async getParameters(epoch: number): Promise<EpochParametersDto> {
@@ -24,6 +24,6 @@ export class EpochsService {
 		if (!parameters) {
 			throw APIError.notFound(`parameters for epoch: ${epoch}`);
 		}
-		return this.mapper.map<EpochParameters, EpochParametersDto>(parameters, 'EpochParametersDto', 'EpochParameters');
+		return this.mapper.map<EpochParameters, EpochParametersDto>(parameters, 'EpochParameters', 'EpochParametersDto');
 	}
 }

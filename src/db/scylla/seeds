@@ -4,6 +4,12 @@ CREATE KEYSPACE cardanodb WITH replication = {'class': 'SimpleStrategy', 'replic
 
 USE cardanodb;
 
+DROP TYPE IF EXISTS RateLimit;
+CREATE TYPE RateLimit (
+    limits int,
+    interval int
+);
+
 DROP TABLE IF EXISTS subscriptions;
 CREATE TABLE subscriptions (
     user_id text,
@@ -22,6 +28,7 @@ CREATE TABLE subscriptions (
     webhooks_count int,
     webhooks_active boolean,
     webhooks_auth_token text,
+    rate_limit RateLimit,
     start_time timestamp,
     end_time timestamp,
     active boolean,
@@ -36,6 +43,7 @@ CREATE TABLE applications (
     name text,
     description text,
     network text,
+    rate_limit RateLimit,
     create_time timestamp,
     update_time timestamp,
     active boolean,
@@ -83,8 +91,12 @@ CREATE TABLE users (
 
 INSERT INTO users(id, first_name, last_name, email, password, start_time, end_time, active) VALUES ('8120536a5efc478b92809f8f1987a76e', 'Test', 'User', 'testuser@mail.com', '$2b$10$x6nByI7/3SV9GWjwDXSW7.I4LsMzfOJH9C7Dcfv/5EgSOZpOMiIBS', '2024-03-19 14:17:00', null, true);
 
-INSERT INTO subscriptions(user_id, user_first_name, user_last_name, user_email, user_password, user_start_time, user_end_time, user_active, api_key_hash, tier, currency, price, applications_count, webhooks_count, webhooks_active, webhooks_auth_token, start_time, end_time, active) VALUES ('8120536a5efc478b92809f8f1987a76e', 'Test', 'User', 'testuser@mail.com', '$2b$10$x6nByI7/3SV9GWjwDXSW7.I4LsMzfOJH9C7Dcfv/5EgSOZpOMiIBS', '2024-03-19 14:17:00', null, true, '291759bb', 'free', 'ADA', 0, 1, 1, true, '7Ovuh9mVeE3fS0-PtRsR6', '2024-03-19 14:17:00', null, true);
+INSERT INTO subscriptions(user_id, user_first_name, user_last_name, user_email, user_password, user_start_time, user_end_time, user_active, api_key_hash, tier, currency, price, applications_count, webhooks_count, webhooks_active, webhooks_auth_token, rate_limit, start_time, end_time, active) VALUES ('8120536a5efc478b92809f8f1987a76e', 'Test', 'User', 'testuser@mail.com', '$2b$10$x6nByI7/3SV9GWjwDXSW7.I4LsMzfOJH9C7Dcfv/5EgSOZpOMiIBS', '2024-03-19 14:17:00', null, true, '291759bb', 'free', 'ADA', 0, 1, 1, true, '7Ovuh9mVeE3fS0-PtRsR6', { limits: 10, interval: 1000 }, '2024-03-19 14:17:00', null, true);
 
-INSERT INTO applications(user_id, app_id, base_url, name, description, network, create_time, update_time, active) VALUES('8120536a5efc478b92809f8f1987a76e', '6e2ab6cc28d943f48a84d92ad9b5392d', 'https://tangocrypto.com/8120536a5efc478b92809f8f1987a76e', 'test app', 'description', 'testnet', '2024-03-19 14:17:00', null, true);
+INSERT INTO applications(user_id, app_id, base_url, name, description, network, rate_limit, create_time, update_time, active) VALUES('8120536a5efc478b92809f8f1987a76e', '6e2ab6cc28d943f48a84d92ad9b5392d', 'https://tangocrypto.com/8120536a5efc478b92809f8f1987a76e', 'test app', 'description', 'testnet', { limits: 10, interval: 1000 }, '2024-03-19 14:17:00', null, true);
+
+INSERT INTO subscriptions(user_id, user_first_name, user_last_name, user_email, user_password, user_start_time, user_end_time, user_active, api_key_hash, tier, currency, price, applications_count, webhooks_count, webhooks_active, webhooks_auth_token, rate_limit, start_time, end_time, active) VALUES ('11111111111111111111111111111111', 'Test', 'RateLimit', 'testratelimit@mail.com', '$2b$10$x6nByI7/3SV9GWjwDXSW7.I4LsMzfOJH9C7Dcfv/5EgSOZpOMiIBS', '2024-03-19 14:17:00', null, true, '291759bb', 'free', 'ADA', 0, 1, 1, true, '7Ovuh9mVeE3fS0-PtRsR6', { limits: 3, interval: 60000 }, '2024-03-19 14:17:00', null, true);
+
+INSERT INTO applications(user_id, app_id, base_url, name, description, network, rate_limit, create_time, update_time, active) VALUES('11111111111111111111111111111111', '00000000000000000000000000000000', 'https://tangocrypto.com/8120536a5efc478b92809f8f1987a76e', 'test rate limit app', 'description', 'testnet', { limits: 3, interval: 60000 }, '2024-03-19 14:17:00', null, true);
 
 INSERT INTO webhooks(user_id, webhook_id, webhook_key, name, network, description, callback_url, auth_token, last_trigger_date, confirmations, rules, create_date, update_date, active) VALUES ('8120536a5efc478b92809f8f1987a76e', '39518c4ab750498aa5edd7a1b72a4f37', 'WBH_PAYMENT', 'webhook', 'testnet', 'description', 'https://www.callback.com', '7Ovuh9mVeE3fS0-PtRsR6', null, null, [], '2024-03-19 14:17:00', null, true);

@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EpochsService } from './epochs/epochs.service';
@@ -48,10 +48,12 @@ import { ScyllaService } from './providers/scylla/scylla.service';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    AutomapperModule.forRoot({
-      options: [{ name: 'mapper', pluginInitializer: classes }, {name: 'pojo-mapper', pluginInitializer: pojos}],
-      // singular: true,
-    }),
+    AutomapperModule.forRoot(
+      [
+        { name: 'mapper', strategyInitializer: classes() }, 
+        { name: 'pojo-mapper', strategyInitializer: pojos() }
+      ],
+    ),
     WebhooksModule,
     AuthModule
   ],

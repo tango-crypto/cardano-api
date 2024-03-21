@@ -20,7 +20,7 @@ export class WebhookDto {
     @AutoMap()
     callback_url: string;
 
-    @AutoMap({ typeFn: () => RuleDto})
+    @AutoMap({ type:() => RuleDto})
     rules: RuleDto[];
 
     @AutoMap()

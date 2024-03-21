@@ -1,15 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Metering } from '@tango-crypto/notify-metering';
-import Redis from 'ioredis';
+import Redis, { Cluster, ClusterNode, ClusterOptions, RedisOptions } from 'ioredis';
 import { TIER_1, TIER_2 } from 'src/utils/constants';
 
 @Injectable()
-export class MeteringService {
+export class MeteringService implements OnModuleDestroy {
     client: Metering;
 
     constructor(private readonly configService: ConfigService) {
-        const config: { options: Redis.ClusterOptions | Redis.RedisOptions, nodes?: Redis.ClusterNode[] } = this.configService.get<string>('NODE_ENV') == 'development' ? {
+        const config: { options: ClusterOptions | RedisOptions, nodes?: ClusterNode[] } = this.configService.get<string>('NODE_ENV') == 'development' ? {
             options: {
                 host: this.configService.get<string>('REDIS_HOST'),
                 port: this.configService.get<number>('REDIS_PORT')
@@ -51,5 +51,9 @@ export class MeteringService {
 
     private getTier(nftMinted: number): string {
         return nftMinted <= TIER_1 ? 'tier1' : nftMinted <= TIER_2 ? 'tier2' : 'tier3';
+    }
+
+    onModuleDestroy() {
+        this.client?.redis.disconnect(false);
     }
 }

@@ -79,23 +79,23 @@ export class TransactionsService {
 		if (!tx) {
 			throw APIError.notFound(`transaction: ${txHash}`);
 		}
-		const data = this.mapper.map<Transaction, TransactionDto>(tx, 'TransactionDto', 'Transaction');
+		const data = this.mapper.map<Transaction, TransactionDto>(tx, 'Transaction', 'TransactionDto');
 		return data;
 	}
 
 	async getUtxos(txHash: string): Promise<{ hash: string, inputs: UtxoDto[], outputs: UtxoDto[] }> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
 		const { hash, inputs, outputs } = await this.ledger.dbClient.getTransactionUtxosFull(txHash);
-		const inputUtxos = this.mapper.mapArray<Utxo, UtxoDto>(inputs, 'UtxoDto', 'Utxo');
-		const outputUtxos = this.mapper.mapArray<Utxo, UtxoDto>(outputs, 'UtxoDto', 'Utxo');
+		const inputUtxos = this.mapper.mapArray<Utxo, UtxoDto>(inputs, 'Utxo', 'UtxoDto');
+		const outputUtxos = this.mapper.mapArray<Utxo, UtxoDto>(outputs, 'Utxo', 'UtxoDto');
 		return { hash, inputs: inputUtxos, outputs: outputUtxos };
 	}
 
 	async getCollaterals(txHash: string): Promise<{ hash: string, inputs: UtxoDto[], outputs: UtxoDto[] }> {
 		// Utils.checkDataBaseConnection(dbClient); // check if not connected before call db
 		const { hash, inputs, outputs } = await this.ledger.dbClient.getTransactionCollaterals(txHash);
-		const inputUtxos = this.mapper.mapArray<Utxo, UtxoDto>(inputs, 'UtxoDto', 'Utxo');
-		const outputUtxos = this.mapper.mapArray<Utxo, UtxoDto>(outputs, 'UtxoDto', 'Utxo');
+		const inputUtxos = this.mapper.mapArray<Utxo, UtxoDto>(inputs, 'Utxo', 'UtxoDto');
+		const outputUtxos = this.mapper.mapArray<Utxo, UtxoDto>(outputs, 'Utxo', 'UtxoDto');
 		return { hash, inputs: inputUtxos, outputs: outputUtxos };
 	}
 
@@ -107,14 +107,14 @@ export class TransactionsService {
 			// throw new Error('Invalid cursor');
 		}
 		const assets = await this.ledger.dbClient.getTransactionMints(txHash, size + 1, order, identifier);
-		const data = this.mapper.mapArray<Asset, AssetDto>(assets, 'AssetDto', 'Asset');
+		const data = this.mapper.mapArray<Asset, AssetDto>(assets, 'Asset', 'AssetDto');
 		const [nextPageToken, items] = data.length <= size ? [null, data] : [Utils.encrypt(data[size - 1].fingerprint), data.slice(0, size)];
 		return { data: items, cursor: nextPageToken };
 	}
 
 	async getScripts(txHash: string): Promise<ScriptDto[]> {
 		const scripts = await this.ledger.dbClient.getTransactionScripts(txHash);
-		return this.mapper.mapArray<LedgerScript, ScriptDto>(scripts, 'ScriptDto', 'Script');
+		return this.mapper.mapArray<LedgerScript, ScriptDto>(scripts, 'Script', 'ScriptDto');
 	}
 
 	async getMetadata(txHash: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<MetadataDto>> {
@@ -127,7 +127,7 @@ export class TransactionsService {
 			// throw new Error('Invalid cursor');
 		}
 		const metadata = await this.ledger.dbClient.getTransactionMetadata(txHash, size + 1, order, key);
-		const data = this.mapper.mapArray<Metadata, MetadataDto>(metadata, 'MetadataDto', 'Metadata');
+		const data = this.mapper.mapArray<Metadata, MetadataDto>(metadata, 'Metadata', 'MetadataDto');
 		const [nextPageToken, items] = data.length <= size ? [null, data] : [Utils.encrypt(data[size - 1].label), data.slice(0, size)];
 		return { data: items, cursor: nextPageToken };
 	}

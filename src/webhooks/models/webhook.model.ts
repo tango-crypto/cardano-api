@@ -27,7 +27,7 @@ export class Webhook {
 
     last_trigger_date: Date | string;
 
-    @AutoMap({ typeFn: () => Rule})
+    @AutoMap({ type:() => Rule, depth: 0})
     rules?: Rule[];
 
     @AutoMap()

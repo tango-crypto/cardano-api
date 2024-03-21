@@ -30,12 +30,13 @@ export class AuthGuard implements CanActivate {
             throw new UnauthorizedException();
         }
         try {
-            if (!(await this.authService.isValidApp(appId, userId))) {
+            const { isValid, rateLimit } = await this.authService.isValidApp(appId, userId);
+            if (!isValid) {
                 throw new UnauthorizedException();
             }
             // 💡 We're assigning the payload to the request object here
             // so that we can access it in our route handlers
-            request['user'] = { appId, userId };
+            request['user'] = { appId, userId, rateLimit };
         } catch {
             throw new UnauthorizedException();
         }

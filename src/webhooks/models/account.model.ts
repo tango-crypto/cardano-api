@@ -22,10 +22,10 @@ export class Account {
     @AutoMap()
     subscription?: Subscription;
     
-    @AutoMap({ typeFn: () => Application})
+    @AutoMap({ type:() => Application})
     applications?: Application[];
     
-    @AutoMap({ typeFn: () => Webhook})
+    @AutoMap({ type:() => Webhook})
     webhooks?: Webhook[];
     
     @AutoMap()

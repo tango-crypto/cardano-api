@@ -1,5 +1,5 @@
 import { AutomapperProfile, InjectMapper } from "@automapper/nestjs";
-import { Mapper, MappingProfile } from "@automapper/types";
+import { Mapper, MappingProfile, createMap } from "@automapper/core";
 import { Injectable } from "@nestjs/common";
 import { SubscriptionDto } from "../dto/subscription.dto";
 import { Subscription } from "../models/subscription.model";
@@ -10,9 +10,9 @@ export class SubscriptionProfile extends AutomapperProfile {
         super(mapper);
       }
       
-    mapProfile(): MappingProfile {
+    get profile(): MappingProfile {
         return (mapper: Mapper) => {
-            mapper.createMap(Subscription, SubscriptionDto);
+            createMap<Subscription, SubscriptionDto>(mapper, Subscription, SubscriptionDto);
         }
     }
 

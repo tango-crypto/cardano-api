@@ -20,7 +20,7 @@ export class ScriptsService {
 		if (!script) {
 			throw APIError.notFound(`script: ${hash}`);
 		}
-		return this.mapper.map<Script, ScriptDto>(script, 'ScriptDto', 'Script');
+		return this.mapper.map<Script, ScriptDto>(script, 'Script', 'ScriptDto');
     }
 
     async getRedeemers(hash: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<RedeemerDto>> {
@@ -35,7 +35,7 @@ export class ScriptsService {
 		}
         const redeemers = await this.ledger.dbClient.getScriptRedeemers(hash, size + 1, order, tx_id, index);
 		const [nextPageToken, items] = redeemers.length <= size ? [null, redeemers] : [Utils.encrypt(`${redeemers[size - 1].tx_id}-${redeemers[size - 1].index}`), redeemers.slice(0, size)];
-		const data = this.mapper.mapArray<Redeemer, RedeemerDto>(items, 'RedeemerDto', 'Redeemer')
+		const data = this.mapper.mapArray<Redeemer, RedeemerDto>(items, 'Redeemer', 'RedeemerDto')
 		return { data: data, cursor: nextPageToken};
 	}
 }

@@ -8,8 +8,8 @@ export class AccountDto {
     id: string;
     @AutoMap()
     subscription: SubscriptionDto;
-    @AutoMap({ typeFn: () => ApplicationDto})
+    @AutoMap({ type:() => ApplicationDto})
     applications: ApplicationDto[];
-    @AutoMap({ typeFn: () => WebhookDto})
+    @AutoMap({ type:() => WebhookDto})
     webhooks: WebhookDto[];
 }

@@ -27,7 +27,7 @@ export class CreateWebhookDto {
     @IsUrl()
     callback_url: string;
 
-    @AutoMap({ typeFn: () => RuleDto})
+    @AutoMap({ type:() => RuleDto })
     @ValidateIf(r => r.rules && r.rules.length > 0)
     @ValidateNested({each: true})
     @Type(() => RuleDto)

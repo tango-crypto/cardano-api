@@ -34,7 +34,7 @@ export class StakesService {
 		if (!stake) {
 			throw APIError.notFound(`stake: ${stakeAddress}`);
 		}
-		return this.mapper.map<Stake, StakeDto>(stake, 'StakeDto', 'Stake');
+		return this.mapper.map<Stake, StakeDto>(stake, 'Stake', 'StakeDto');
 	}
 
 	async getAddresses(stakeAddress: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<AddressDto>> {
@@ -46,7 +46,7 @@ export class StakesService {
 		}
 		const addresses = await this.ledger.dbClient.getStakeAddresses(stakeAddress, size + 1, order, address);
 		const [nextPageToken, items] = addresses.length <= size ? [null, addresses]: [Utils.encrypt(addresses[size - 1].address.toString()), addresses.slice(0, size)];
-		const data = this.mapper.mapArray<Address, AddressDto>(items, 'AddressDto', 'Address');
+		const data = this.mapper.mapArray<Address, AddressDto>(items, 'Address', 'AddressDto');
 		return { data: data, cursor: nextPageToken };
 
 	}
@@ -72,7 +72,7 @@ export class StakesService {
 				utxos.push(...outputs);
 				try {
 					const { selection, change } = Utils.coinSelection([...utxos], requestedValue, config, maxInputCount, checkMinUtxo);
-					return { selection: this.mapper.mapArray<Utxo, UtxoDto>(selection, 'UtxoDto', 'Utxo'), change: this.mapper.map<Value, ValueDto>(change, 'ValueDto', 'Value') };
+					return { selection: this.mapper.mapArray<Utxo, UtxoDto>(selection, 'Utxo', 'UtxoDto'), change: this.mapper.map<Value, ValueDto>(change, 'Value', 'ValueDto') };
 				} catch (err) {
 					message = err.message;
 				}

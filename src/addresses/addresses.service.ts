@@ -60,7 +60,7 @@ export class AddressesService {
 		}
 		const assets = await this.ledger.dbClient.getAddressAssets(address, size + 1, order, fingerprint);
 		const [nextPageToken, items] = assets.length <= size ? [null, assets] : [Utils.encrypt(assets[size - 1].fingerprint.toString()), assets.slice(0, size)];
-		const data = this.mapper.mapArray<Asset, AssetDto>(items, 'AssetDto', 'Asset');
+		const data = this.mapper.mapArray<Asset, AssetDto>(items, 'Asset', 'AssetDto');
 		return {data, cursor: nextPageToken}
 	}
 
@@ -77,14 +77,14 @@ export class AddressesService {
 		}
 		const utxos = await this.ledger.dbClient.getAddressAssetUtxos(address, asset, size + 1, order, tx_id, index);
 		const [nextPageToken, items] = utxos.length <= size ? [null, utxos] : [Utils.encrypt(`${utxos[size - 1].tx_id}-${utxos[size - 1].index}`), utxos.slice(0, size)];
-		const data = this.mapper.mapArray<Utxo, UtxoDto>(items, 'UtxoDto', 'Utxo');
+		const data = this.mapper.mapArray<Utxo, UtxoDto>(items, 'Utxo', 'UtxoDto');
 		return {data, cursor: nextPageToken}
 	}
 
 	async getUtxos(address: string, size: number = 50, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<UtxoDto>> {
 		if (!Utils.isValidAddress(address)) throw APIError.badRequest(`invalid address: ${address}`);
 		const { utxos, cursor } = await Utils.getUtxos(this.ledger.dbClient, address, size, order, pageToken);
-		const data = this.mapper.mapArray<Utxo, UtxoDto>(utxos, 'UtxoDto', 'Utxo');
+		const data = this.mapper.mapArray<Utxo, UtxoDto>(utxos, 'Utxo', 'UtxoDto');
 		return { data: data, cursor };
 	}
 
@@ -101,7 +101,7 @@ export class AddressesService {
 		// order = 'desc'; // WARNING!!! We need to figure it out why ASC query plan is consuming more rows :(
 		const txs = await this.ledger.dbClient.getAddressTransactions(address, size + 1, order, txId);
 		const [nextPageToken, items] = txs.length <= size ? [null, txs]: [Utils.encrypt(txs[size - 1].id.toString()), txs.slice(0, size)];
-		const data = this.mapper.mapArray<Transaction, TransactionDto>(items, 'TransactionDto', 'Transaction');
+		const data = this.mapper.mapArray<Transaction, TransactionDto>(items, 'Transaction', 'TransactionDto');
 		return { data: data, cursor: nextPageToken };
 	}
 
@@ -127,8 +127,8 @@ export class AddressesService {
 		try {
 			const { selection, change } = Utils.coinSelection(utxos, new Value(ada, assets), config, maxInputCount, checkMinUtxo);
 			return { 
-				selection: this.mapper.mapArray<Utxo, UtxoDto>(selection, 'UtxoDto', 'Utxo'), 
-				...(!change.isEmpty() && { change: this.mapper.map<Value, ValueDto>(change, 'ValueDto', 'Value')  })
+				selection: this.mapper.mapArray<Utxo, UtxoDto>(selection, 'Utxo', 'UtxoDto'), 
+				...(!change.isEmpty() && { change: this.mapper.map<Value, ValueDto>(change, 'Value', 'ValueDto')  })
 			}
 		} catch(err) {
 			throw APIError.badRequest(err.message);

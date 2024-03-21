@@ -6,12 +6,11 @@ export class AuthService {
 
     constructor(private applicationService: ApplicationService) { }
 
-    async isValidApp(appId: string, userId: string): Promise<boolean> {
+    async isValidApp(appId: string, userId: string): Promise<{isValid: boolean, rateLimit?: { limits: number, interval: number}}> {
         const application = await this.applicationService.findOne(userId, appId);
         if (!application || !application.active) {
-            return false;
+            return { isValid:  false };
         }
-        // Do we need to check if user is active?
-        return true;
+        return { isValid: true, rateLimit: application.rate_limit };
     }
 }

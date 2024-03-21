@@ -1,6 +1,6 @@
-import { mapFrom } from '@automapper/core';
+import { createMap, forMember, mapFrom } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
-import type { Mapper } from '@automapper/types';
+import type { Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 import { Value } from '../models/Value';
 import { ValueDto } from '../models/dto/Value.dto';
@@ -11,12 +11,12 @@ export class ValueProfile extends AutomapperProfile {
     super(mapper);
   }
 
-  mapProfile() {
+  get profile() {
     return (mapper: Mapper) => {
-      mapper.createMap<Value, ValueDto>('Value', 'ValueDto')
-      .forMember(dest => dest.lovelace, mapFrom(src => src.coin))
-      .forMember(dest => dest.assets, mapFrom(src => [...src.assets.values()]))
-      ;
+      createMap<Value, ValueDto>(mapper, 'Value', 'ValueDto',
+        forMember(dest => dest.lovelace, mapFrom(src => src.coin)),
+        forMember(dest => dest.assets, mapFrom(src => [...src.assets.values()])),
+      );
     }
   }
 }

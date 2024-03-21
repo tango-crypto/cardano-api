@@ -1,8 +1,8 @@
-import { mapFrom } from '@automapper/core';
+import { createMap, forMember, mapFrom } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
-import type { Mapper } from '@automapper/types';
+import type { Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
-import {  Metadata } from '@tango-crypto/tango-ledger';
+import { Metadata } from '@tango-crypto/tango-ledger';
 import { MetadataDto } from 'src/models/dto/Metadata.dto';
 
 @Injectable()
@@ -11,12 +11,12 @@ export class MetadataProfile extends AutomapperProfile {
     super(mapper);
   }
 
-  mapProfile() {
+  get profile() {
     return (mapper: Mapper) => {
-      mapper.createMap<Metadata, MetadataDto>('Metadata', 'MetadataDto')
-      .forMember(dest => dest.label, mapFrom(src => src.label))
-      .forMember(dest => dest.json, mapFrom(src => src.json))
-      ;
+      createMap<Metadata, MetadataDto>(mapper, 'Metadata', 'MetadataDto',
+        forMember(dest => dest.label, mapFrom(src => src.label)),
+        forMember(dest => dest.json, mapFrom(src => src.json)),
+      );
     }
   }
 }

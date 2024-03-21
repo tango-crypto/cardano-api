@@ -1,5 +1,5 @@
 import { AutomapperProfile, InjectMapper } from "@automapper/nestjs";
-import { Mapper, MappingProfile } from "@automapper/types";
+import { Mapper, MappingProfile, createMap } from "@automapper/core";
 import { Injectable } from "@nestjs/common";
 import { RuleDto } from "../dto/rule.dto";
 import { Rule } from "../models/rule.model";
@@ -10,10 +10,10 @@ export class RuleProfile extends AutomapperProfile {
         super(mapper);
       }
       
-    mapProfile(): MappingProfile {
+    get profile(): MappingProfile {
         return (mapper: Mapper) => {
-            mapper.createMap(RuleDto, Rule);
-            mapper.createMap(Rule, RuleDto);
+            createMap<Rule, RuleDto>(mapper, Rule, RuleDto);
+            createMap<RuleDto, Rule>(mapper, RuleDto, Rule);
         }
     }
 

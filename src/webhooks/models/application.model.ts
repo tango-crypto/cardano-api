@@ -20,6 +20,9 @@ export class Application {
     base_url: string;
 
     @AutoMap()
+    rate_limit: { limits: number, interval: number };
+
+    @AutoMap()
     create_time: string;
 
     @AutoMap()

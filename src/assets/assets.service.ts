@@ -23,7 +23,7 @@ export class AssetsService {
 			if (!asset) {
 				throw APIError.notFound(`asset identifier: ${identifier}`);
 			}
-			return this.mapper.map<Asset, AssetDto>(asset, 'AssetDto', 'Asset');
+			return this.mapper.map<Asset, AssetDto>(asset, 'Asset', 'AssetDto');
 		} catch(err) {
 			throw APIError.isNotFoundError(err) ? err : APIError.badRequest(`invalid identifier: ${identifier}`);
 		}
@@ -34,7 +34,7 @@ export class AssetsService {
 		if (!asset) {
 			throw APIError.notFound(`asset fingerprint: ${fingerprint}`);
 		}
-		return this.mapper.map<Asset, AssetDto>(asset, 'AssetDto', 'Asset');
+		return this.mapper.map<Asset, AssetDto>(asset, 'Asset', 'AssetDto');
 	}
 
 	async getOwners(identifier: string, size: number, order: string = 'desc', pageToken = ''): Promise<PaginateResponse<AssetOwnerDto>> {
@@ -51,7 +51,7 @@ export class AssetsService {
 		try {
 			const owners = await this.ledger.dbClient.getAssetOwners(identifier, size + 1, order, address, quantity);
 			const [nextPageToken, items] = owners.length <= size ? [null, owners] : [Utils.encrypt(owners[size - 1].address + '-' + owners[size - 1].quantity), owners.slice(0, size)];
-			const data = this.mapper.mapArray<AssetOwner, AssetOwnerDto>(items, 'AssetOwnerDto', 'AssetOwner');
+			const data = this.mapper.mapArray<AssetOwner, AssetOwnerDto>(items, 'AssetOwner', 'AssetOwnerDto');
 			return {data, cursor: nextPageToken}
 		} catch(err) {
 			throw APIError.badRequest(`invalid asset identifier: ${identifier}`);
@@ -72,7 +72,7 @@ export class AssetsService {
 		try {
 			const owners = await this.ledger.dbClient.getAssetOwners(fingerprint, size + 1, order, address, quantity);
 			const [nextPageToken, items] = owners.length <= size ? [null, owners] : [Utils.encrypt(owners[size - 1].address + '-' + owners[size - 1].quantity), owners.slice(0, size)];
-			const data = this.mapper.mapArray<AssetOwner, AssetOwnerDto>(items, 'AssetOwnerDto', 'AssetOwner');
+			const data = this.mapper.mapArray<AssetOwner, AssetOwnerDto>(items, 'AssetOwner', 'AssetOwnerDto');
 			return {data, cursor: nextPageToken}
 		} catch(err) {
 			throw APIError.badRequest(`invalid asset fingerprint: ${fingerprint}`);

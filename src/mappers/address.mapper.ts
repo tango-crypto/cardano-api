@@ -1,8 +1,8 @@
-import { fromValue, ignore, mapDefer, mapFrom } from '@automapper/core';
+import { createMap, forMember, fromValue, ignore, mapDefer, mapFrom } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
-import type { Mapper } from '@automapper/types';
+import type { Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
-import {  Address } from '@tango-crypto/tango-ledger';
+import { Address } from '@tango-crypto/tango-ledger';
 import { AddressDto } from 'src/models/dto/Address.dto';
 
 @Injectable()
@@ -11,12 +11,12 @@ export class AddressProfile extends AutomapperProfile {
     super(mapper);
   }
 
-  mapProfile() {
+  get profile() {
     return (mapper: Mapper) => {
-      mapper.createMap<Address, AddressDto>('Address', 'AddressDto')
-      .forMember(dest => dest.address, mapFrom(src => src.address))
-      .forMember(dest => dest.quantity, mapDefer(src => src.quantity ? mapFrom(src => Number(src.quantity)) : ignore()))
-      ;
+      createMap<Address, AddressDto>(mapper, 'Address', 'AddressDto',
+        forMember(dest => dest.address, mapFrom(src => src.address)),
+        forMember(dest => dest.quantity, mapDefer(src => src.quantity ? mapFrom(src => Number(src.quantity)) : ignore())),
+      )
     }
   }
 }

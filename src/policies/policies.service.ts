@@ -26,7 +26,7 @@ export class PoliciesService {
         try {
             const assets = await this.ledger.dbClient.getPolicyAssets(policyId, size + 1, order, fingerprint);
             const [nextPageToken, items] = assets.length <= size ? [null, assets] : [Utils.encrypt(assets[size - 1].fingerprint.toString()), assets.slice(0, size)];
-            const data = this.mapper.mapArray<Asset, AssetDto>(items, 'AssetDto', 'Asset');
+            const data = this.mapper.mapArray<Asset, AssetDto>(items, 'Asset', 'AssetDto');
             return {data, cursor: nextPageToken}
         } catch(err) {
             throw APIError.badRequest(`invalid policy: ${policyId}`);
