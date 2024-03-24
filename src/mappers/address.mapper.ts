@@ -15,7 +15,7 @@ export class AddressProfile extends AutomapperProfile {
     return (mapper: Mapper) => {
       createMap<Address, AddressDto>(mapper, 'Address', 'AddressDto',
         forMember(dest => dest.address, mapFrom(src => src.address)),
-        forMember(dest => dest.quantity, mapDefer(src => src.quantity ? mapFrom(src => Number(src.quantity)) : ignore())),
+        // forMember(dest => dest.quantity, mapDefer(src => src.quantity ? mapFrom(src => Number(src.quantity)) : ignore())),
       )
     }
   }

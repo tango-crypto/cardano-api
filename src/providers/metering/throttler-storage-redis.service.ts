@@ -7,7 +7,7 @@ import Redis, { Cluster, RedisOptions, ClusterOptions, ClusterNode } from 'iored
 @Injectable()
 export class ThrottlerStorageRedisService implements ThrottlerStorage, OnModuleDestroy {
     scriptSrc: string;
-    redis: Redis | Cluster;
+    redis: Redis.Redis | Cluster;
 
     constructor(private readonly configService: ConfigService) {
         const config: { options: ClusterOptions | RedisOptions, nodes?: ClusterNode[] } = this.configService.get<string>('NODE_ENV') == 'development' ? {
@@ -48,8 +48,8 @@ export class ThrottlerStorageRedisService implements ThrottlerStorage, OnModuleD
 
     async increment(key: string, ttl: number): Promise<ThrottlerStorageRecord> {
         // Use EVAL instead of EVALSHA to support both redis instances and clusters.
-        const results: number[] = (await this.redis.call(
-            'EVAL',
+        const results: number[] = (await this.redis.eval(
+            // 'EVAL',
             this.scriptSrc,
             1,
             key,
