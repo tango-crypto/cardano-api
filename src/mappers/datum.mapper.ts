@@ -2,7 +2,7 @@ import { fromValue, createMap, ignore, mapDefer, mapFrom, forMember } from '@aut
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
-import { Datum } from '@tango-crypto/tango-ledger';
+import { Datum } from '@tangocrypto/tango-ledger';
 import { DatumDto } from 'src/models/dto/Datum.dto';
 @Injectable()
 export class DatumProfile extends AutomapperProfile {

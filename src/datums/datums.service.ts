@@ -3,7 +3,7 @@ import { APIError } from 'src/common/errors';
 import { DatumDto } from 'src/models/dto/Datum.dto';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/types';
-import { Datum} from '@tango-crypto/tango-ledger';
+import { Datum} from '@tangocrypto/tango-ledger';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
 
 @Injectable()

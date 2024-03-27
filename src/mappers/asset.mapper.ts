@@ -2,7 +2,7 @@ import { createMap, forMember, fromValue, ignore, mapDefer, mapFrom } from '@aut
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
-import { Asset, AssetOwner, Metadata } from '@tango-crypto/tango-ledger';
+import { Asset, AssetOwner, Metadata } from '@tangocrypto/tango-ledger';
 import { AssetDto } from 'src/models/dto/Asset.dto';
 import { AssetOwnerDto } from 'src/models/dto/AssetOwner.dto';
 import { MetadataDto } from 'src/models/dto/Metadata.dto';

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
-import { Epoch, EpochParameters } from '@tango-crypto/tango-ledger';
+import { Epoch, EpochParameters } from '@tangocrypto/tango-ledger';
 import { EpochDto } from 'src/models/dto/Epoch.dto';
 import { Mapper } from '@automapper/types';
 import { InjectMapper } from '@automapper/nestjs';

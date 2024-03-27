@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Utils } from 'src/common/utils';
 import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
-import { Metadata, Transaction, Utxo, Script as LedgerScript } from '@tango-crypto/tango-ledger';
+import { Metadata, Transaction, Utxo, Script as LedgerScript } from '@tangocrypto/tango-ledger';
 import { fromIni } from '@aws-sdk/credential-provider-ini';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Utils } from 'src/common/utils';
 import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
-import { Asset, AssetOwner } from '@tango-crypto/tango-ledger';
+import { Asset, AssetOwner } from '@tangocrypto/tango-ledger';
 import { Mapper } from '@automapper/types';
 import { InjectMapper } from '@automapper/nestjs';
 import { AssetDto } from 'src/models/dto/Asset.dto';

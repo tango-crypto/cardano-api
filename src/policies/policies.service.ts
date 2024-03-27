@@ -3,7 +3,7 @@ import { Mapper } from '@automapper/types';
 import { Injectable } from '@nestjs/common';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
 import { Utils } from 'src/common/utils';
-import { Asset } from '@tango-crypto/tango-ledger';
+import { Asset } from '@tangocrypto/tango-ledger';
 import { AssetDto } from 'src/models/dto/Asset.dto';
 import { PaginateResponse } from 'src/models/PaginateResponse';
 import { APIError } from 'src/common/errors';

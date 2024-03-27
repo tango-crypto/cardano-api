@@ -2,7 +2,7 @@ import { createMap, forMember, ignore, mapFrom } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
-import { Pool } from '@tango-crypto/tango-ledger';
+import { Pool } from '@tangocrypto/tango-ledger';
 import { PoolDto } from 'src/models/dto/Pool.dto';
 
 @Injectable()

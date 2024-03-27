@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Utils } from 'src/common/utils';
 import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
-import { PoolDelegation, Pool } from '@tango-crypto/tango-ledger';
+import { PoolDelegation, Pool } from '@tangocrypto/tango-ledger';
 import { PaginateResponse } from 'src/models/PaginateResponse';
 import { PoolDto } from 'src/models/dto/Pool.dto';
 import { InjectMapper } from '@automapper/nestjs';

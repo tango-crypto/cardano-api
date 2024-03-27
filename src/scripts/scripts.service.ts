@@ -1,7 +1,7 @@
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/types';
 import { Injectable } from '@nestjs/common';
-import { Redeemer, Script } from '@tango-crypto/tango-ledger';
+import { Redeemer, Script } from '@tangocrypto/tango-ledger';
 import { APIError } from 'src/common/errors';
 import { ScriptDto } from 'src/models/dto/Script.dto';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';

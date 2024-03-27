@@ -2,7 +2,7 @@ import { fromValue, createMap, forMember, ignore, mapDefer, mapFrom } from '@aut
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
-import { CostModel, EpochParameters, Metadata } from '@tango-crypto/tango-ledger';
+import { CostModel, EpochParameters, Metadata } from '@tangocrypto/tango-ledger';
 import { CostModelDto } from 'src/models/dto/CostModel.dto';
 import { EpochParametersDto } from 'src/models/dto/EpochParameters.dto';
 

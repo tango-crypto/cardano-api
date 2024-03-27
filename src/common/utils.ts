@@ -5,7 +5,7 @@ const iv = Buffer.from('33f0e92dd0fda4efca202216ef0f0b27', 'hex');
 
 import { Address, BaseAddress, ByronAddress, RewardAddress } from "@emurgo/cardano-serialization-lib-nodejs";
 import { AddressInfoDto } from "../models/dto/AddressInfo.dto";
-import { Asset, DbClient, Utxo } from '@tango-crypto/tango-ledger';
+import { Asset, DbClient, Utxo } from '@tangocrypto/tango-ledger';
 import { PlutusType, Seed } from '../utils/serialization.util';
 import { Value } from '../models/Value';
 

@@ -1,4 +1,4 @@
-import { Utxo } from '@tango-crypto/tango-ledger';
+import { Utxo } from '@tangocrypto/tango-ledger';
 import { JsonScript } from './json-script.model';
 
 export interface NftPayment {

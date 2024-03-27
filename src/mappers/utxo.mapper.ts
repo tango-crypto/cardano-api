@@ -2,8 +2,8 @@ import { createMap, forMember, fromValue, ignore, mapDefer, mapFrom } from '@aut
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
-import { Asset, Datum, Utxo } from '@tango-crypto/tango-ledger';
-import { Script } from '@tango-crypto/tango-ledger/dist/src/models/script';
+import { Asset, Datum, Utxo } from '@tangocrypto/tango-ledger';
+import { Script } from '@tangocrypto/tango-ledger/dist/src/models/script';
 import { AssetDto } from '../models/dto/Asset.dto';
 import { DatumDto } from '../models/dto/Datum.dto';
 import { ScriptDto } from '../models/dto/Script.dto';

@@ -1,6 +1,6 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Metering } from '@tango-crypto/notify-metering';
+import { Metering } from './metering';
 import { ClusterNode, ClusterOptions, RedisOptions } from 'ioredis';
 import { TIER_1, TIER_2 } from 'src/utils/constants';
 

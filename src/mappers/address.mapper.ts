@@ -2,7 +2,7 @@ import { createMap, forMember, fromValue, ignore, mapDefer, mapFrom } from '@aut
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
-import { Address } from '@tango-crypto/tango-ledger';
+import { Address } from '@tangocrypto/tango-ledger';
 import { AddressDto } from 'src/models/dto/Address.dto';
 
 @Injectable()

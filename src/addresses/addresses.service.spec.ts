@@ -11,7 +11,7 @@ import { pojos } from '@automapper/pojos';
 import { mocked } from 'jest-mock';
 import { Utils } from '../common/utils';
 import { AssetProfile } from '../mappers/asset.mapper';
-import { Asset, Utxo } from '@tango-crypto/tango-ledger';
+import { Asset, Utxo } from '@tangocrypto/tango-ledger';
 
 const sortAsset = (a: Asset, b: Asset) => `${a.policy_id}${a.asset_name}`.localeCompare(`${b.policy_id}${b.asset_name}`);
 const sortUtxo = (a: Utxo, b: Utxo) => `${a.hash}#${a.index}`.localeCompare(`${b.hash}#${b.index}`);

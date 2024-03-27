@@ -1,4 +1,4 @@
-import { Asset, Utxo } from '@tango-crypto/tango-ledger';
+import { Asset, Utxo } from '@tangocrypto/tango-ledger';
 
 export class Value {
     coin: number;

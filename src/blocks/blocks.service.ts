@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Utils } from 'src/common/utils';
 import { APIError } from 'src/common/errors';
 import { TangoLedgerService } from 'src/providers/tango-ledger/tango-ledger.service';
-import { Block, Transaction } from '@tango-crypto/tango-ledger';
+import { Block, Transaction } from '@tangocrypto/tango-ledger';
 import { PaginateResponse } from 'src/models/PaginateResponse';
 import { BlockDto } from 'src/models/dto/Block.dto';
 import { TransactionDto } from 'src/models/dto/Transaction.dto';
