@@ -36,3 +36,20 @@ services:
       - --alternator-write-isolation always
     volumes:
       - /var/lib/scylla:/var/lib/scylla
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=db_user
+      - POSTGRES_PASSWORD=0p9o8i
+      - POSTGRES_DB=testnet_preprod
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+      - ./db/create_role.sql:/docker-entrypoint-initdb.d/create_role.sql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/testnet-02-16-2023.sql
+volumes:
+  db:
+    driver: local
