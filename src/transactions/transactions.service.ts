@@ -31,8 +31,6 @@ import { OgmiosUtxoDto, TxInDto, TxOutDto } from './dto/evaluateTx.dto';
 
 @Injectable()
 export class TransactionsService {
-	ebClient: EventBridgeClient;
-	table: string;
 	businessAddress: string;
 	policyId: string;
 	policyScript: Script;
@@ -51,15 +49,6 @@ export class TransactionsService {
 		private readonly ogmiosService: OgmiosService,
 		@InjectMapper('pojo-mapper') private mapper: Mapper
 	) {
-		const config: any = {
-			region: this.configService.get<string>('AWS_REGION'),
-		};
-		const env = this.configService.get<string>('NODE_ENV');
-		if (env == 'development') {
-			config.credentials = fromIni({ profile: 'tangocrypto' });
-		}
-		this.ebClient = new EventBridgeClient(config);
-		this.table = this.configService.get<string>('DYNAMO_DB_ACCOUNT_TABLE_NAME');
 
 		this.businessAddress = this.configService.get<string>('BUSINESS_ADDRESS');
 		this.policyId = this.configService.get<string>('BUSINESS_POLICY_ID');
@@ -133,58 +122,13 @@ export class TransactionsService {
 	}
 
 	async submit(userId: string, cborHex: string): Promise<string> {
+		
 		try {
 			// get tx content
 			const { txId, txCborHex, mintQuantity } = this.deserialize(cborHex);
 
-			//send EventBridge message
-			const eventKey = crypto.randomUUID();
-			const date = new Date();
-			const submitPayload: any = {
-				eventKey,
-				userId,
-				txId,
-				txBody: txCborHex,
-				network: this.network,
-				timestamp: date.getTime(),
-				// ttl,
-				// confirmations,
-				// eventType: 'Nft-Transaction'
-			}
-			if (mintQuantity) {
-				// submitPayload.confirmations = 0; // send to cardano-events-confirmations
-				submitPayload.eventType = 'ApiMint-Transaction';
-				submitPayload.metadata = { mint_quantity: mintQuantity };
-			}
-
-			const params = {
-				Entries: [
-					{
-						EventBusName: this.eventBusName,
-						Source: 'tango.cardano-api',
-						DetailType: 'tx-submit',
-						Time: date,
-						Detail: JSON.stringify({
-							result: 'submit',
-							detailItem: {
-								eventKey: eventKey,
-								network: this.network,
-								data: submitPayload
-							}
-						})
-					}
-				]
-			};
-			const command = new PutEventsCommand(params);
-			await this.ebClient.send(command);
-
-			// const input: SendMessageCommandInput = {
-			// 	QueueUrl: `https://sqs.${region}.amazonaws.com/${accountId}/${queueName}`,
-			// 	MessageBody: JSON.stringify(submitPayload)
-			// };
-			// const command = new SendMessageCommand(input);
-			// await this.client.send(command);
-			return txId;
+			// TODO: send to Kafka 
+			return Promise.resolve(txId);
 		} catch (err) {
 			console.log('Submit Error:', err);
 			let errorMessage = err.isAxiosError && err.response && err.response.data ? err.response.data : err.message;

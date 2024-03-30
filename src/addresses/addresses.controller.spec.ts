@@ -13,14 +13,14 @@ describe('AddressesController', () => {
   let controller: AddressesController;
 
   const config = {
-    "DB_HOST": "host.docker.internal",
+    "DB_HOST": "db",
     "DB_PORT": 5432,
     "DB_NAME": "testnet_preprod",
-    "DB_USER": "leo",
+    "DB_USER": "db_user",
+    "DB_PWD":"0p9o8i",
     "DB_DEBUG": false,
     "AWS_REGION": "us-east-1",
     "NETWORK": "testnet",
-    "DYNAMO_DB_ACCOUNT_TABLE_NAME": "accounts-stage",
     "REDIS_HOST": "redis",
     "REDIS_PORT": 6379,
     "BUSINESS_ADDRESS": "addr_test1qpc6srdq6jjt6eetstw6t4elmypvepa6ykxcps3dvvv4fr5ca6s0m36w9nlk7ntwdhvhxeyz9u4lngn97fcv4ykjqc2sk4hrgy",

@@ -4,11 +4,7 @@ services:
     build:
       context: .
       target: build
-      args:
-        NPM_TOKEN: ${NPM_TOKEN}
     command: npm run start:dev
-    environment:
-      NPM_TOKEN: ${NPM_TOKEN}
     env_file: .env
     ports:
       - target: 3000
@@ -17,7 +13,6 @@ services:
         mode: host
     volumes:
       - .:/opt/node_app/app/
-      # - $HOME/.aws/credentials:/home/node/.aws/credentials
 
   redis:
     image: redis:6.2.6
@@ -40,10 +35,11 @@ services:
   db:
     image: postgres
     restart: always
+    env_file: .env
     environment:
-      - POSTGRES_USER=db_user
-      - POSTGRES_PASSWORD=0p9o8i
-      - POSTGRES_DB=testnet_preprod
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PWD}
+      - POSTGRES_DB=${DB_NAME}
     ports:
       - '5432:5432'
     volumes: 
