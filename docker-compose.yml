@@ -13,7 +13,14 @@ services:
         mode: host
     volumes:
       - .:/opt/node_app/app/
-
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+         condition: service_healthy
+      scylladb:
+        condition: service_healthy
+        
   redis:
     image: redis:6.2.6
     command: redis-server
@@ -22,6 +29,11 @@ services:
         published: 6377
         protocol: tcp
         mode: host
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
 
   scylladb:
     image: scylladb/scylla
@@ -31,6 +43,11 @@ services:
       - --alternator-write-isolation always
     volumes:
       - /var/lib/scylla:/var/lib/scylla
+    healthcheck:
+        test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
+        interval: 10s
+        timeout: 5s
+        retries: 10
 
   db:
     image: postgres
@@ -46,6 +63,12 @@ services:
       - db:/var/lib/postgresql/data
       - ./db/create_role.sql:/docker-entrypoint-initdb.d/create_role.sql
       - ./db/init.sql:/docker-entrypoint-initdb.d/testnet-02-16-2023.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
 volumes:
   db:
     driver: local
