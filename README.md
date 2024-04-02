@@ -46,15 +46,15 @@ SCYLLA_KEYSPACE="cardanodb"
 SCYLLA_LOCAL_DATA_CENTER="datacenter1"
 ```
 
-#### Run scylladb container using a local storage for better performance
+#### Run Scylladb container using a local storage for better performance
 
-1. Add volume dir (local machine):
+1. Add volume directories in the local machine:
 
 ```bash
 sudo mkdir -p /var/lib/scylla/data /var/lib/scylla/commitlog /var/lib/scylla/hints /var/lib/scylla/view_hints
 ```
 
-2. Add permission
+2. Add filesystem permissions
 
 ```bash
 sudo chmod -R 777 /var/lib/scylla
@@ -90,18 +90,20 @@ docker exec -it scylladb nodetool clearsnapshot cardanodb
 ```
 
 
-## Running the app
+## Running the app using Docker
 
 ```bash
 docker compose up cardano-api
 ```
 
 ### Using the API
-Once you have the api running and `redis`, `scylladb` and `postgres` containers running and setted up as well everything well be ready to start using the endpoints.
-Endpoints has this structure (e.g `curl`):
+
+Once the API is up and running, and the Redis, Scylladb, and Postgres containers are also running and configured, everything should be ready to start using the endpoints.
+
+The API endpoints have the following structure (e.g `curl`):
 
 ```
-curl --location 'http://localhost:3000/{{account-id}}/addresses/addr_test1qp096kfuh3lzgjr6suz9w89lgwee9kwu765cmpjmzylckywdlts73fm59h9svf05xnxctt2fhslzqffdsfhl2hyg49asd4lwnt/utxos?size=50' \
+curl --location 'http://host:3000/{{account-id}}/addresses/addr_test1qp096kfuh3lzgjr6suz9w89lgwee9kwu765cmpjmzylckywdlts73fm59h9svf05xnxctt2fhslzqffdsfhl2hyg49asd4lwnt/utxos?size=50' \
 --header 'x-api-key: {{x-api-key}}'
 ```
 Where `account-id` is corresponding to the app_id on table `applications` and `x-api-key` is your `user_id` on table `subscriptions` (both tables on `scylladb`, which was populated above when setting up syclladb).
