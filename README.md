@@ -90,20 +90,21 @@ docker exec -it scylladb nodetool clearsnapshot cardanodb
 ```
 
 
-## Running the app using Docker
+## Running the API using Docker
+To start the Cardano API run the following command:
 
 ```bash
 docker compose up cardano-api
 ```
 
-### Using the API
+### Testing the API
 
 Once the API is up and running, and the Redis, Scylladb, and Postgres containers are also running and configured, everything should be ready to start using the endpoints.
 
 The API endpoints have the following structure (e.g `curl`):
 
 ```
-curl --location 'http://host:3000/{{account-id}}/addresses/addr_test1qp096kfuh3lzgjr6suz9w89lgwee9kwu765cmpjmzylckywdlts73fm59h9svf05xnxctt2fhslzqffdsfhl2hyg49asd4lwnt/utxos?size=50' \
+curl --location 'http://{{host}}:3000/{{account-id}}/addresses/addr_test1qp096kfuh3lzgjr6suz9w89lgwee9kwu765cmpjmzylckywdlts73fm59h9svf05xnxctt2fhslzqffdsfhl2hyg49asd4lwnt/utxos?size=50' \
 --header 'x-api-key: {{x-api-key}}'
 ```
 Where `account-id` is corresponding to the app_id on table `applications` and `x-api-key` is your `user_id` on table `subscriptions` (both tables on `scylladb`, which was populated above when setting up syclladb).
