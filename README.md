@@ -10,14 +10,14 @@ $ npm install
 ```
 
 ## Setting up
-First you need to add a `.env` file for your lcoa environment. The structure looks like this:
+Create a new `.env` in the root directory of the project. For example:
 
 ```
 DB_HOST=db
 DB_PORT=5432
 DB_NAME=testnet_preprod
 DB_USER=db_user
-DB_PWD=0p9o8i
+DB_PWD=db_password
 DB_DEBUG=false
 NETWORK=testnet
 REDIS_HOST=redis
@@ -28,7 +28,9 @@ SCYLLA_LOCAL_DATA_CENTER="datacenter1"
 THROTTLE_LIMIT=10
 THROTTLE_INTERVAL=1000
 ```
-For development purpose you can just use the same data we're providing here for the sake of simplicity, they are all thinking to connect with the correspending services (`postgres`, `redis` and `scylladb`) the API depends on.
+During development, you can utilize the provided data for simplicity. The API utilizes PostgreSQL for Cardano data, Redis for rate limiting, and ScyllaDB for accounts and authentication.
+
+<iframe width="768" height="432" src="https://miro.com/app/live-embed/o9J_l8e_TIY=/?moveToViewport=-398,-497,957,757&embedId=809824949313" frameborder="0" scrolling="no" allow="fullscreen; clipboard-read; clipboard-write" allowfullscreen></iframe>
 
 By default we'll working with testnet so `NETWORK=testnet`. You can switch to mainnet as well, just make sure the postgres db is using mainnet data as well. `THROTTLE_LIMIT` amd `THROTTLE_INTERVAL` are just default values for rate limit in case user doesn't specified it.
 
