@@ -1,16 +1,10 @@
 
-## Description
+## Tangocrypto Cardano API
 
-Tangocrypto Cardano API
+The Tangocrypto API serves as a backend solution built in NestJS, enabling developers to seamlessly interact with the Cardano network. With just a few simple commands, users can effortlessly deploy all essential components, laying the foundation for developing Cardano-powered applications.
 
-## Installation
-
-```bash
-$ npm install
-```
-
-## Setting up
-Create a new `.env` in the root directory of the project. For example:
+## Getting Started
+Create a new `.env` in the base directory of the project `cardano-api/.env`. For example:
 
 ```
 DB_HOST=db
@@ -28,6 +22,13 @@ SCYLLA_LOCAL_DATA_CENTER="datacenter1"
 THROTTLE_LIMIT=10
 THROTTLE_INTERVAL=1000
 ```
+## Installation
+To install node dependencies:
+
+```bash
+$ npm install
+```
+
 During development, you can utilize the provided data for simplicity. The API utilizes PostgreSQL for Cardano data, Redis for rate limiting, and ScyllaDB for accounts and authentication.
 
 ![Cardano-API](cardano-api.jpg)
