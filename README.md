@@ -3,6 +3,13 @@
 
 The Tangocrypto API serves as a backend solution built in NestJS, enabling developers to seamlessly interact with the Cardano network. With just a few simple commands, users can effortlessly deploy all essential components, laying the foundation for developing Cardano-powered applications.
 
+## System Requirements
+The system requirements for cardano-db-sync (with both db-sync and the node running on the same machine are:
+- Any major Linux distribution (such as Debian, Ubuntu, RHEL, CentOS, Arch, etc.).
+- At least 16 gigabytes of RAM for testing and 32 GB or more for production. 
+- A minimum of 4 CPU cores.
+- 320 gigabytes or more of disk storage, preferably SSDs.
+
 ## Getting Started
 Create a new `.env` in the base directory of the project `cardano-api/.env`. For example:
 
