@@ -5,7 +5,7 @@ The Tangocrypto API serves as a backend solution built in NestJS, enabling devel
 
 ## System Requirements
 The system requirements for cardano-db-sync (with both db-sync and the node running on the same machine are:
-- Any major Linux distribution (such as Debian, Ubuntu, RHEL, CentOS, Arch, etc.) or macOS (running on x86).
+- Any major Linux distribution (such as Debian, Ubuntu, RHEL, CentOS, Arch, etc.) or macOS.
 - At least 16 GB of RAM for testing and 32 GB or more for production. 
 - A minimum of 4 CPU cores.
 - 320 gigabytes or more of disk storage, preferably SSDs.
