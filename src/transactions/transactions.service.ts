@@ -39,7 +39,6 @@ export class TransactionsService {
 	policyScriptHash: ScriptHash;
 	assetName: AssetName;
 	network: string;
-	eventBusName: string;
 	ogmiosPort: number;
 
 	constructor(
@@ -50,14 +49,7 @@ export class TransactionsService {
 		@InjectMapper('pojo-mapper') private mapper: Mapper
 	) {
 
-		this.businessAddress = this.configService.get<string>('BUSINESS_ADDRESS');
-		this.policyId = this.configService.get<string>('BUSINESS_POLICY_ID');
-		this.policyScript = Seed.buildPolicyScript(JSON.parse(this.configService.get<string>('BUSINESS_POLICY_SCRIPT')), 0);
-		this.scriptKeys = JSON.parse(this.configService.get<string>('BUSINESS_POLICY_SCRIPT_KEYS')).map((key: string) => Seed.getPrivateKey(key)) as PrivateKey[];
-		this.policyScriptHash = Seed.getScriptHash(this.policyScript.root);
-		this.assetName = AssetName.new(Buffer.from(this.configService.get<string>('BUSINESS_TOKEN_NAME')));
 		this.network = this.configService.get<string>('NETWORK') || 'mainnet';
-		this.eventBusName = this.configService.get<string>('SUBMIT_EVENTBUS_NAME');
 		this.ogmiosPort = this.configService.get<number>('OGMIOS_PORT') || 3337;
 
 	}
