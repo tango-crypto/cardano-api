@@ -112,7 +112,9 @@ The API endpoints have the following structure (e.g `curl`):
 
 ```
 curl --location 'http://localhost:3000/6e2ab6cc28d943f48a84d92ad9b5392d/blocks/latest'  --header 'x-api-key: 8120536a5efc478b92809f8f1987a76e' 
-
+```
+Returns
+```
 {
   "hash": "9c4b49c8a49b8031aeb03e3a47049a0bad3b49e376aeb3ffb5f61260b9f5e4af",
   "epoch_no": 67,
