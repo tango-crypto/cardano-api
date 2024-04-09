@@ -111,8 +111,27 @@ Once the API is up and running, and the Redis, Scylladb, and Postgres containers
 The API endpoints have the following structure (e.g `curl`):
 
 ```
-curl --location 'http://{{host}}:3000/{{account-id}}/addresses/addr_test1qp096kfuh3lzgjr6suz9w89lgwee9kwu765cmpjmzylckywdlts73fm59h9svf05xnxctt2fhslzqffdsfhl2hyg49asd4lwnt/utxos?size=50' \
---header 'x-api-key: {{x-api-key}}'
+curl --location 'http://localhost:3000/6e2ab6cc28d943f48a84d92ad9b5392d/blocks/latest'  --header 'x-api-key: 8120536a5efc478b92809f8f1987a76e' 
+
+{
+  "hash": "9c4b49c8a49b8031aeb03e3a47049a0bad3b49e376aeb3ffb5f61260b9f5e4af",
+  "epoch_no": 67,
+  "slot_no": 27689137,
+  "epoch_slot_no": 386737,
+  "block_no": 907742,
+  "previous_block": 907741,
+  "slot_leader": "pool1n84mel6x3e8sp0jjgmepme0zmv8gkw8chs98sqwxtruvkhhcsg8",
+  "out_sum": 10146206,
+  "fees": 171661,
+  "confirmations": 1,
+  "size": 238,
+  "time": "2023-05-06T11:25:37.000Z",
+  "tx_count": 1,
+  "vrf_key": "vrf_vk126lnp0mw7nnpvhahfneffrk530lseu677pj7d3lg6xg8kj0vcgwslmu09l",
+  "op_cert": "1f07eefb8caafcf96b304fb59d20d7ccba34e0ed97f72503cff281e6a4e911aa"
+}
+
+
 ```
 Where `account-id` is corresponding to the app_id on table `applications` and `x-api-key` is your `user_id` on table `subscriptions` (both tables on `scylladb`, which was populated above when setting up syclladb).
 
