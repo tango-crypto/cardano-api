@@ -16,11 +16,11 @@ Create a new `.env` in the base directory of the project `cardano-api/.env`. For
 ```
 DB_HOST=db
 DB_PORT=5432
-DB_NAME=testnet_preprod
-DB_USER=db_user
+DB_NAME=cexplorer
+DB_USER=postgres
 DB_PWD=db_password
 DB_DEBUG=false
-NETWORK=testnet
+NETWORK=preprod
 REDIS_HOST=redis
 REDIS_PORT=6379
 SCYLLA_CONTACT_POINTS=["scylladb"]
