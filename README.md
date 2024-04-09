@@ -130,8 +130,6 @@ curl --location 'http://localhost:3000/6e2ab6cc28d943f48a84d92ad9b5392d/blocks/l
   "vrf_key": "vrf_vk126lnp0mw7nnpvhahfneffrk530lseu677pj7d3lg6xg8kj0vcgwslmu09l",
   "op_cert": "1f07eefb8caafcf96b304fb59d20d7ccba34e0ed97f72503cff281e6a4e911aa"
 }
-
-
 ```
 Where `account-id` is corresponding to the app_id on table `applications` and `x-api-key` is your `user_id` on table `subscriptions` (both tables on `scylladb`, which was populated above when setting up syclladb).
 
