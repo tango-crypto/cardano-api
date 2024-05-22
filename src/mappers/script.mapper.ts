@@ -29,7 +29,7 @@ export class ScriptProfile extends AutomapperProfile {
         forMember(dest => dest.hash, mapDefer<Redeemer>(src => src.hash ? fromValue(src.hash) : ignore())),
         forMember(dest => dest.index, mapFrom(src => src.index)),
         forMember(dest => dest.unit_mem, mapFrom(src => Number(src.unit_mem))),
-        forMember(dest => dest.unit_steps, mapFrom(src => Number(src.unit_steps))),
+        forMember(dest => dest.unit_cpu, mapFrom(src => Number(src.unit_steps))),
         forMember(dest => dest.fee, mapDefer<Redeemer>(src => src.fee ? fromValue(Number(src.fee)) : ignore())),
         forMember(dest => dest.purpose, mapFrom(src => src.purpose)),
         forMember(dest => dest.script_hash, mapDefer<Redeemer>(src => src.script_hash ? fromValue(src.script_hash) : ignore())),

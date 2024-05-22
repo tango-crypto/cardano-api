@@ -19,7 +19,7 @@ export interface Datum {
 
 export interface Redeemer {
     unit_mem: number;
-    unit_steps: number;
+    unit_cpu: number;
     fee?: number;
     purpose: string;
     index: number;

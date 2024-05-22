@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EpochsService } from './epochs/epochs.service';
@@ -58,7 +58,7 @@ import { ScyllaService } from './providers/scylla/scylla.service';
     AuthModule
   ],
   controllers: [AppController, EpochsController, PoolsController, AddressesController, AssetsController, BlocksController, TransactionsController, WalletsController, PoliciesController, ScriptsController, DatumsController],
-  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, EpochProfile, EpochParametersProfile, PoolProfile, PoolDelegationProfile, BlockProfile, TransactionProfile, UtxoProfile, ValueProfile, StakeProfile, AddressProfile, AssetProfile, MetadataProfile, ScriptProfile, DatumProfile, PoliciesService, MeteringService, ScriptsService, DatumsService, OgmiosService, ScyllaService],
+  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, EpochProfile, EpochParametersProfile, PoolProfile, PoolDelegationProfile, BlockProfile, TransactionProfile, UtxoProfile, ValueProfile, StakeProfile, AddressProfile, AssetProfile, MetadataProfile, ScriptProfile, DatumProfile, PoliciesService, MeteringService, ScriptsService, DatumsService, OgmiosService, ScyllaService, Logger],
 })
 export class AppModule /*implements NestModule*/ {
   // configure(consumer: MiddlewareConsumer) {

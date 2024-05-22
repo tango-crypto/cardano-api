@@ -27,7 +27,10 @@ import { AssetDto } from 'src/models/dto/Asset.dto';
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { EvaluateTxResponseDto } from './dto/evaluateTxResponse.dto'
 import { OgmiosService } from 'src/providers/ogmios/ogmios.service';
-import { OgmiosUtxoDto, TxInDto, TxOutDto } from './dto/evaluateTx.dto';
+import { OgmiosUtxoDto, Redeemer, TxInDto, TxOutDto } from './dto/evaluateTx.dto';
+import { TxIn, TxOut, Utxo as OgmiosUtxo } from '@cardano-ogmios/schema';
+import { EvaluationResult } from '@cardano-ogmios/client/dist/TxSubmission';
+
 
 @Injectable()
 export class TransactionsService {
@@ -114,15 +117,11 @@ export class TransactionsService {
 	}
 
 	async submit(userId: string, cborHex: string): Promise<string> {
-		
-		try {
-			// get tx content
-			const { txId, txCborHex, mintQuantity } = this.deserialize(cborHex);
 
-			// TODO: send to Kafka 
-			return Promise.resolve(txId);
+		try {
+			const txId = await this.ogmiosService.submitTx(cborHex);
+			return txId;
 		} catch (err) {
-			console.log('Submit Error:', err);
 			let errorMessage = err.isAxiosError && err.response && err.response.data ? err.response.data : err.message;
 			throw APIError.badRequest(errorMessage || err);
 		}
@@ -317,22 +316,101 @@ export class TransactionsService {
 
 	async evaluateTx(cborHex: string, utxos?: UtxoDto[]): Promise<EvaluateTxResponseDto> {
 		try {
-			const server = await this.meteringService.getServer(this.network, this.ogmiosPort);
-			if (!server) {
-				throw APIError.badRequest(`Cannot find a server, please try again later :(`);
-			}
-			const mapUtxos = utxos?.map<OgmiosUtxoDto>(utxo => {
-				const { hash, index, address, value, assets, datum, script } = utxo;
-				const txIn: TxInDto = { hash, index };
-				const txOut: TxOutDto = { address, value, assets, datum, script };
-				return [txIn, txOut];
-			});
-
-			return await this.ogmiosService.evaluateTx(server, cborHex, mapUtxos);
+			const mapUtxos = utxos ? this.mapUtxo(utxos) : undefined;
+			const evaluationResult = await this.ogmiosService.evaluateTx(cborHex, mapUtxos);
+			return this.mapEvaluateTx(evaluationResult);
 		} catch (err) {
-			let errorMessage = err.isAxiosError && err.response?.data?.message ? err.response.data.message : err.message;
+			console.log('ERROR', err.response.data);
+			
+			let errorMessage = err.isAxiosError && err.response?.data?.error ? err.response.data.error.data.reason : err.message;
 			throw APIError.badRequest(errorMessage || err);
 		}
+	}
+
+	convert(text: string, encoding: BufferEncoding = 'utf8', decoding: BufferEncoding = 'hex') {
+		try {
+			return Buffer.from(text, encoding).toString(decoding);
+		} catch (err) {
+			return text;
+		}
+	}
+	
+	plutusTypeKey(type: string): string {
+		return type == 'plutusV2' ? 'plutus:v2' : 'plutus:v1';
+	}
+	
+	nativeScript(json: any): any {
+		return this.innerNativeScript(json);
+	}
+	
+	innerNativeScript(script: any): any {
+		switch (script.type) {
+			case 'sig':
+				return { clause: "signature", from: script.keyHash };
+			case 'any':
+				return { clause: "any", from: script.scripts.map((s: any) => this.innerNativeScript(s)) }
+			case 'all':
+				return { clause: "all", from: script.scripts.map((s: any) => this.innerNativeScript(s)) }
+			case 'atLeast':
+				return { clause: "some", atLeast: script.require, from: script.scripts.map((s: any) => this.innerNativeScript(s)) }
+			case 'before':
+				return { clause: "before", slot: script.slot }
+			case 'after':
+				return { clause: "after", slot: script.slot }
+			default:
+				return null;
+		}
+	}
+
+	mapUtxo(data: UtxoDto[]): any {
+		return data.map(({ hash, index, address, value, assets, datum, script }) => {
+			const result: any = {
+				transaction: {id: hash},
+				index: index,
+				address: address,
+				value: {
+					ada: {
+						lovelace: value
+					}
+				}
+			}
+			if (assets) {
+				result.value = { ...result.value, ...assets.reduce((dict, asset) => {
+					if (!dict[asset.policy_id]) {
+						dict[asset.policy_id] = {};
+					}
+					const key = this.convert(asset.asset_name);
+					dict[asset.policy_id][key] = (dict[asset.policy_id][key] || 0) + Number(asset.quantity);
+					return dict;
+				}, {}) }
+			}
+			if (datum) {
+				result.datumHash = datum.hash;
+				result.datum = datum.value || datum.value_raw;
+			}
+			if (script) {
+				
+				const scriptType = script.type;
+				result.script = scriptType == 'timelock' ? {
+					language: "native",
+					json: this.nativeScript(script.json),
+					cbor: script.code
+				} : { [this.plutusTypeKey(scriptType)]: script.code };
+			}
+			return result;
+		})
+	}
+
+	mapEvaluateTx(evaluation: any[]): EvaluateTxResponseDto {
+		return { redeemers: evaluation.map(({validator, budget}) => {
+			const redeemer: Redeemer = {
+				purpose: validator.purpose,
+				index: validator.index,
+				unit_mem: budget.memory,
+				unit_cpu: budget.cpu
+			}
+			return redeemer;
+		}) }
 	}
 
 	deserialize(cborHex: string): { txId: string, txCborHex: string, mintQuantity: number } {
