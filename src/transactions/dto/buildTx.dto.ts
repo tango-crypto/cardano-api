@@ -7,6 +7,7 @@ import { Payment } from "src/utils/models/payment.model";
 
 export interface BuildTxDto {
     inputs: CoinSelectionInputDto[];
+    signing_keys: string[];
     outputs?: CoinSelectionOutputDto[];
     burnouts?: { scripts?: any[], keys?: string[], assets?: Asset[]};
     recipients?: { [key: string]: {  policy_id: string,  asset_name: string, quantity: number, metadata?: any}[] };

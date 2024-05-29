@@ -34,13 +34,13 @@ import { EvaluationResult } from '@cardano-ogmios/client/dist/TxSubmission';
 
 @Injectable()
 export class TransactionsService {
+	assetName: AssetName;
 	businessAddress: string;
 	policyId: string;
 	policyScript: Script;
 	policyScriptKey: string;
 	scriptKeys: PrivateKey[];
 	policyScriptHash: ScriptHash;
-	assetName: AssetName;
 	network: string;
 	ogmiosPort: number;
 
@@ -54,7 +54,12 @@ export class TransactionsService {
 
 		this.network = this.configService.get<string>('NETWORK') || 'mainnet';
 		this.ogmiosPort = this.configService.get<number>('OGMIOS_PORT') || 3337;
-
+		this.assetName = AssetName.new(Buffer.from(this.configService.get<string>('BUSINESS_TOKEN_NAME')));
+		this.businessAddress = this.configService.get<string>("BUSINESS_ADDRESS");
+		this.policyId = this.configService.get<string>("BUSINESS_POLICY_ID");
+		this.policyScript = Seed.buildPolicyScript(JSON.parse(this.configService.get<string>('BUSINESS_POLICY_SCRIPT')), 0);
+		this.scriptKeys = JSON.parse(this.configService.get<string>('BUSINESS_POLICY_SCRIPT_KEYS')).map((key: string) => Seed.getPrivateKey(key)) as PrivateKey[];
+		this.policyScriptHash = Seed.getScriptHash(this.policyScript.root);
 	}
 
 	async get(txHash: string): Promise<TransactionDto> {
@@ -117,9 +122,9 @@ export class TransactionsService {
 	}
 
 	async submit(userId: string, cborHex: string): Promise<string> {
-
 		try {
-			const txId = await this.ogmiosService.submitTx(cborHex);
+			const { txCborHex, mintQuantity } = this.deserialize(cborHex);
+			const txId = await this.ogmiosService.submitTx(txCborHex);
 			return txId;
 		} catch (err) {
 			let errorMessage = err.isAxiosError && err.response && err.response.data ? err.response.data : err.message;
@@ -127,11 +132,11 @@ export class TransactionsService {
 		}
 	}
 
-	async buildTx(accountId: string, { inputs, outputs, burnouts, recipients, minting_keys, minting_script, change_address }: BuildTxDto): Promise<{ tx: string, tx_id: string }> {
+	async buildTx(accountId: string, { inputs, outputs, burnouts, recipients, signing_keys, minting_keys, minting_script, change_address }: BuildTxDto): Promise<{ tx: string, tx_id: string }> {
 		const config = this.configService.get<string>('NETWORK') != 'mainnet' ? Testnet : Mainnet;
 		const assets: Asset[] = [];
 		const scripts: NativeScript[] = [];
-		const signingKeys: PrivateKey[] = [];
+		const signingKeys: PrivateKey[] = signing_keys.map(key => Seed.getPrivateKey(key));
 		const coinSelection: CoinSelection = {
 			inputs: inputs.map(i => ({
 				id: i.hash,
@@ -264,6 +269,7 @@ export class TransactionsService {
 
 			// add comission
 			const { fee: comission } = await this.meteringService.getNftFee(accountId);
+			console.log('Comission:', comission);
 			if (comission) {
 				const trackingAsset = {
 					policy_id: this.policyId,
