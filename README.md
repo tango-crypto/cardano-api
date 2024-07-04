@@ -1013,3 +1013,273 @@ curl --location --request POST 'https://cardano-testnet.tangocrypto.com/<app-id>
     ]
 }'
 ```
+
+## Block Webhook
+Allowed values for field and value:
+
+### Field Descriptions
+
+- **tx_count**: Amount of transactions in a block.
+  - **Operators**: `=`, `>`, `<`, `>=`, `<=`
+  
+- **out_sum**: Block total output sum in Lovelace.
+  - **Operators**: `=`, `>`, `<`, `>=`, `<=`
+  
+- **fees**: Block total fees in Lovelace.
+  - **Operators**: `=`, `>`, `<`, `>=`, `<=`
+  
+- **block_no**: Block number.
+  - **Operators**: `=`, `>`, `<`, `>=`, `<=`
+  
+- **pool.ticker**: Pool ticker.
+  - **Operator**: `=`
+  
+- **pool.pool_id**: Pool ID.
+  - **Operator**: `=`
+  
+- **size**: Transaction size.
+  - **Operators**: `=`, `>`, `<`, `>=`, `<=`
+
+### Rules Examples
+
+```json
+[
+  {"field": "tx_count", "value": 10, "operator": ">"},
+  {"field": "out_sum", "value": 100000, "operator": ">"}, 
+  {"field": "pool.ticker", "value": "TANGO", "operator": "="},
+  {"field": "pool.pool_id", "value": "pool1weu4vlg9t8knma7t2j5y3w2k3vzdr9mtnynd2jhfalwn76nwh48", "operator": "="},
+  {"field": "fees", "value": 5000000, "operator": "<"},
+  {"field": "block_no", "value": 24345, "operator": ">"},
+  {"field": "size", "value": 36864, "operator": ">"}
+]
+```
+
+### Request Examples
+Blocks with 3 or more transactions
+```
+curl --location --request POST 'https://cardano-testnet.tangocrypto.com/<app-id>/v1/webhooks' \
+--header 'content-type: application/json' \
+--header 'x-api-key: <x-api-key>' \
+--data-raw '{
+    "type": "block",
+    "name": "Block webhook",
+    "network": "testnet",
+    "description": "Notify on blocks with 3 or more transactions",
+    "callback_url": "https://webhook.site/74e4201b-d651-4971-8b74-ebd6b10fd967",
+    "rules": [
+        {
+            "field": "tx_count",
+            "operator": ">=",
+            "value": "3"
+        }
+    ]
+}'
+```
+
+## Transaction
+Allowed values for field and value:
+
+### Field Descriptions
+
+- **out_sum**: Transaction total output sum in Lovelace.
+  - **Operators**: `=`, `>`, `<`, `>=`, `<=`
+  
+- **fee**: Transaction total fees in Lovelace (1 Ada is 1,000,000 Lovelace).
+  - **Operators**: `=`, `>`, `<`, `>=`, `<=`
+  
+- **smart_contract_count**: Smart contracts count in the transaction.
+  - **Operators**: `=`, `>`, `<`, `>=`, `<=`
+
+### Rules Examples
+
+```json
+[
+    {"field": "out_sum", "value": 100000000, "operator": ">"}, 
+    {"field": "fee", "value": 5000000, "operator": "<"}
+]
+```
+
+### Request Examples
+Transactions with more than 10 Million Ada (Whale alert):
+```
+curl --location --request POST 'https://cardano-testnet.tangocrypto.com/<app-id>/v1/webhooks' \
+--header 'content-type: application/json' \
+--header 'x-api-key: <x-api-key>' \
+--data-raw '{
+    "type": "transaction",
+    "name": "Transaction webhook",
+    "network": "testnet",
+    "description": "Transactions with more than 10M Ada ",
+    "callback_url": "https://webhook.site/74e4201b-d651-4971-8b74-ebd6b10fd967",
+    "rules": [
+        {
+            "field": "out_sum",
+            "operator": ">=",
+            "value": "10000000000000"
+        }
+    ]
+}'
+```
+## Epoch
+Allowed values for field and value:
+
+### Field Descriptions
+
+- **no**: Epoch number.
+  - **Operators**: `=`, `>`, `<`, `>=`, `<=`
+
+### Rules Examples
+
+```json
+[
+    {"field": "epoch_no", "value": 380, "operator": "="}
+]
+```
+To get notified at the beginning of every epoch don't use rules.  
+```
+curl --location --request POST 'https://cardano-testnet.tangocrypto.com/<app-id>/v1/webhooks' \
+--header 'content-type: application/json' \
+--header 'x-api-key: <x-api-key>' \
+--data-raw '{
+    "type": "epoch",
+    "name": "Epoch webhook",
+    "network": "testnet",
+    "description": "Notify on every epoch",
+    "callback_url": "https://webhook.site/2bb93279-a979-4233-9a08-3b330c417f1e",
+}'
+```
+## Delegation
+Allowed values for field and value:
+
+### Field Descriptions
+
+- **pool.pool_id**: Pool ID.
+  - **Operator**: `=`
+  
+- **pool.ticker**: Pool ticker.
+  - **Operator**: `=`
+
+### Rules Examples
+
+```json
+[
+    {"field": "pool.pool_id", "value": "pool133h6zcgqalxr6f0lvz6h2lajsyhmzjw4eae62n098tx6g47ypgk", "operator": "="}
+]
+```
+Example
+```
+curl --location --request POST 'https://cardano-testnet.tangocrypto.com/<app-id>/v1/webhooks' \
+--header 'content-type: application/json' \
+--header 'x-api-key: <x-api-key>' \
+--data-raw '{
+   "type": "delegation",
+    "name": "Delegation webhook",
+    "network": "testnet",
+    "description": "Notify when TANGO pool receives a new delegation",
+    "callback_url": "https://webhook.site/74e4201b-d651-4971-8b74-ebd6b10fd967",
+    "rules": [
+        {
+            "field": "pool.pool_id",
+            "operator": "=",
+            "value": "pool133h6zcgqalxr6f0lvz6h2lajsyhizjw4eae62n098tx6g47ypgk"
+        } 
+    ]
+}'
+```
+## Asset Activity
+The Asset Activity webhook allows you to track all the tokens with the labels 721 (NFT) and 20 (FT). This provides your app with real-time state changes when an asset is minted/burned on the blockchain or is transferred between addresses.
+
+### Allowed values for field and value:
+
+#### Field Descriptions
+
+- **nft_minted**: Boolean indicating if an NFT is minted.
+  - **Operators**: `=`, `!=`
+  
+- **ft_minted**: Boolean indicating if an FT is minted.
+  - **Operators**: `=`, `!=`
+  
+- **policy_id**: The policy id identifies Cardano assets. This id is unique and attached permanently to the asset, and several assets can have the same policy id.
+  - **Operator**: `=`
+  
+- **asset_name**: Asset name in UTF-8.
+  - **Operator**: `=`
+  
+- **fingerprint**: Asset fingerprint (CIP14).
+  - **Operator**: `=`
+  
+- **quantity**: Quantity of a certain native asset.
+  - **Operators**: `=`, `>`, `<`, `>=`, `<=`
+
+### Examples
+
+```json
+[
+    {"field": "nft_minted", "value": true, "operator": "="}, 
+    {"field": "ft_minted", "value": true, "operator": "="},
+    {"field": "policy_id", "value": "23b38042ebbe12754d51b29216474a159fe045183e6a31763fd2014b", "operator": "="},
+    {"field": "asset_name", "value": "Husky", "operator": "="},
+    {"field": "fingerprint", "value": "asset1ysac0ajdvfaldejkw5nt77yj0uwtq8aman3l2n", "operator": "="},
+    {"field": "quantity", "value": 1, "operator": "="}
+]
+```
+### Request Examples
+Receive notifications when an asset with a certain policy id is minted:
+```
+curl --location --request POST 'https://cardano-testnet/<app-id>/v1/webhooks' \
+--header 'content-type: application/json' \
+--header 'x-api-key: <x-api-key>' \
+--data-raw '{
+    "type": "asset",
+    "name": "webhook nft",
+    "network": "testnet",
+    "description": "testing nft webhooks",
+    "callback_url": "https://webhook.site/0ee2d926-6e76-4658-8f3b-e2a427ef3d1d",
+    "rules": [
+        {
+            "field": "nft_minted",
+            "operator": "=",
+            "value": true
+        },
+        {
+            "field": "policy_id",
+            "operator": "=",
+            "value": "23b38042ebbe12754d51b29216474a159fe045183e6a31763fd2014b"
+        }
+    ]
+}'
+```
+Receive notifications when any NFT is minted:
+```
+curl --location --request POST 'https://cardano-testnet/<app-id>/v1/webhooks' \
+--header 'content-type: application/json' \
+--header 'x-api-key: <x-api-key>' \
+--data-raw '{
+    "type": "asset",
+    "name": "webhook nft",
+    "network": "testnet",
+    "description": "testing nft webhooks",
+    "callback_url": "https://webhook.site/0ee2d926-6e76-4658-8f3b-e2a427ef3d1d",
+    "rules": [
+        {
+            "field": "nft_minted",
+            "operator": "=",
+            "value": true
+        }
+    ]
+}'
+```
+All the transactions with assets
+```
+curl --location --request POST 'https://cardano-testnet/<app-id>/v1/webhooks' \
+--header 'content-type: application/json' \
+--header 'x-api-key: <x-api-key>' \
+--data-raw '{
+    "type": "asset",
+    "name": "webhook nft",
+    "network": "testnet",
+    "description": "testing nft webhooks",
+    "callback_url": "https://webhook.site/0ee2d926-6e76-4658-8f3b-e2a427ef3d1d"
+}'
+```
+
