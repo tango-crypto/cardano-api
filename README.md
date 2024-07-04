@@ -507,7 +507,7 @@ Tangocrypto offers 4 different types of webhooks:
 
 ### How it works
 The diagram illustrates the flow of how the cardano webhooks system works, integrating multiple components to handle blockchain events and deliver webhook notifications. Here’s a detailed explanation:
-![Webhooks](webhooks.png)
+![Webhooks](webhooks_architecture.png)
 
 1.	**Cardano-Node**:
     Listens to the blockchain for events.
