@@ -518,17 +518,18 @@ The diagram illustrates the flow of how the cardano webhooks system works, integ
   	- Tracks and resumes events using Redis to ensure no events are missed, even if cardano-events is restarted.
 5.	**Kafka**:
    	- Acts as the messaging system where Cardano-events writes events and Cardano-webhooks reads events. Kafka ensures message order at the partition level, making it reliable for this use case. Additionally, events to be sent per user are partitioned by webhooks, guaranteeing that events are received in the correct order. There is a need for a tool to visualize the Kafka server to monitor topics, as there have been instances of old events being received, indicating they are still present in Kafka.
-    	- Guarantees the order of messages at the partition level, ensuring events are processed in sequence.
+    - Guarantees the order of messages at the partition level, ensuring events are processed in sequence.
 7.	**Redis**:
-   	- Used as a buffer to track the read position of events, which helps in implementing recovery and rollbacks.
+	- Used as a buffer to track the read position of events, which helps in implementing recovery and rollbacks.
 9.	**Cardano-webhooks**:
-    	- Reads events from Kafka, matches them with registered webhooks stored in ScyllaDB, and posts the matched events to the specified callback URLs. The `cardano-webhooks` service does not send posts directly but instead places messages into Kafka, which are then read and dispatched. Redis is used to maintain a buffer that records the last read position, facilitating recovery and rollbacks. If `cardano-events` is turned off, events are not lost because Redis keeps track of where it left off. This setup allows for a dedicated dispatch pod, which can be a separate instance from `cardano-webhooks`.
+  	- Reads events from Kafka, matches them with registered webhooks stored in ScyllaDB, and posts the matched events to the specified callback URLs.
+   	- The `cardano-webhooks` service does not send posts directly but instead places messages into Kafka, which are then read and dispatched. Redis is used to maintain a buffer that records the last read position, facilitating recovery and rollbacks. If `cardano-events` is turned off, events are not lost because Redis keeps track of where it left off. This setup allows for a dedicated dispatch pod, which can be a separate instance from `cardano-webhooks`.
 11.	**ScyllaDB**:
-    	-  Stores webhook registrations and is queried by Cardano-webhooks to match events with the appropriate webhooks.
+    - Stores webhook registrations and is queried by Cardano-webhooks to match events with the appropriate webhooks.
 13.	**Cardano-API**:
-    	- Allows users to create and register webhooks, which are then stored in ScyllaDB.
+    - Allows users to create and register webhooks, which are then stored in ScyllaDB.
 15.	**User Server**:
-    	- Receives the POST requests from Cardano-webhooks with the event data.
+	- Receives the POST requests from Cardano-webhooks with the event and executes custom logic based on the data received. 
 
 This setup ensures that blockchain events are reliably captured, processed, and delivered to user-defined endpoints with the ability to recover from interruptions seamlessly.
 
