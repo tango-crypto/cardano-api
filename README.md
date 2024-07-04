@@ -480,7 +480,7 @@ Access all the events that matter to your users, such as successful transactions
 
 With webhooks, you can seamlessly integrate notifications. Stay informed about all the blockchain events important to your users, including successful transactions, payments, pool-minted blocks, and new delegations.
 
-Features
+Features:
 - **Payments and transactions**: Allows sending notifications to users to know when their deposits, purchases, in-game actions or other on-chain activity has officially occurred.
 
 - **Address Activity Webhooks**: Let your users know when transaction activity occurs on their address. No more refreshing the page or having to use the dust to identify a payment.
