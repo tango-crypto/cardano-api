@@ -517,7 +517,7 @@ The diagram illustrates the flow of how the cardano webhooks system works, integ
    	- Writes the events fetched from Ogmios into Kafka under the topic webhook-consumer.
   	- Tracks and resumes events using Redis to ensure no events are missed, even if cardano-events is restarted.
 5.	**Kafka**:
-   	- Acts as the messaging system where Cardano-events writes events and Cardano-webhooks reads events. Kafka ensures message order at the partition level, making it reliable for this use case. Additionally, events to be sent per user are partitioned by webhooks, guaranteeing that events are received in the correct order. There is a need for a tool to visualize the Kafka server to monitor topics, as there have been instances of old events being received, indicating they are still present in Kafka.
+   	- Acts as the messaging system where Cardano-events writes events and Cardano-webhooks reads events. Kafka ensures message order at the partition level, making it reliable for this use case. Additionally, events to be sent per user are partitioned by webhooks, guaranteeing that events are received in the correct order.
     - Guarantees the order of messages at the partition level, ensuring events are processed in sequence.
 7.	**Redis**:
 	- Used as a buffer to track the read position of events, which helps in implementing recovery and rollbacks.
