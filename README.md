@@ -922,3 +922,94 @@ Allowed values for field, value, and operator:
   {"field": "value", "value": "1", "operator": "="},
   {"field": "quantity", "value": "1", "operator": "="}
 ]
+```
+
+### Request examples
+Trigger the webhook when the address receives a payment (any amount of Ada):
+```
+curl --location --request POST 'https://cardano-testnet.tangocrypto.com/<app-id>/v1/webhooks' \
+--header 'content-type: application/json' \
+--header 'x-api-key: <x-api-key>' \
+--data-raw '{
+    "type": "payment",
+    "name": "Payment webhook",
+    "network": "testnet",
+    "description": "Notify payments on the specified address",
+    "callback_url": "https://webhook.site/74e4201b-d651-4971-8b74-ebd6b10fd967",
+    "address": "addr_test1qqqv50804vhe30n25awp6f8mhy9z3rrysva2mj4c9geaqyjr5gtdwq4yajng57kje93tt3fkc5k8cvvem7vl8yql2mcsxcstnx"
+}'
+```
+Trigger the webhook when the address receives more than 5 Ada:
+```
+curl --location --request POST 'https://cardano-testnet.tangocrypto.com/<app-id>/v1/webhooks' \
+--header 'content-type: application/json' \
+--header 'x-api-key: <x-api-key>' \
+--data-raw '{
+    "type": "payment",
+    "name": "Payment webhook",
+    "network": "testnet",
+    "description": "Notify on payment with more than 5 Ada",
+    "callback_url": "https://webhook.site/74e4201b-d651-4971-8b74-ebd6b10fd967",
+    "address": "addr_test1qqqv50804vhe30n25awp6f8mhy9z3rrysva2mj4c9geaqyjr5gtdwq4yajng57kje93tt3fkc5k8cvvem7vl8yql2mcsxcstnx",
+    "rules": [
+        {
+            "field": "amount",
+            "operator": ">",
+            "value": "5"
+        }
+    ]
+}'
+```
+
+Trigger the webhook when the address receives more than 5 RBERRY tokens:
+```
+curl --location --request POST 'https://cardano-testnet.tangocrypto.com/<app-id>/v1/webhooks' \
+--header 'content-type: application/json' \
+--header 'x-api-key: <x-api-key>' \
+--data-raw '{
+    "type": "payment",
+    "name": "Payment webhook",
+    "network": "testnet",
+    "description": "Notify on payment with more than 5 RBERRY",
+    "callback_url": "https://webhook.site/74e4201b-d651-4971-8b74-ebd6b10fd967",
+    "address": "addr_test1qqqv50804vhe30n25awp6f8mhy9z3rrysva2mj4c9geaqyjr5gtdwq4yajng57kje93tt3fkc5k8cvvem7vl8yql2mcsxcstnx",
+    "rules": [
+        {
+            "field": "asset_name",
+            "operator": "=",
+            "value": "RBERRY"
+        },
+        {
+            "field": "quantity",
+            "operator": ">",
+            "value": "5"
+        }
+    ]
+}'
+```
+Trigger the webhook when the address receives more than 5 tokens with the specified policy_id :
+```
+curl --location --request POST 'https://cardano-testnet.tangocrypto.com/<app-id>/v1/webhooks' \
+--header 'content-type: application/json' \
+--header 'x-api-key: <x-api-key>' \
+--data-raw '{
+    "type": "payment",
+    "name": "Payment webhook",
+    "network": "testnet",
+    "description": "Notify on payment with more than 5 CHOCK, MINT, RBERRY, SBERRY and VANIL",
+    "callback_url": "https://webhook.site/74e4201b-d651-4971-8b74-ebd6b10fd967",
+    "address": "addr_test1qqqv50804vhe30n25awp6f8mhy9z3rrysva2mj4c9geaqyjr5gtdwq4yajng57kje93tt3fkc5k8cvvem7vl8yql2mcsxcstnx",
+    "rules": [
+        {
+            "field": "policy_id",
+            "operator": "=",
+            "value": "57fca08abbaddee36da742a839f7d83a7e1d2419f1507fcbf3916522"
+        },
+        {
+            "field": "quantity",
+            "operator": ">",
+            "value": "5"
+        }
+    ]
+}'
+```
