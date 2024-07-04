@@ -868,3 +868,57 @@ Payload example:
   "network": "testnet"
 }
 ```
+
+# How to create webhooks
+## Fine-Grained Control for the Information You Want to Receive from the Blockchain
+
+You can create rules or trigger conditions for every webhook. You can set up these rules through the Tangocrypto Dashboard or the API. Each rule is composed of a field, a value, and an operator. All conditions must be met for the webhook to be triggered. Rules are optional; depending on the number and parameters of the rules, the webhook may or may not be triggered.
+
+### Example Request
+
+```http
+POST https://cardano-testnet.tangocrypto.com/{app_id}/v1/nft/collections/{collection_id}/tokens
+```
+### Body Parameters
+
+- **Type**: Webhook type, it can be `payment` | `block` | `transaction` | `epoch` | `delegation` | `asset` | `nft_api`
+- **name**: Webhook name
+- **network**: `mainnet` | `testnet`
+- **description**: Webhook description
+- **callback_url**: The URL where your server is listening. We send a POST request to this URL with the webhook event.
+- **address**: Destination address. This field is used only in the payment webhook and is mandatory for payment webhooks.
+- **rules**: Every rule is composed of a field, a value, and an operator. All conditions must be met for the webhook to be triggered. Rules are optional; depending on the number and parameters of the rules, the webhook may or may not be triggered.
+  - **field**: Depends on the type of webhook; it can be `policy_id`, `asset_name`, `fingerprint`, `amount`, etc.
+  - **operator**: A comparison operator used to compare the value against the field.
+  - **value**: The value depends on the type of webhook.
+
+ ## Payment Webhook
+Allowed values for field, value, and operator:
+
+### Field Descriptions
+
+- **policy_id**: The policy id identifies Cardano assets. This id is unique and attached permanently to the asset, and several assets can have the same policy id.
+  - **Operator**: `=`
+  
+- **asset_name**: Asset name in UTF-8.
+  - **Operator**: `=`
+  
+- **fingerprint**: Asset fingerprint (CIP14).
+  - **Operator**: `=`
+  
+- **value**: Amount of Ada in the payment.
+  - **Operators**: `=`, `>`, `<`, `>=`, `<=`
+  
+- **quantity**: Quantity of a certain native asset.
+  - **Operators**: `=`, `>`, `<`, `>=`, `<=`
+  
+### Rules Examples
+
+```json
+[
+  {"field": "policy_id", "value": "a0028f350aaabe0545fdcb56b039bfb08e4bb4d8c4d7c3c7d481c235", "operator": "="}, 
+  {"field": "asset_name", "value": "Husky", "operator": "="},
+  {"field": "fingerprint", "value": "asset123213123123xxxxx", "operator": "="},
+  {"field": "value", "value": "1", "operator": "="},
+  {"field": "quantity", "value": "1", "operator": "="}
+]
