@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { APIError } from 'src/common/errors';
-import { ConfigService } from '@nestjs/config';
 import { Webhook } from './models/webhook.model';
 import { WebhookDto } from './dto/webhook.dto';
 import { InjectMapper } from '@automapper/nestjs';
@@ -8,45 +7,83 @@ import { Mapper } from '@automapper/types';
 import { PaginateResponse } from 'src/models/PaginateResponse';
 import { UpdateWebhookDto } from './dto/update-webhook.dto';
 import { CreateWebhookDto } from './dto/create-webhook.dto';
-import { AccountService } from 'src/providers/account/account.service';
-import * as cardanoAddresses from 'cardano-addresses';
-import { MeteringService } from 'src/providers/metering/metering.service';
 import { WebhookProvider } from 'src/providers/webhooks/webhook.provider';
+import { SubscriptionService } from 'src/providers/account/subscription.service';
+import * as cardanoAddresses from 'cardano-addresses';
+import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class WebhooksService {
-    table: string;
+  table: string;
 
-    constructor(
-        private webhookProvider: WebhookProvider,
-        @InjectMapper('pojo-mapper') private mapper: Mapper
-    ){
-    }
-
-    async findAll(accountId: string, size = 50, next?: string): Promise<PaginateResponse<WebhookDto>> {
-      const {items, state } = await this.webhookProvider.findAll(accountId, next, size);
-      const data = this.mapper.mapArray<Webhook, WebhookDto>(items, 'Webhook', 'WebhookDto');
-		return { data: data, cursor: state };
-    }
-
-    async findOne(userId: string, id: string): Promise<WebhookDto> {
-      const webhook = await this.webhookProvider.findOne(userId, id);
-      if (webhook) {
-        return this.mapper.map<Webhook, WebhookDto>(webhook, 'Webhook', 'WebhookDto');
-      } else {
-        throw APIError.notFound(`webhook for id: ${id} and userId: ${userId}`);
-      }
-    }
-
-    async update(accountId: string, id: string, updateWebhook: UpdateWebhookDto): Promise<WebhookDto> {
-      throw new Error("Not implemented");
-    }
-
-    async create(accountId: string, createWebhook: CreateWebhookDto): Promise<WebhookDto> {
-      throw new Error("Not implemented");
+  constructor(
+    private webhookProvider: WebhookProvider,
+    private subscriptioService: SubscriptionService,
+    @InjectMapper('pojo-mapper') private mapper: Mapper
+  ) {
   }
 
-  async remove(accountId: string, id: string): Promise<boolean> {
+  async findAll(accountId: string, size = 50, next?: string): Promise<PaginateResponse<WebhookDto>> {
+    const { items, state } = await this.webhookProvider.findAll(accountId, next, size);
+    const data = this.mapper.mapArray<Webhook, WebhookDto>(items, 'Webhook', 'WebhookDto');
+    return { data: data, cursor: state };
+  }
+
+  async findOne(userId: string, id: string): Promise<WebhookDto> {
+    const webhook = await this.webhookProvider.findOne(userId, id);
+    if (webhook) {
+      return this.mapper.map<Webhook, WebhookDto>(webhook, 'Webhook', 'WebhookDto');
+    } else {
+      throw APIError.notFound(`webhook for id: ${id} and userId: ${userId}`);
+    }
+  }
+
+  async update(userId: string, id: string, updateWebhook: UpdateWebhookDto): Promise<WebhookDto> {
+    const data = this.cleanData(this.mapper.map<UpdateWebhookDto, Webhook>(updateWebhook, 'UpdateWebhookDto', 'Webhook'));
+    const time = new Date();
+    const webhook = await this.webhookProvider.update(userId, id, {...data, update_date: time.toISOString()});
+    if (!webhook) {
+      throw APIError.notFound(`webhook for id: ${id} and userId: ${userId}`);
+    }
+
+    return this.findOne(userId, id);
+  }
+
+  async create(userId: string, createWebhook: CreateWebhookDto): Promise<WebhookDto> {
+    const subscription = await this.subscriptioService.findOne(userId);
+    if (!subscription) {
+      throw APIError.notFound(`Invalid user id: ${userId}`);
+    }
+
+    const data = this.cleanData(this.mapper.map<CreateWebhookDto, Webhook>(createWebhook, 'CreateWebhookDto', 'Webhook'));
+    const time = new Date();
+    const id = uuidv4().replace(/-/g, ''); 
+    const webhook = await this.webhookProvider.create(userId, id, 
+      {
+        ...data, 
+        auth_token: subscription.webhooks_auth_token, 
+        create_date: time.toISOString()
+      }
+    );
+    if (!webhook) {
+      throw APIError.notFound(`webhook for id: ${id} and userId: ${userId}`);
+    }
+
+    return this.findOne(userId, id);
+
+  }
+
+  async remove(userId: string, id: string): Promise<boolean> {
     throw new Error("Not implemented");
+  }
+
+  private cleanData(data: any): { [key: string]: any } {
+    const obj = {};
+    for (const [key, value] of Object.entries(data)) {
+      if (value != undefined) {
+        obj[key] = value;
+      }
+    }
+    return obj;
   }
 
   private async validateWebhookAddress(webhook: UpdateWebhookDto | CreateWebhookDto) {

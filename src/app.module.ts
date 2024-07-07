@@ -45,7 +45,7 @@ import { OgmiosService } from './providers/ogmios/ogmios.service';
 import { ValueProfile } from './mappers/value.mapper';
 import { AuthModule } from './auth/auth.module';
 import { ScyllaService } from './providers/scylla/scylla.service';
-import { WebhookProfile } from './mappers/webhook.mapper';
+import { WebhookProfile } from './webhooks/mappers/webhook.mapper';
 @Module({
   imports: [
     ConfigModule.forRoot(),

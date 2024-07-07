@@ -24,8 +24,8 @@ export class WebhookProvider {
     }
 
 
-    async findOne(userId: string, wbkId: string): Promise<Webhook> {
-        const result = await this.webhookMapper.find({ user_id: userId, webhook_id: wbkId });
+    async findOne(userId: string, webhookId: string): Promise<Webhook> {
+        const result = await this.webhookMapper.find({ user_id: userId, webhook_id: webhookId });
         return result.first();
     }
 
@@ -34,7 +34,17 @@ export class WebhookProvider {
         return result;
     }
 
-    async create(): Promise<void> {
+    async update(userId: string, webhookId: string, data: { [key: string]: any }): Promise<Webhook> {
+        const result = await this.webhookMapper.update({ user_id: userId, webhook_id: webhookId, ...data }, { ifExists: true });
+        return result.first();
+    }
 
+    async create(userId: string, webhookId: string, data: { [key: string]: any }): Promise<Webhook> {
+        const obj = { user_id: userId, webhook_id: webhookId, ...data };
+        const params = Object.values(obj);
+        const columns = Object.keys(obj);
+        const sql = `INSERT INTO webhooks (${columns.join(',')}) VALUES (${Array(columns.length).fill('?').join(',')}) IF NOT EXISTS`;
+        const result = await this.scyllaService.execute<Webhook>(sql, params, { prepare: true });
+        return result.items[0];
     }
 }

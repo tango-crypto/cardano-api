@@ -54,7 +54,8 @@ DROP TYPE IF EXISTS Rule;
 CREATE TYPE Rule (
     field text,
     operator text,
-    value blob,
+    operator_type text,
+    value text,
 );
 
 DROP TABLE IF EXISTS webhooks;
@@ -75,7 +76,8 @@ CREATE TABLE webhooks (
     active boolean,
     PRIMARY KEY (user_id, webhook_id)
 );
-CREATE INDEX ON webhooks (webhook_key);
+DROP INDEX IF EXISTS webhook_key_index;
+CREATE INDEX webhook_key_index ON webhooks (webhook_key);
 
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (

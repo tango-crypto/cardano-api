@@ -34,7 +34,7 @@ export class CreateWebhookDto {
     rules: RuleDto[];
 
     @AutoMap()
-    available: string | boolean;
+    available: boolean;
 
     @AutoMap()
     confirmations?: number;

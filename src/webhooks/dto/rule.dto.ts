@@ -1,6 +1,6 @@
 import { AutoMap } from "@automapper/classes";
-import { IsNotEmpty } from "class-validator";
 import { IsValidField, IsValidOperator, IsValidValue } from "../validators/rules.validator";
+import { operatorType } from "../models/rule.model";
 
 export class RuleDto {
     @AutoMap()
@@ -13,5 +13,5 @@ export class RuleDto {
 
     @AutoMap()
     @IsValidValue({message: 'invalid value'})
-    value: string
+    value: string | number | boolean;
 }
