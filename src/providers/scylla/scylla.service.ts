@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Client, mapping, auth } from 'cassandra-driver';
+import { Client, mapping, auth, ArrayOrObject, QueryOptions, types } from 'cassandra-driver';
 
 @Injectable()
 export class ScyllaService {
@@ -35,5 +35,22 @@ export class ScyllaService {
             this.createClient();
         }
         return new mapping.Mapper(this.client, mappingOptions);
+    }
+
+    async execute<T>(query: string, params: ArrayOrObject, options?: QueryOptions): Promise<{ items: T[], state: string}> {
+        const result = await this.client.execute(query, params, options);
+        const items = this.convert<T>(result.rows);
+        const state = result.pageState;
+        return {items, state}
+    }
+
+    private convert<T>(rows: types.Row[]): T[] {
+        return rows.map(row => {
+            const obj = {} as T;
+            row.keys().forEach(key => {
+                obj[key as keyof T] = row.get(key);
+            });
+            return obj;
+        });
     }
 }

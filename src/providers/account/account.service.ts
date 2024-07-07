@@ -9,7 +9,7 @@ import { Webhook } from 'src/webhooks/models/webhook.model';
 import { Application } from 'src/webhooks/models/application.model';
 import { SubscriptionService } from './subscription.service';
 import { ApplicationService } from './application.service';
-import { WebhookService } from './webhook.service';
+import { WebhookProvider } from '../webhooks/webhook.provider';
 
 @Injectable()
 export class AccountService {
@@ -17,7 +17,7 @@ export class AccountService {
     userMapper: mapping.ModelMapper<User>;
     webhookMapper: mapping.ModelMapper<Webhook>;
 
-    constructor(private subscriptionService: SubscriptionService, private applicationService: ApplicationService, private webhookService: WebhookService, private scyllaService: ScyllaService) {
+    constructor(private subscriptionService: SubscriptionService, private applicationService: ApplicationService, private webhookService: WebhookProvider, private scyllaService: ScyllaService) {
         const mappingOptions: mapping.MappingOptions = {
             models: {
                 'User': {
@@ -39,7 +39,9 @@ export class AccountService {
         const result = await this.subscriptionService.findOne(id);
         if (!result) return null;
         const applications = await this.applicationService.findAll(id);
-        const webhooks = await this.webhookService.findAll(id);
+        // TODO: use real webhooks service here
+        // const webhooks = await this.webhookService.findAll(id);
+        const webhooks = [];
         const { user_id,
             user_first_name,
             user_last_name,

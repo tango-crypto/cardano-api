@@ -30,7 +30,7 @@ export class WebhookDto {
     update_date: Date | string;
 
     @AutoMap()
-    available: string;
+    available: boolean;
 
     @AutoMap()
     confirmations?: number;

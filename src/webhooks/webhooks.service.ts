@@ -11,24 +11,30 @@ import { CreateWebhookDto } from './dto/create-webhook.dto';
 import { AccountService } from 'src/providers/account/account.service';
 import * as cardanoAddresses from 'cardano-addresses';
 import { MeteringService } from 'src/providers/metering/metering.service';
+import { WebhookProvider } from 'src/providers/webhooks/webhook.provider';
 @Injectable()
 export class WebhooksService {
     table: string;
 
     constructor(
-        private readonly configService: ConfigService,
-        private readonly accountService: AccountService,
-        private readonly meteringService: MeteringService,
-        @InjectMapper('mapper') private mapper: Mapper
+        private webhookProvider: WebhookProvider,
+        @InjectMapper('pojo-mapper') private mapper: Mapper
     ){
     }
 
-    async findAll(accountId: string, size = 50, next = ''): Promise<PaginateResponse<WebhookDto>> {
-      throw new Error("Not implemented");
+    async findAll(accountId: string, size = 50, next?: string): Promise<PaginateResponse<WebhookDto>> {
+      const {items, state } = await this.webhookProvider.findAll(accountId, next, size);
+      const data = this.mapper.mapArray<Webhook, WebhookDto>(items, 'Webhook', 'WebhookDto');
+		return { data: data, cursor: state };
     }
 
-    async findOne(accountId: string, id: string): Promise<WebhookDto> {
-      throw new Error("Not implemented");
+    async findOne(userId: string, id: string): Promise<WebhookDto> {
+      const webhook = await this.webhookProvider.findOne(userId, id);
+      if (webhook) {
+        return this.mapper.map<Webhook, WebhookDto>(webhook, 'Webhook', 'WebhookDto');
+      } else {
+        throw APIError.notFound(`webhook for id: ${id} and userId: ${userId}`);
+      }
     }
 
     async update(accountId: string, id: string, updateWebhook: UpdateWebhookDto): Promise<WebhookDto> {

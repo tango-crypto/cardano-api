@@ -6,7 +6,7 @@ import { ScyllaService } from "../scylla/scylla.service";
 import { Webhook } from "src/webhooks/models/webhook.model";
 
 @Injectable()
-export class WebhookService {
+export class WebhookProvider {
     table: string;
     webhookMapper: mapping.ModelMapper<Webhook>;
 
@@ -29,8 +29,12 @@ export class WebhookService {
         return result.first();
     }
 
-    async findAll(userId: string): Promise<Webhook[]> {
-        const result = await this.webhookMapper.find({ user_id: userId });
-        return result.toArray();
+    async findAll(userId: string, state?: string, size: number = 100): Promise<{items: Webhook[], state: string}> {
+        const result = await this.scyllaService.execute<Webhook>('SELECT * FROM webhooks', { user_id: userId }, { prepare: true, fetchSize: size, pageState: state });
+        return result;
+    }
+
+    async create(): Promise<void> {
+
     }
 }

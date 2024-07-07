@@ -7,7 +7,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ScyllaService } from 'src/providers/scylla/scylla.service';
 import { SubscriptionService } from 'src/providers/account/subscription.service';
 import { ApplicationService } from 'src/providers/account/application.service';
-import { WebhookService } from 'src/providers/account/webhook.service';
+import { WebhookProvider } from 'src/providers/webhooks/webhook.provider';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ApiThrottlerGuard } from './ratelimit.guard';
 import { ThrottlerStorageRedisService } from 'src/providers/metering/throttler-storage-redis.service';
@@ -33,6 +33,6 @@ import { ThrottlerStorageRedisService } from 'src/providers/metering/throttler-s
       provide: APP_GUARD,
       useClass: ApiThrottlerGuard
     },
-    AuthService, AccountService, ConfigService, ScyllaService, SubscriptionService, ApplicationService, WebhookService]
+    AuthService, AccountService, ConfigService, ScyllaService, SubscriptionService, ApplicationService, WebhookProvider]
 })
 export class AuthModule {}

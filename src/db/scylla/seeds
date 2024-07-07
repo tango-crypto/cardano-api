@@ -75,6 +75,7 @@ CREATE TABLE webhooks (
     active boolean,
     PRIMARY KEY (user_id, webhook_id)
 );
+CREATE INDEX ON webhooks (webhook_key);
 
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
@@ -99,4 +100,14 @@ INSERT INTO subscriptions(user_id, user_first_name, user_last_name, user_email, 
 
 INSERT INTO applications(user_id, app_id, base_url, name, description, network, rate_limit, create_time, update_time, active) VALUES('11111111111111111111111111111111', '00000000000000000000000000000000', 'https://tangocrypto.com/8120536a5efc478b92809f8f1987a76e', 'test rate limit app', 'description', 'testnet', { limits: 3, interval: 60000 }, '2024-03-19 14:17:00', null, true);
 
-INSERT INTO webhooks(user_id, webhook_id, webhook_key, name, network, description, callback_url, auth_token, last_trigger_date, confirmations, rules, create_date, update_date, active) VALUES ('8120536a5efc478b92809f8f1987a76e', '39518c4ab750498aa5edd7a1b72a4f37', 'WBH_PAYMENT', 'webhook', 'testnet', 'description', 'https://www.callback.com', '7Ovuh9mVeE3fS0-PtRsR6', null, null, [], '2024-03-19 14:17:00', null, true);
+INSERT INTO webhooks(user_id, webhook_id, webhook_key, name, network, description, callback_url, auth_token, last_trigger_date, confirmations, rules, create_date, update_date, active) VALUES ('8120536a5efc478b92809f8f1987a76e', '39518c4ab750498aa5edd7a1b72a4f37', 'WBH_EPOCH', 'webhook', 'testnet', 'description', 'http://localhost:8001/epochs', '7Ovuh9mVeE3fS0-PtRsR6', null, null, [], '2024-03-19 14:17:00', null, true);
+
+INSERT INTO webhooks(user_id, webhook_id, webhook_key, name, network, description, callback_url, auth_token, last_trigger_date, confirmations, rules, create_date, update_date, active) VALUES ('8120536a5efc478b92809f8f1987a76e', '39518c4ab750498aa5edd7a1b72a4f38', 'WBH_DELEGATION', 'webhook', 'testnet', 'description', 'http://localhost:8001/delegations', '7Ovuh9mVeE3fS0-PtRsR6', null, null, [], '2024-06-29 00:00:00', null, true);
+
+INSERT INTO webhooks(user_id, webhook_id, webhook_key, name, network, description, callback_url, auth_token, last_trigger_date, confirmations, rules, create_date, update_date, active) VALUES ('8120536a5efc478b92809f8f1987a76e', '39518c4ab750498aa5edd7a1b72a4f39', 'WBH_BLOCK', 'webhook', 'testnet', 'description', 'http://localhost:8001/blocks', '7Ovuh9mVeE3fS0-PtRsR6', null, null, [], '2024-06-29 00:00:00', null, true);
+
+INSERT INTO webhooks(user_id, webhook_id, webhook_key, name, network, description, callback_url, auth_token, last_trigger_date, confirmations, rules, create_date, update_date, active) VALUES ('8120536a5efc478b92809f8f1987a76e', '39518c4ab750498aa5edd7a1b72a4f40', 'addr_test1qq2lamgej4xd6ycmhz3wmhpdu2me4f3x8klrmzcphcur7fm9388qnq9fyxt0c3qk0elu753ud03u598cnmsmdgh027nsjkxf5a', 'webhook', 'testnet', 'description', 'http://localhost:8001/payments', '7Ovuh9mVeE3fS0-PtRsR6', null, null, [], '2024-07-05 00:00:00', null, true);
+
+INSERT INTO webhooks(user_id, webhook_id, webhook_key, name, network, description, callback_url, auth_token, last_trigger_date, confirmations, rules, create_date, update_date, active) VALUES ('8120536a5efc478b92809f8f1987a76e', '39518c4ab750498aa5edd7a1b72a4f41', 'WBH_TRANSACTION', 'webhook', 'testnet', 'description', 'http://localhost:8001/transactions', '7Ovuh9mVeE3fS0-PtRsR6', null, null, [], '2024-07-06 00:00:00', null, true);
+
+INSERT INTO webhooks(user_id, webhook_id, webhook_key, name, network, description, callback_url, auth_token, last_trigger_date, confirmations, rules, create_date, update_date, active) VALUES ('8120536a5efc478b92809f8f1987a76e', '39518c4ab750498aa5edd7a1b72a4f42', 'WBH_ASSET', 'webhook', 'testnet', 'description', 'http://localhost:8001/assets', '7Ovuh9mVeE3fS0-PtRsR6', null, null, [], '2024-07-06 00:00:00', null, true);
