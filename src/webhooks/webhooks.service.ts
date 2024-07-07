@@ -73,7 +73,11 @@ export class WebhooksService {
   }
 
   async remove(userId: string, id: string): Promise<boolean> {
-    throw new Error("Not implemented");
+    const deleted = await this.webhookProvider.delete(userId, id);
+    if (!deleted) {
+      throw APIError.notFound(`webhook for id: ${id} and userId: ${userId}`);
+    }
+    return true;
   }
 
   private cleanData(data: any): { [key: string]: any } {

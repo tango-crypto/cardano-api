@@ -47,4 +47,9 @@ export class WebhookProvider {
         const result = await this.scyllaService.execute<Webhook>(sql, params, { prepare: true });
         return result.items[0];
     }
+
+    async delete(userId: string, webhookId: string): Promise<boolean> {
+        const result = await this.webhookMapper.remove({ user_id: userId, webhook_id: webhookId }, { ifExists: true });
+        return result.wasApplied();
+    }
 }
