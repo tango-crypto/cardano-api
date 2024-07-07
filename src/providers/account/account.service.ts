@@ -39,9 +39,7 @@ export class AccountService {
         const result = await this.subscriptionService.findOne(id);
         if (!result) return null;
         const applications = await this.applicationService.findAll(id);
-        // TODO: use real webhooks service here
-        // const webhooks = await this.webhookService.findAll(id);
-        const webhooks = [];
+        const webhooks = await this.getAllWebhooks(id);
         const { user_id,
             user_first_name,
             user_last_name,
@@ -73,5 +71,17 @@ export class AccountService {
 
     allowWebhookConfirmations(account: Subscription, confirmations?: number): boolean {
         return account.tier != 'free' || !confirmations || confirmations == 0;
+    }
+
+    async getAllWebhooks(userId: string): Promise<Webhook[]> {
+        const result = [];
+        let nextState = undefined;
+        do {
+            const { items, state} = await this.webhookService.findAll(userId);
+            result.push(...items);
+            nextState = state;
+        } while (nextState);
+        
+        return result;
     }
 }

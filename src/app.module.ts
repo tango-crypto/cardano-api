@@ -45,7 +45,6 @@ import { OgmiosService } from './providers/ogmios/ogmios.service';
 import { ValueProfile } from './mappers/value.mapper';
 import { AuthModule } from './auth/auth.module';
 import { ScyllaService } from './providers/scylla/scylla.service';
-import { WebhookProfile } from './webhooks/mappers/webhook.mapper';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -59,12 +58,6 @@ import { WebhookProfile } from './webhooks/mappers/webhook.mapper';
     AuthModule
   ],
   controllers: [AppController, EpochsController, PoolsController, AddressesController, AssetsController, BlocksController, TransactionsController, WalletsController, PoliciesController, ScriptsController, DatumsController],
-  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, EpochProfile, EpochParametersProfile, PoolProfile, PoolDelegationProfile, BlockProfile, TransactionProfile, UtxoProfile, ValueProfile, StakeProfile, AddressProfile, AssetProfile, MetadataProfile, ScriptProfile, DatumProfile, WebhookProfile, PoliciesService, MeteringService, ScriptsService, DatumsService, OgmiosService, ScyllaService, Logger],
+  providers: [AppService, EpochsService, TangoLedgerService, PoolsService, AddressesService, AssetsService, BlocksService, TransactionsService, StakesService, EpochProfile, EpochParametersProfile, PoolProfile, PoolDelegationProfile, BlockProfile, TransactionProfile, UtxoProfile, ValueProfile, StakeProfile, AddressProfile, AssetProfile, MetadataProfile, ScriptProfile, DatumProfile, PoliciesService, MeteringService, ScriptsService, DatumsService, OgmiosService, ScyllaService, Logger],
 })
-export class AppModule /*implements NestModule*/ {
-  // configure(consumer: MiddlewareConsumer) {
-  //     consumer
-  //     .apply(addresses)
-  //     .forRoutes(AddressesController)
-  // }
-}
+export class AppModule {}
