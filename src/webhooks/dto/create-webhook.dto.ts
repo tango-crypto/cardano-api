@@ -24,7 +24,6 @@ export class CreateWebhookDto {
     description: string;
 
     @AutoMap()
-    @IsUrl({ allow_query_components: true, host_whitelist: ['localhost'] })
     callback_url: string;
 
     @AutoMap({ type:() => RuleDto })
