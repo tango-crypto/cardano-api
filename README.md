@@ -905,7 +905,8 @@ You can create rules or trigger conditions for every webhook. You can set up the
 ### Example Request
 
 ```http
-POST https://cardano-testnet.tangocrypto.com/{app_id}/v1/nft/collections/{collection_id}/tokens
+POST http://localhost:3000/{app_id}/webhooks
+
 ```
 ### Body Parameters
 
