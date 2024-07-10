@@ -21,7 +21,6 @@ export class UpdateWebhookDto {
     description?: string;
 
     @ValidateIf(w => w.callback_url)
-    @IsUrl()
     callback_url?: string;
 
     @ValidateIf(r => r.rules && r.rules.length > 0)
