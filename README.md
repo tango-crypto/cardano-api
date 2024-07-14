@@ -497,7 +497,7 @@ You can think that Webhooks are like a phone number that Tangocrypto calls to no
 A webhook endpoint is just more code on your server, which could be written in Node.js, Go, Java, Ruby, or whatever. The webhook endpoint has an associated URL (e.g. https://myserver.com/callback). The Tangocrypto notifications are Event objects. This Event object contains all the relevant information about what just happened, including the type of event and the data associated with that event. The webhook endpoint uses the event details to take any required actions, such as indicating that an NFT should be sent to a wallet. 
 
 ### Types of Webhooks
-Tangocrypto offers 4 different types of webhooks:
+Tangocrypto offers 6 different types of webhooks:
 - Payments
 - Block
 - Transaction
