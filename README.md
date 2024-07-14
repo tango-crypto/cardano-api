@@ -1268,7 +1268,7 @@ curl --location --request POST 'https://cardano-testnet/<app-id>/v1/webhooks' \
         {
             "field": "nft_minted",
             "operator": "=",
-            "value": true
+            "value": 1
         },
         {
             "field": "policy_id",
@@ -1293,7 +1293,7 @@ curl --location --request POST 'https://cardano-testnet/<app-id>/v1/webhooks' \
         {
             "field": "nft_minted",
             "operator": "=",
-            "value": true
+            "value": 1
         }
     ]
 }'
